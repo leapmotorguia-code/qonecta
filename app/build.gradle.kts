@@ -219,8 +219,8 @@ android {
 
         getByName("debug") {
             // Identidad independiente para la copia de prueba.
-            applicationIdSuffix = ".c10pruebas"
-            versionNameSuffix = "-c10pruebas"
+            applicationIdSuffix = ".c10pruebas2"
+            versionNameSuffix = "-c10pruebas2"
             // headqlink: con clave propia (key.properties), tambiÃ©n las de prueba se firman con ella,
             // para poder instalar una versiÃ³n encima de otra sin desinstalar.
             val relConfig = signingConfigs.getByName("release")

@@ -22,6 +22,13 @@ final class LaunchTimer {
     static final double START_KMH = 3;
     /** Sin llegar a 100 en esto, no era un arranque: se olvida. */
     static final long MAX_MS = 30_000;
+    private final boolean requireThreeSeconds;
+    private double standSinceMs = Double.NaN;
+    private boolean has100, has120, has130, has140;
+    private String accumulated = "";
+
+    LaunchTimer() { this(false); }
+    LaunchTimer(boolean requireThreeSeconds) { this.requireThreeSeconds = requireThreeSeconds; }
     /** Aceleraciones creíbles para llevar la salida a 0 km/h (m/s²); fuera, se interpola desde la posición parada. */
     static final double MIN_ACCEL = 0.3;
     static final double MAX_ACCEL = 15;
@@ -44,15 +51,24 @@ final class LaunchTimer {
      * («0-50 km/h: 3,5 s», luego «0-50 km/h: 3,5 s · 0-100 km/h: 6,9 s»), o null si no cambia.
      */
     String fix(double nowMs, double kmh) {
+        if (Double.isNaN(nowMs) || Double.isInfinite(nowMs) || Double.isNaN(kmh) || Double.isInfinite(kmh) || kmh < 0) {
+            reset();
+            return null;
+        }
+        if (requireThreeSeconds && prevKmh >= 0 && (nowMs <= prevMs || nowMs - prevMs > 2500)) reset();
         String out = null;
         if (kmh < ARM_KMH) {
-            armed = true;
+            if (Double.isNaN(standSinceMs)) standSinceMs = nowMs;
+            armed = !requireThreeSeconds || nowMs - standSinceMs >= 3000;
             standMs = nowMs;
             firstMs = Double.NaN;
             startMs = Double.NaN;
             has50 = false;
+            has100 = has120 = has130 = has140 = false;
+            accumulated = "";
             text50 = "";
         } else if (prevKmh >= 0 && nowMs > prevMs) {
+            standSinceMs = Double.NaN;
             if (armed && Double.isNaN(startMs)) {
                 if (Double.isNaN(firstMs)) {
                     if (kmh > START_KMH) {
@@ -75,11 +91,20 @@ final class LaunchTimer {
                 if (!has50 && kmh >= 50) {
                     has50 = true;
                     text50 = String.format(Locale.getDefault(), "0-50 km/h: %.1f s", (cross(prevMs, prevKmh, nowMs, kmh, 50) - startMs) / 1000);
+                    accumulated = text50;
                     out = text50;
                 }
-                if (kmh >= 100) {
-                    out = text50 + String.format(Locale.getDefault(), " · 0-100 km/h: %.1f s",
-                            (cross(prevMs, prevKmh, nowMs, kmh, 100) - startMs) / 1000);
+                if (!has100 && kmh >= 100) {
+                    has100 = true;
+                    accumulated += timeAt(100, nowMs, kmh);
+                    out = accumulated;
+                }
+                if (!has120 && kmh >= 120) { has120 = true; accumulated += timeAt(120, nowMs, kmh); out = accumulated; }
+                if (!has130 && kmh >= 130) { has130 = true; accumulated += timeAt(130, nowMs, kmh); out = accumulated; }
+                if (!has140 && kmh >= 140) {
+                    has140 = true;
+                    accumulated += timeAt(140, nowMs, kmh);
+                    out = accumulated;
                     armed = false;
                     startMs = Double.NaN;
                 }
@@ -90,6 +115,11 @@ final class LaunchTimer {
         return out;
     }
 
+    private String timeAt(int target, double nowMs, double kmh) {
+        return String.format(Locale.getDefault(), " · 0-%d km/h: %.1f s", target,
+                (cross(prevMs, prevKmh, nowMs, kmh, target) - startMs) / 1000);
+    }
+
     /** Como al empezar (un viaje nuevo). */
     void reset() {
         armed = false;
@@ -97,6 +127,9 @@ final class LaunchTimer {
         firstMs = Double.NaN;
         startMs = Double.NaN;
         has50 = false;
+        has100 = has120 = has130 = has140 = false;
+        standSinceMs = Double.NaN;
+        accumulated = "";
         text50 = "";
         prevKmh = -1;
     }

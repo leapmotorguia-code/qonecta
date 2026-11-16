@@ -153,7 +153,7 @@ final class CarSensors implements SensorEventListener, LocationListener {
     /** A la altura del coche el viento es menor que a 10 m, la del parte (perfil logarítmico, ~0,7). */
     static final double WIND_AT_CAR = 0.7;
     // Cronómetro 0-50 / 0-100.
-    private final LaunchTimer launch = new LaunchTimer();
+    private final LaunchTimer launch = new LaunchTimer(true);
     private final RollingTimer rolling = new RollingTimer();
     private final EnergyModel model = new EnergyModel();
     private long lastEnergyNs;
@@ -409,6 +409,7 @@ final class CarSensors implements SensorEventListener, LocationListener {
         s.maxSpeedKmh = s.maxAccelG = s.maxBrakeG = s.maxLeftG = s.maxRightG = 0;
         s.climbM = s.descentM = s.tripKm = 0;
         s.timer = "";
+        launch.reset();
         rolling.reset();
         tripStartMs = nowMs();
         tripStarted = true;
@@ -625,6 +626,7 @@ final class CarSensors implements SensorEventListener, LocationListener {
 
     @Override
     public synchronized void onLocationChanged(Location loc) {
+        if (!loc.hasSpeed()) { launch.reset(); rolling.reset(); }
         long prevFix = lastFixMs;
         gapLocked = prevFix >= 0 && lastLockedMs >= prevFix;
         lastFixMs = SystemClock.elapsedRealtime();
@@ -674,9 +676,9 @@ final class CarSensors implements SensorEventListener, LocationListener {
         lastSpeed = v;
         lastSpeedNs = now;
         String launchText = launch.fix(fixNs / 1e6, s.speedKmh);
-        if (launchText != null) s.timer = launchText;
+        if (launchText != null) { s.timer = launchText; if (demo == null) PerformanceHistory.save(ctx, launchText); }
         String rollingText = rolling.fix(fixNs / 1e6, s.speedKmh);
-        if (rollingText != null) s.timer = rollingText;
+        if (rollingText != null) { s.timer = rollingText; if (demo == null) PerformanceHistory.save(ctx, rollingText); }
 
         // Distancia del viaje (la de un hueco, en bridgeGap).
         if (!gap && step > 0 && step < 200) s.tripKm += step / 1000;

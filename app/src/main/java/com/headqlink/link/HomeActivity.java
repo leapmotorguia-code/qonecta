@@ -739,6 +739,8 @@ public class HomeActivity extends Activity implements LinkState.Listener {
         col.addView(handle, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         // Ajustes (SettingsActivity): todo lo que se elige, en una pantalla por secciones.
         col.addView(menuRow(sheet, 19, Str.get(R.string.hql_settings), R.drawable.hql_ln_gear));
+        col.addView(menuRow(sheet, 98, "Pruebas de prestaciones", R.drawable.hql_ic_gauges));
+        col.addView(menuRow(sheet, 99, "Calculadora de coste REEV", R.drawable.hql_ic_gauges));
         col.addView(menuRow(sheet, 11, Str.get(R.string.hql_sim_menu), R.drawable.hql_ic_aa));
         int[][] coche = {{7, R.string.hql_req_title}, {10, R.string.hql_cloud_menu},
                 {15, MapsNavListener.granted(this) ? R.string.hql_maps_read_on : R.string.hql_maps_read}};
@@ -869,6 +871,12 @@ public class HomeActivity extends Activity implements LinkState.Listener {
 
     private void onMenuItem(int id) {
         switch (id) {
+            case 99:
+                ReevCostDialog.show(this);
+                break;
+            case 98:
+                PerformanceHistory.show(this);
+                break;
             case 19:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;

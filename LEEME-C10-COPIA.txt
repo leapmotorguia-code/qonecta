@@ -1,28 +1,33 @@
-C10 Control+ Android: copia de desarrollo, NO ES UNA APLICACIÓN INSTALABLE
+C10 Pruebas 2: copia experimental independiente de Qonecta+
 
-Partimos de Qonecta+ de CharlysEV: https://github.com/CharlysEV/qonecta
-Versión de referencia: 0ef932ca96c222606eb262d6d79466a3b2b736af (v0.3.19).
-Los autores originales no han revisado ni avalado esta modificación. Se conserva
-el código y la licencia AGPL-3.0 y los avisos originales. No incluye claves de firma.
+Basada en Qonecta+ de CharlysEV, https://github.com/CharlysEV/qonecta,
+commit base 0ef932ca96c222606eb262d6d79466a3b2b736af (v0.3.19).
+Los autores originales no han revisado ni avalado esta modificación.
+Se conservan los avisos y la licencia AGPL-3.0 del proyecto original.
 
-Cambio: cálculo experimental de aceleración 80-120, 80-130 y 80-140 km/h
-después de mantener 78-82 km/h durante al menos 3 segundos, mediante GPS.
-En la pantalla de instrumentos aparece el resultado más reciente; el cálculo
-es estimado, depende de la calidad y frecuencia del GPS y no está validado
-en Samsung, QDLink ni el C10. La función se inicia automáticamente si se dan
-esas condiciones. Hay verificaciones aisladas de los cálculos, pero NO se ha
-compilado ni probado la aplicación completa. No hay APK en este archivo.
+Novedades de esta copia:
+- Medición estimada de 0-50, 0-100, 0-120, 0-130 y 0-140 km/h
+  mediante GPS del teléfono. Se requiere estar por debajo de 2 km/h durante
+  al menos 3 segundos. Señal interrumpida cancela la prueba.
+- Recuperaciones 80-120, 80-130 y 80-140 con GPS tras 3 segundos cerca de 80.
+- Menú del móvil > Pruebas de prestaciones: historial local con fecha y modo
+  elegido manualmente. Solo se guarda el resultado, no las coordenadas.
+- Menú del móvil > Calculadora de coste REEV: estimación con datos manuales.
+  Las cifras precargadas son ejemplos, no lecturas del coche.
+- La pantalla de instrumentos muestra el resultado más reciente. En el
+  historial se ve el resumen completo de cada prueba.
 
-Cámaras originales, sensores delanteros y centinela NO están implementados:
-no se ha comprobado una vía para acceder a ellos en este coche. Usar mediciones
-únicamente en lugar cerrado o donde sean legales; no interactuar al conducir.
+Los resultados de GPS pueden ser inexactos; requieren pruebas reales.
+Para velocidades superiores al límite de la vía, usar circuito autorizado.
+No manipular teléfono o pantalla mientras se conduce.
 
-Para desarrolladores: pruebas-c10/RollingTimerCheck.java es una verificación
-independiente ejecutable junto con LaunchTimer.java y RollingTimer.java.
-Antes de distribuir una APK hay que revisar construcción, identificación,
-firma propia y compatibilidad con Samsung, permisos, conexión y vehículo.
-La versión debug añade .c10pruebas al identificador para coexistir con Qonecta+.
-El flujo de GitHub Actions preparado compila una APK debug y la guarda como
-artefacto, pero todavía no se ha ejecutado. La firma debug puede cambiar entre
-ejecuciones, por lo que futuras versiones podrían exigir reinstalación y pérdida
-de datos de la copia de prueba. La compatibilidad real aún debe comprobarse.
+No hay conexión OBD propia ni acceso confirmado a las cámaras originales.
+No se han implementado centinela, sensores de distancia ni aparcamiento
+remoto o automático; requieren hardware y compatibilidad verificables.
+No se modifican la potencia, los frenos ni la centralita del vehículo.
+La conexión con el C10 y las funciones heredadas aún deben probarse.
+
+La variante debug usa identificador com.headqlink.app.c10pruebas2 y se
+llama C10 Pruebas 2. La firma de depuración puede cambiar entre ejecuciones;
+esto puede impedir actualizar una instalación de prueba sin reinstalarla.
+La APK se compila mediante el flujo c10-apk-pruebas en este repositorio.
