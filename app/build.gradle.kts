@@ -154,6 +154,9 @@ android {
 
     signingConfigs {
         getByName("debug") {
+            // Identidad independiente: nunca sustituir la aplicación original.
+            applicationIdSuffix = ".c10pruebas"
+            versionNameSuffix = "-c10pruebas"
             // storeFile = file("../keystore.jkc")
             // storePassword = property("HEADUNIT_KEYSTORE_PASSWORD") as String
             // keyAlias = property("HEADUNIT_KEYSTORE_ALIAS") as String

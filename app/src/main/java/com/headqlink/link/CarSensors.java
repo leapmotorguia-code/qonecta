@@ -154,6 +154,7 @@ final class CarSensors implements SensorEventListener, LocationListener {
     static final double WIND_AT_CAR = 0.7;
     // Cronómetro 0-50 / 0-100.
     private final LaunchTimer launch = new LaunchTimer();
+    private final RollingTimer rolling = new RollingTimer();
     private final EnergyModel model = new EnergyModel();
     private long lastEnergyNs;
     // Modo demostración: trayecto, última muestra aplicada, su reloj (ns) y su posición.
@@ -408,6 +409,7 @@ final class CarSensors implements SensorEventListener, LocationListener {
         s.maxSpeedKmh = s.maxAccelG = s.maxBrakeG = s.maxLeftG = s.maxRightG = 0;
         s.climbM = s.descentM = s.tripKm = 0;
         s.timer = "";
+        rolling.reset();
         tripStartMs = nowMs();
         tripStarted = true;
         tripKwhStart = s.kwhTotal;
@@ -673,6 +675,8 @@ final class CarSensors implements SensorEventListener, LocationListener {
         lastSpeedNs = now;
         String launchText = launch.fix(fixNs / 1e6, s.speedKmh);
         if (launchText != null) s.timer = launchText;
+        String rollingText = rolling.fix(fixNs / 1e6, s.speedKmh);
+        if (rollingText != null) s.timer = rollingText;
 
         // Distancia del viaje (la de un hueco, en bridgeGap).
         if (!gap && step > 0 && step < 200) s.tripKm += step / 1000;
@@ -794,6 +798,7 @@ final class CarSensors implements SensorEventListener, LocationListener {
         gradeDist = 0;
         lastAlt = Double.NaN;
         launch.reset();
+        rolling.reset();
         lastEnergyNs = 0;
         lastFixNs = 0;
         gaps = 0;
