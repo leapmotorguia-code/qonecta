@@ -154,9 +154,6 @@ android {
 
     signingConfigs {
         getByName("debug") {
-            // Identidad independiente: nunca sustituir la aplicación original.
-            applicationIdSuffix = ".c10pruebas"
-            versionNameSuffix = "-c10pruebas"
             // storeFile = file("../keystore.jkc")
             // storePassword = property("HEADUNIT_KEYSTORE_PASSWORD") as String
             // keyAlias = property("HEADUNIT_KEYSTORE_ALIAS") as String
@@ -221,6 +218,9 @@ android {
         }
 
         getByName("debug") {
+            // Identidad independiente para la copia de prueba.
+            applicationIdSuffix = ".c10pruebas"
+            versionNameSuffix = "-c10pruebas"
             // headqlink: con clave propia (key.properties), tambiÃ©n las de prueba se firman con ella,
             // para poder instalar una versiÃ³n encima de otra sin desinstalar.
             val relConfig = signingConfigs.getByName("release")
