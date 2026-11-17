@@ -4,11 +4,11 @@ android {
     namespace 'com.leapmotorguia.c10nativa'
     compileSdk 36
     defaultConfig {
-        applicationId 'com.leapmotorguia.c10gps'
+        applicationId 'com.leapmotorguia.c10info04'
         minSdk 23
         targetSdk 28
-        versionCode 3
-        versionName '0.3-gps'
+        versionCode 4
+        versionName '0.4-info'
     }
     buildTypes {
         release {
