@@ -4,11 +4,11 @@ android {
     namespace 'com.leapmotorguia.c10nativa'
     compileSdk 36
     defaultConfig {
-        applicationId 'com.leapmotorguia.c10info04'
+        applicationId 'com.tencent.qqmusiccar'
         minSdk 23
         targetSdk 28
-        versionCode 4
-        versionName '0.4-info'
+        versionCode 1
+        versionName '0.5c-instalacion'
     }
     buildTypes {
         release {
