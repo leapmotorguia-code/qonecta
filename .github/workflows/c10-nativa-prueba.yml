@@ -23,6 +23,24 @@ jobs:
           java -cp /tmp/c10-test CostCalculatorCheck
       - name: Compilar APK independiente
         run: ./gradlew -p c10-native :app:assembleDebug --stacktrace
+      - name: Habilitar emulación acelerada
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-c10-kvm.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Abrir la aplicación en un dispositivo Android virtual
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: |
+            adb install -r c10-native/app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.leapmotorguia.c10nativa/.MainActivity
+            sleep 3
+            adb shell pidof com.leapmotorguia.c10nativa
+            adb shell dumpsys activity activities | grep -F 'com.leapmotorguia.c10nativa/.MainActivity'
       - uses: actions/upload-artifact@v4
         with:
           name: C10-Nativa-Prueba-0.1
