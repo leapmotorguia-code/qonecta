@@ -107,7 +107,7 @@ public class MainActivity extends Activity {
 
         page.addView(label("C10 NATIVA", 30, accent, true));
         spacer(page, 4);
-        page.addView(label("Versión experimental · 0.3 GPS", 18, text, false));
+        page.addView(label("Versión experimental · 0.4 información", 18, text, false));
         spacer(page, 16);
         LinearLayout status = card();
         status.addView(label("La aplicación se ha abierto", 22, text, true));
@@ -131,6 +131,31 @@ public class MainActivity extends Activity {
         openTiming.setAllCaps(false);
         timing.addView(openTiming, new LinearLayout.LayoutParams(-1, dp(55)));
         openTiming.setOnClickListener(v -> startActivity(new Intent(this, PerformanceActivity.class)));
+
+        LinearLayout regen = card();
+        regen.addView(label("Energía recuperada · estimación manual", 22, text, true));
+        regen.addView(label("Introduce la potencia media regenerativa y el tiempo de frenada. Resultado aproximado, no es una lectura del coche.", 16, Color.LTGRAY, false));
+        EditText power = number("Potencia media recuperada: kW");
+        EditText seconds = number("Duración: segundos");
+        regen.addView(power, new LinearLayout.LayoutParams(-1, dp(58)));
+        regen.addView(seconds, new LinearLayout.LayoutParams(-1, dp(58)));
+        TextView energy = label("Sin calcular", 20, accent, true);
+        Button calculate = new Button(this);
+        calculate.setText("Calcular energía estimada");
+        calculate.setAllCaps(false);
+        regen.addView(calculate, new LinearLayout.LayoutParams(-1, dp(55)));
+        regen.addView(energy);
+        calculate.setOnClickListener(v -> {
+            try {
+                double kw = Double.parseDouble(power.getText().toString().replace(',', '.'));
+                double sec = Double.parseDouble(seconds.getText().toString().replace(',', '.'));
+                if (!Double.isFinite(kw) || !Double.isFinite(sec) || kw < 0 || sec < 0 || kw > 1000 || sec > 86400) throw new IllegalArgumentException();
+                energy.setText(String.format(java.util.Locale.getDefault(), "Estimación: %.3f kWh (%.0f Wh)", kw * sec / 3600, kw * sec / 3.6));
+            } catch (Exception ex) { energy.setText("Introduce valores válidos: 0–1000 kW y 0–86400 s."); }
+        });
+        LinearLayout live = card();
+        live.addView(label("Datos del coche", 22, text, true));
+        live.addView(label("Revoluciones del motor, encendido, potencia y regeneración real: no disponibles. Necesitan una conexión y datos compatibles comprobados para este C10.", 16, Color.LTGRAY, false));
 
         costSection("Coste eléctrico", "Consumo: kWh / 100 km", "Precio: € / kWh");
         costSection("Coste gasolina", "Consumo: litros / 100 km", "Precio: € / litro");
