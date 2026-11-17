@@ -18,4 +18,6 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    // This side-loaded compatibility experiment is not submitted to Google Play.
+    lint { disable 'ExpiredTargetSdkVersion' }
 }
