@@ -1,6 +1,7 @@
 package com.leapmotorguia.c10nativa;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -106,26 +107,37 @@ public class MainActivity extends Activity {
 
         page.addView(label("C10 NATIVA", 30, accent, true));
         spacer(page, 4);
-        page.addView(label("Prueba de pantalla · versión 0.2", 18, text, false));
+        page.addView(label("Versión experimental · 0.3 GPS", 18, text, false));
         spacer(page, 16);
         LinearLayout status = card();
         status.addView(label("La aplicación se ha abierto", 22, text, true));
         spacer(status, 7);
-        status.addView(label("Esta prueba solo muestra información de Android y calcula costes manuales. No se conecta al coche ni activa cámaras.", 17, Color.LTGRAY, false));
+        status.addView(label("Calculadora y medición GPS experimental. No se conecta a los sistemas del coche ni activa cámaras.", 17, Color.LTGRAY, false));
         spacer(status, 10);
         status.addView(label("Android: " + Build.VERSION.RELEASE + "  ·  API " + Build.VERSION.SDK_INT + "\nModelo declarado: " + Build.MODEL, 16, text, false));
         boolean gps = getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
         spacer(status, 6);
         status.addView(label("GPS declarado por Android: " + (gps ? "sí" : "no detectado") + " (sin comprobar señal)", 16, text, false));
         spacer(status, 6);
-        status.addView(label("Sin permisos, conexión a internet ni servicios en segundo plano.", 16, accent, false));
+        status.addView(label("La ubicación se solicita solo al iniciar la medición GPS. Sin conexión a internet ni servicios en segundo plano.", 16, accent, false));
+
+        LinearLayout timing = card();
+        timing.addView(label("Medición de prestaciones por GPS", 22, text, true));
+        spacer(timing, 7);
+        timing.addView(label("0–100 y 80–120 aproximados, con resultados locales. Necesita señal GPS y permiso de ubicación.", 17, Color.LTGRAY, false));
+        Button openTiming = new Button(this);
+        openTiming.setText("Abrir medición GPS");
+        openTiming.setTextSize(18);
+        openTiming.setAllCaps(false);
+        timing.addView(openTiming, new LinearLayout.LayoutParams(-1, dp(55)));
+        openTiming.setOnClickListener(v -> startActivity(new Intent(this, PerformanceActivity.class)));
 
         costSection("Coste eléctrico", "Consumo: kWh / 100 km", "Precio: € / kWh");
         costSection("Coste gasolina", "Consumo: litros / 100 km", "Precio: € / litro");
         LinearLayout next = card();
         next.addView(label("Funciones aún no disponibles", 21, text, true));
         spacer(next, 7);
-        next.addView(label("Android Auto, CarPlay, datos reales, mediciones GPS, cámaras, centinela y OBD no están incluidos en esta prueba.", 17, Color.LTGRAY, false));
+        next.addView(label("Android Auto, CarPlay, datos reales del vehículo, cámaras, centinela y OBD no están incluidos.", 17, Color.LTGRAY, false));
         spacer(next, 7);
         next.addView(label("Realiza la configuración únicamente con el coche estacionado.", 16, accent, false));
     }
