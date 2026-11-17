@@ -1,9 +1,22 @@
-# C10 Nativa GPS — prueba independiente
+# C10 Prueba C 0.5 — experimento de instalación
 
-APK experimental para comprobar una pantalla Android de un Leapmotor C10. Puede calcular costes con datos introducidos manualmente y ofrece dos estimaciones de prestaciones con GPS disponible y autorizado: salida desde parado y recuperación desde 80 km/h. El objetivo principal (0–100 o 80–120), fecha y modo introducido manualmente se guardan localmente. No guarda coordenadas, rutas ni usa internet.
+Esta variante conserva el código propio de la prueba 0.4. No contiene código de Qonecta Unit, no inicia servicios, no consulta servicios de vehículo ni modifica firmware, motor, frenos o dirección. El GPS se solicita únicamente durante la medición en primer plano. RPM y regeneración real siguen sin fuente de datos; el cálculo de energía es manual y aproximado.
 
-El GPS se solicita solo cuando el usuario pulsa «Preparar medición», se usa en primer plano y se detiene al salir de esa pantalla. El resultado depende de la señal, la frecuencia de muestras y de si el vehículo expone un proveedor GPS. La salida desde parado se detecta al superar 3 km/h, por tanto el 0–100 no es una medición oficial. Las marcas se interpolan y son orientativas. Si el GPS es antiguo, deficiente o se interrumpe, la prueba se reinicia. Usar las mediciones únicamente en circuitos autorizados, nunca manipular la pantalla conduciendo.
+## Cambio que se prueba
+`applicationId=com.tencent.qqmusiccar`, observado en el APK Qonecta Unit 0.1.6 aportado por el usuario. No es QQ Music ni una aplicación oficial de Tencent. Etiqueta visible: C10 Prueba C. Usa una firma de desarrollo propia; no es la firma de Tencent, Leapmotor ni Qonecta Unit. Conserva minSdk 23 y targetSdk 28, ya compatibles con un Android 11 estándar, y usa versionCode 1.
 
-No implementa Android Auto, CarPlay, datos reales del vehículo, sensores, centinela, cámaras, navegación ni OBD. Estas funciones no deben presentarse como disponibles. No está probado en ningún C10. La instalación y la eliminación dependen del sistema y versión del coche. Mantiene un identificador propio separado de Qonecta+ y sus derivados, y no solicita permisos de vehículo ni intenta sustituir ninguna aplicación existente.
+El cambio se basa en la restricción por identificadores descrita por un contribuidor de DiPlay en https://github.com/shihabal3amri/DiPlay/issues/322. NO demuestra que el identificador esté permitido en LeapOS 3.50.62 ni que baste para instalar. Si el firmware también comprueba la firma, seguirá rechazando el paquete. Un mensaje de formato no admitido desde el reproductor multimedia puede producirse antes de llegar al instalador.
 
-La versión se firma con una clave de prueba; no es una clave del fabricante ni una publicación oficial. Las compilaciones generadas con distintas claves pueden impedir actualizaciones sobre la anterior. Compilar con `./gradlew -p c10-native :app:assembleRelease`. Las pruebas virtuales no demuestran la instalación, estabilidad ni funcionamiento en el coche.
+## Conflictos y prueba
+No puede coexistir con QQ Music o Qonecta Unit que usen ese identificador. Si Android ofrece actualizar una aplicación existente, cancelar. No desinstalar aplicaciones originales del coche para resolverlo. La firma independiente impide actualizar un paquete existente que tenga otra firma; la prueba automatizada en Android 11 comprueba este rechazo.
+
+Instalar únicamente desde un gestor de archivos que invoque el instalador Android, con el coche aparcado. Si el instalador no llega a aparecer, cambiar el código de la aplicación no soluciona ese paso.
+
+Las pruebas de compilación, firma, instalación y apertura virtuales no verifican la aceptación del coche ni las mediciones GPS reales. Los resultados GPS son aproximaciones para circuito autorizado. No instala cámaras, centinela, Android Auto, CarPlay ni OBD.
+
+## Antecedentes consultados
+- Lista de aplicaciones permitidas y límites de la adaptación: https://github.com/shihabal3amri/DiPlay/issues/322
+- Portal público de explorador USB: https://leapbrasil.club/leaplink/
+- El autor retiró Qonecta Unit tras un reinicio de causa desconocida: https://www.lpmff.de/thread/3565-qonecta-unit-natives-aa-und-ac/?postID=67302 . No se recomienda instalar ese paquete archivado.
+
+Esta rama no se fusiona en el código de los compañeros.
