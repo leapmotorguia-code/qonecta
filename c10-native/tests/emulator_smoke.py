@@ -14,6 +14,9 @@ def ui():
 
 
 def tap_text(label):
+    dims = re.search(r'(\d+)x(\d+)', call('adb', 'shell', 'wm', 'size'))
+    width, height = map(int, dims.groups())
+    xml = ''
     for _ in range(6):
         xml = ui()
         for node in ET.fromstring(xml).iter('node'):
@@ -23,9 +26,9 @@ def tap_text(label):
                 call('adb', 'shell', 'input', 'tap', str((x1 + x2) // 2), str((y1 + y2) // 2))
                 time.sleep(1)
                 return
-        call('adb', 'shell', 'input', 'swipe', '500', '1500', '500', '500', '350')
+        call('adb', 'shell', 'input', 'swipe', str(width // 2), str(height * 4 // 5), str(width // 2), str(height // 4), '350')
         time.sleep(1)
-    raise AssertionError('No se encontró el botón: ' + label)
+    raise AssertionError('No se encontró el botón: ' + label + '\n' + xml[-7000:])
 
 
 call('adb', 'shell', 'pm', 'grant', 'com.leapmotorguia.c10gps', 'android.permission.ACCESS_FINE_LOCATION')
@@ -42,13 +45,15 @@ for velocity in ['0', '0', '0', '0', '0', '6', '25', '60']:
     time.sleep(1.2)
 found_result = False
 found_history = False
+dims = re.search(r'(\d+)x(\d+)', call('adb', 'shell', 'wm', 'size'))
+width, height = map(int, dims.groups())
 for _ in range(4):
     xml = ui()
     found_result |= bool(re.search(r'0–100: [0-9]+[.,][0-9]+ s', xml))
     found_history |= '0–100 km/h' in xml
     if found_result and found_history:
         break
-    call('adb', 'shell', 'input', 'swipe', '500', '1500', '500', '500', '350')
+    call('adb', 'shell', 'input', 'swipe', str(width // 2), str(height * 4 // 5), str(width // 2), str(height // 4), '350')
     time.sleep(1)
 assert found_result, 'No se obtuvo el 0–100 simulado.'
 assert found_history, 'No se encontró el registro del resultado.'
