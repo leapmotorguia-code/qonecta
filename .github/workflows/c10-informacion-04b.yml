@@ -1,0 +1,56 @@
+name: C10 versión B Android 11
+on:
+  push:
+    branches: [c10-nativa-info-04b-android11]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - name: Verificar cálculos y prestaciones
+        run: |
+          mkdir -p /tmp/c10-test
+          javac -d /tmp/c10-test c10-native/app/src/main/java/com/leapmotorguia/c10nativa/{CostCalculator,PerformanceTimer}.java c10-native/tests/{CostCalculatorCheck,PerformanceTimerCheck}.java
+          java -cp /tmp/c10-test CostCalculatorCheck
+          java -cp /tmp/c10-test PerformanceTimerCheck
+      - name: Compilar versión B
+        run: ./gradlew -p c10-native :app:assembleRelease
+      - name: Comprobar configuración y firma
+        run: |
+          APK=c10-native/app/build/outputs/apk/release/app-release.apk
+          TOOL_DIR="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$TOOL_DIR/apksigner" verify --verbose "$APK"
+          "$TOOL_DIR/aapt" dump badging "$APK" > /tmp/c10-badging
+          grep "name='com.leapmotorguia.c10info04b'" /tmp/c10-badging
+          grep "sdkVersion:'23'" /tmp/c10-badging
+          grep "targetSdkVersion:'30'" /tmp/c10-badging
+      - name: Habilitar emulador
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-c10-kvm.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          target: default
+          disable-animations: true
+          script: |
+            adb install c10-native/app/build/outputs/apk/release/app-release.apk
+            adb shell am start -W -n com.leapmotorguia.c10info04b/com.leapmotorguia.c10nativa.MainActivity | tee /tmp/c10-start
+            grep "Status: ok" /tmp/c10-start
+            adb shell pidof com.leapmotorguia.c10info04b
+      - uses: actions/upload-artifact@v4
+        with:
+          name: C10-Informacion-0.4B-Android11
+          path: c10-native/app/build/outputs/apk/release/app-release.apk
+          retention-days: 7
