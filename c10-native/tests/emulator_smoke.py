@@ -55,6 +55,9 @@ for _ in range(4):
         break
     call('adb', 'shell', 'input', 'swipe', str(width // 2), str(height * 4 // 5), str(width // 2), str(height // 4), '350')
     time.sleep(1)
+if not found_result or not found_history:
+    print('TEXTOS VISIBLES:', [n.attrib.get('text') for n in ET.fromstring(xml).iter('node') if n.attrib.get('text')])
+    print('DIAGNOSTICO DE UBICACION:', call('adb', 'shell', 'dumpsys', 'location')[-12000:])
 assert found_result, 'No se obtuvo el 0–100 simulado.'
 assert found_history, 'No se encontró el registro del resultado.'
 print('Pantalla GPS y resultado simulado comprobados.')
