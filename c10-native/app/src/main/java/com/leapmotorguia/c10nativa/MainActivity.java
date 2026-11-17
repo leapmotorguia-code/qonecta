@@ -105,9 +105,9 @@ public class MainActivity extends Activity {
         scroll.addView(page, new ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         setContentView(scroll);
 
-        page.addView(label("C10 NATIVA", 30, accent, true));
+        page.addView(label("C10 PRUEBA C", 30, accent, true));
         spacer(page, 4);
-        page.addView(label("Versión experimental · 0.4 información", 18, text, false));
+        page.addView(label("0.5 C · compatibilidad de instalación", 18, text, false));
         spacer(page, 16);
         LinearLayout status = card();
         status.addView(label("La aplicación se ha abierto", 22, text, true));
