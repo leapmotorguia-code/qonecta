@@ -107,7 +107,7 @@ public class MainActivity extends Activity {
 
         page.addView(label("C10 NATIVA", 30, accent, true));
         spacer(page, 4);
-        page.addView(label("Versión experimental · 0.4 información", 18, text, false));
+        page.addView(label("Versión B · prueba Android 11", 18, text, false));
         spacer(page, 16);
         LinearLayout status = card();
         status.addView(label("La aplicación se ha abierto", 22, text, true));
