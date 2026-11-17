@@ -4,11 +4,11 @@ android {
     namespace 'com.leapmotorguia.c10nativa'
     compileSdk 36
     defaultConfig {
-        applicationId 'com.leapmotorguia.c10info04'
+        applicationId 'com.leapmotorguia.c10info04b'
         minSdk 23
-        targetSdk 28
+        targetSdk 30
         versionCode 4
-        versionName '0.4-info'
+        versionName '0.4b-android11'
     }
     buildTypes {
         release {
