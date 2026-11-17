@@ -1,0 +1,13 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.leapmotorguia.c10nativa'
+    compileSdk 36
+    defaultConfig {
+        applicationId 'com.leapmotorguia.c10nativa'
+        minSdk 23
+        targetSdk 28
+        versionCode 1
+        versionName '0.1-diagnostico'
+    }
+}

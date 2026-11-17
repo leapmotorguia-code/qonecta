@@ -1,0 +1,31 @@
+name: C10 Nativa - prueba de pantalla
+on:
+  push:
+    branches: [c10-nativa-prueba]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - name: Probar cálculos
+        run: |
+          mkdir -p /tmp/c10-test
+          javac -d /tmp/c10-test c10-native/app/src/main/java/com/leapmotorguia/c10nativa/CostCalculator.java c10-native/tests/CostCalculatorCheck.java
+          java -cp /tmp/c10-test CostCalculatorCheck
+      - name: Compilar APK independiente
+        run: ./gradlew -p c10-native :app:assembleDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: C10-Nativa-Prueba-0.1
+          path: c10-native/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
