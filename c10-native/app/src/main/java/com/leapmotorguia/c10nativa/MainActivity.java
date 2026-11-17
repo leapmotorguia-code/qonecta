@@ -106,7 +106,7 @@ public class MainActivity extends Activity {
 
         page.addView(label("C10 NATIVA", 30, accent, true));
         spacer(page, 4);
-        page.addView(label("Primera prueba de pantalla · versión 0.1", 18, text, false));
+        page.addView(label("Prueba de pantalla · versión 0.2", 18, text, false));
         spacer(page, 16);
         LinearLayout status = card();
         status.addView(label("La aplicación se ha abierto", 22, text, true));

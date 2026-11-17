@@ -22,7 +22,7 @@ jobs:
           javac -d /tmp/c10-test c10-native/app/src/main/java/com/leapmotorguia/c10nativa/CostCalculator.java c10-native/tests/CostCalculatorCheck.java
           java -cp /tmp/c10-test CostCalculatorCheck
       - name: Compilar APK independiente
-        run: ./gradlew -p c10-native :app:assembleDebug --stacktrace
+        run: ./gradlew -p c10-native :app:assembleRelease --stacktrace
       - name: Habilitar emulación acelerada
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-c10-kvm.rules
@@ -36,14 +36,14 @@ jobs:
           target: google_apis
           disable-animations: true
           script: |
-            adb install -r c10-native/app/build/outputs/apk/debug/app-debug.apk
+            adb install -r c10-native/app/build/outputs/apk/release/app-release.apk
             adb shell am start -W -n com.leapmotorguia.c10nativa/.MainActivity
             sleep 3
             adb shell pidof com.leapmotorguia.c10nativa
             adb shell dumpsys activity activities | grep -F 'com.leapmotorguia.c10nativa/.MainActivity'
       - uses: actions/upload-artifact@v4
         with:
-          name: C10-Nativa-Prueba-0.1
-          path: c10-native/app/build/outputs/apk/debug/*.apk
+          name: C10-Nativa-Prueba-0.2
+          path: c10-native/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
           retention-days: 7
