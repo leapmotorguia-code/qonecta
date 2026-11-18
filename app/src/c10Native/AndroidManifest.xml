@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
+    <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
+    <application android:name="com.andrerinas.openheadunit.App"
+        android:label="C10 Nativa Plus · Alfa" android:icon="@mipmap/hql_launcher"
+        android:hardwareAccelerated="true" android:allowBackup="false"
+        android:usesCleartextTraffic="true" android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name="com.headqlink.link.C10NativeActivity" android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.leapmotorguia.c10nativa.MainActivity" android:exported="false"
+            android:theme="@android:style/Theme.Material.NoActionBar"/>
+        <activity android:name="com.leapmotorguia.c10nativa.PerformanceActivity" android:exported="false"
+            android:theme="@android:style/Theme.Material.NoActionBar"/>
+        <service android:name="com.headqlink.link.RadioBrowserService" android:exported="false"/>
+    </application>
+</manifest>
