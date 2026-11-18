@@ -24,7 +24,7 @@ def tap(label):
         # Find the actual native toolbar; a fixed y can swipe the panel instead.
         nav_y = None
         for n in ET.fromstring(ui()).iter('node'):
-            if n.attrib.get('class')=='android.widget.Button' and n.attrib.get('text') in ['Inicio','Coche','Instrumentos','Eficiencia','Radio','Web','Fotos','Vídeos','TV','Herramientas GPS']:
+            if n.attrib.get('class')=='android.widget.Button' and n.attrib.get('text') in ['Inicio','Diagnóstico','Coche','Instrumentos','Eficiencia','Radio','Web','Fotos','Vídeos','TV','Herramientas GPS']:
                 x1,y1,x2,y2=map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',n.attrib['bounds']).groups())
                 if x2>x1 and y2>y1:
                     nav_y=(y1+y2)//2
@@ -43,6 +43,10 @@ run('adb','shell','am','start','-W','-n',PKG+'/com.headqlink.link.C10NativeActiv
 time.sleep(2)
 assert 'C10 Nativa Plus' in ui()
 assert 'Paneles originales de Qonecta+' in ui()
+tap('Diagnóstico')
+assert 'DIAGNÓSTICO C10 0.9' in ui()
+assert 'API 30' in ui()
+assert 'com.leapmotorguia.c10nativealt' in ui()
 for name in ['Instrumentos','Eficiencia','Coche','Radio']:
     tap(name)
     screen=ui()
