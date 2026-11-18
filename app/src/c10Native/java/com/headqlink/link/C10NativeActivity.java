@@ -46,7 +46,7 @@ public final class C10NativeActivity extends Activity {
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(CarKit.BG);
-        TextView title = text("C10 Nativa Plus · 0.7 ALFA", 22);
+        TextView title = text("C10 Nativa Plus · 0.8 COMPATIBILIDAD", 22);
         title.setPadding(dp(14),dp(10),dp(14),dp(6));
         root.addView(title);
         HorizontalScrollView bar = new HorizontalScrollView(this);
@@ -160,7 +160,7 @@ public final class C10NativeActivity extends Activity {
         col.setOrientation(LinearLayout.VERTICAL);
         sc.addView(col);
         col.addView(text("Paneles originales de Qonecta+ en una actividad nativa",24));
-        col.addView(text("Alfa de adaptación. No es una versión definitiva ni garantiza la instalación en LeapOS.",18));
+        col.addView(text("Alfa 0.8 de compatibilidad para el coche. No es una versión definitiva ni garantiza la instalación en LeapOS.",18));
         col.addView(text("Perfil de estimación: C10 REEV. Los parámetros del modelo no son mediciones del coche.",18));
         col.addView(text("Android "+Build.VERSION.RELEASE+" · API "+Build.VERSION.SDK_INT+
             "\nModelo: "+Build.MODEL,18));
