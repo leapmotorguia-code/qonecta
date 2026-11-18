@@ -78,7 +78,7 @@ jobs:
           grep "versionCode='109'" deliverable/configuracion.txt
           if grep -q 'application-debuggable' deliverable/configuracion.txt; then exit 1; fi
           if grep -q 'testOnly' deliverable/configuracion.txt; then exit 1; fi
-          if grep -q '^uses-feature:' deliverable/configuracion.txt; then echo 'Unexpected required hardware feature'; exit 1; fi
+          if grep -q '^[[:space:]]*uses-feature:' deliverable/configuracion.txt; then echo 'Unexpected required hardware feature'; exit 1; fi
           python3 - <<'PY'
           import zipfile
           with zipfile.ZipFile('/tmp/native.apk') as src,zipfile.ZipFile('deliverable/C10-Nativa-Plus-0.9-Alternativa-Coche.apk') as dst:
