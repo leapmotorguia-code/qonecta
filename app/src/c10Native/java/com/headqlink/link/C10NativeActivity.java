@@ -36,6 +36,13 @@ public final class C10NativeActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         L.init(this);
+        // This build is for the user's C10 REEV. Persist its profile once, without
+        // credentials or a cloud request; do not silently use the 69.9 kWh EV.
+        android.content.SharedPreferences nativePrefs = getSharedPreferences("c10_native",MODE_PRIVATE);
+        if (!nativePrefs.getBoolean("reev_profile_initialized",false)) {
+            new CarCloudStore(this).setProfile(CarCloudStore.PROFILE_C10_REEV,0);
+            nativePrefs.edit().putBoolean("reev_profile_initialized",true).apply();
+        }
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(CarKit.BG);
@@ -154,6 +161,7 @@ public final class C10NativeActivity extends Activity {
         sc.addView(col);
         col.addView(text("Paneles originales de Qonecta+ en una actividad nativa",24));
         col.addView(text("Alfa de adaptación. No es una versión definitiva ni garantiza la instalación en LeapOS.",18));
+        col.addView(text("Perfil de estimación: C10 REEV. Los parámetros del modelo no son mediciones del coche.",18));
         col.addView(text("Android "+Build.VERSION.RELEASE+" · API "+Build.VERSION.SDK_INT+
             "\nModelo: "+Build.MODEL,18));
         col.addView(text("Coche, instrumentos, eficiencia, radio, web, fotos, vídeos y TV reutilizan sus implementaciones de Qonecta+. Algunas dependen de internet, archivos o servicios no disponibles en el coche.",18));
