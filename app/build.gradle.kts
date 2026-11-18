@@ -123,12 +123,12 @@ android {
         // installs, testers) and existing users just get a normal update. Only the display name
         // changed to Open Headunit. The code package and namespace stay openheadunit, so the
         // applicationId deliberately differs from the namespace, like com.google.talk for Hangouts.
-        applicationId = if (c10Native) "com.leapmotorguia.c10nativeplus" else "com.headqlink.app" // headqlink: identificador propio del fork
+        applicationId = if (c10Native) "com.leapmotorguia.c10nativealt" else "com.headqlink.app" // headqlink: identificador propio del fork
         // Android 6+: lo pide Material 3 (1.14) y, de todas formas, Android Auto ya exige Android 9 en el móvil.
-        minSdk = if (c10Native) 29 else 23
-        targetSdk = if (c10Native) 29 else 36
-        versionCode = if (c10Native) 108 else 76
-        versionName = if (c10Native) "0.8-compat-alpha" else "0.3.19-qdauto"
+        minSdk = if (c10Native) 30 else 23
+        targetSdk = if (c10Native) 30 else 36
+        versionCode = if (c10Native) 109 else 76
+        versionName = if (c10Native) "0.9-alt-api30-alpha" else "0.3.19-qdauto"
         setProperty("archivesBaseName", "Qonecta_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
