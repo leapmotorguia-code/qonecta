@@ -99,9 +99,6 @@ android {
                 manifest.srcFile("src/c10Native/AndroidManifest.xml")
                 java.srcDirs("src/c10Native/java")
             }
-            getByName("github") {
-                manifest.srcFile("src/c10Native/githubManifest.xml")
-            }
         }
         getByName("main") {
             assets.srcDirs("${project.layout.buildDirectory.get().asFile}/generated/assets/root")
@@ -167,6 +164,10 @@ android {
             dimension = "distribution"
             // Default minSdk 23 from defaultConfig is used
         }
+    }
+
+    if (c10Native) {
+        sourceSets.getByName("github").manifest.srcFile("src/c10Native/githubManifest.xml")
     }
 
     signingConfigs {
