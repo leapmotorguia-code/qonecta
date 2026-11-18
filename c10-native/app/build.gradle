@@ -4,11 +4,11 @@ android {
     namespace 'com.leapmotorguia.c10nativa'
     compileSdk 36
     defaultConfig {
-        applicationId 'com.tencent.qqmusiccar'
+        applicationId 'com.leapmotorguia.c10prueba06'
         minSdk 23
-        targetSdk 28
-        versionCode 1
-        versionName '0.5c-instalacion'
+        targetSdk 36
+        versionCode 6
+        versionName '0.6-samsung'
     }
     buildTypes {
         release {
@@ -18,6 +18,4 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    // This side-loaded compatibility experiment is not submitted to Google Play.
-    lint { disable 'ExpiredTargetSdkVersion' }
 }
