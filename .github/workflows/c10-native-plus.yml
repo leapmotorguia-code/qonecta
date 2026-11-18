@@ -2,7 +2,7 @@ name: C10 Nativa Plus alfa
 on:
   push:
     branches: [c10-nativa-qonecta-01]
-    paths: ['app/**', '.github/workflows/c10-native-plus.yml', 'tools/c10_native_smoke.py']
+    paths: ['app/**']
   workflow_dispatch:
 permissions:
   contents: read
