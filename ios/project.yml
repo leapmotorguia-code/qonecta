@@ -1,0 +1,85 @@
+name: C10Widget
+options:
+  bundleIdPrefix: com.leapmotorguia
+  deploymentTarget:
+    iOS: '17.0'
+settings:
+  base:
+    SWIFT_VERSION: '5.9'
+    TARGETED_DEVICE_FAMILY: '1'
+    C10_APP_GROUP: group.com.leapmotorguia.c10widget
+    MARKETING_VERSION: '0.2'
+    CURRENT_PROJECT_VERSION: '2'
+    GENERATE_INFOPLIST_FILE: NO
+targets:
+  C10Widget:
+    type: application
+    platform: iOS
+    sources: [App, Shared]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.leapmotorguia.c10widget
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: C10 Widget
+        C10AppGroup: $(C10_APP_GROUP)
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+    entitlements:
+      path: App/C10Widget.entitlements
+      properties:
+        com.apple.security.application-groups: [$(C10_APP_GROUP)]
+    dependencies:
+      - target: C10Widgets
+        embed: true
+  C10Widgets:
+    type: app-extension
+    platform: iOS
+    sources: [Widget, Shared]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.leapmotorguia.c10widget.widgets
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: C10 Widgets
+        C10AppGroup: $(C10_APP_GROUP)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Widget/C10Widgets.entitlements
+      properties:
+        com.apple.security.application-groups: [$(C10_APP_GROUP)]
+  C10WidgetTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.leapmotorguia.c10widget.tests
+    dependencies:
+      - target: C10Widget
+  C10WidgetUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.leapmotorguia.c10widget.uitests
+    dependencies:
+      - target: C10Widget
+schemes:
+  C10Widget:
+    build:
+      targets:
+        C10Widget: all
+        C10Widgets: all
+    test:
+      targets: [C10WidgetTests, C10WidgetUITests]

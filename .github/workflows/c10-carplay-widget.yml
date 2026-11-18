@@ -1,0 +1,64 @@
+name: C10 Widget iPhone y CarPlay
+on:
+  push:
+    branches: [c10-carplay-widget-ios]
+    paths: ['ios/**', '.github/workflows/c10-carplay-widget.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: c10-widget-ios-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar Xcode y proyecto
+        run: |
+          if ! command -v xcodegen >/dev/null; then brew install xcodegen; fi
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          cd ios
+          xcodegen generate
+      - name: Elegir simulador de iPhone
+        run: |
+          python3 - <<'PY'
+          import json,subprocess,os
+          data=json.loads(subprocess.check_output(['xcrun','simctl','list','devices','available','--json']))
+          choices=[(runtime,d) for runtime,devices in data['devices'].items() for d in devices if 'iOS' in runtime and 'iPhone' in d['name'] and d.get('isAvailable')]
+          assert choices,'No hay simulador iPhone disponible'
+          runtime,d=sorted(choices,key=lambda x:x[0])[-1]
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('C10_SIM_ID='+d['udid']+'\n')
+          print('Simulador:',runtime,d['name'],d['udid'])
+          PY
+      - name: Probar aplicación, cálculos y formulario
+        run: |
+          mkdir -p deliverable
+          set -o pipefail
+          xcodebuild -project ios/C10Widget.xcodeproj -scheme C10Widget -destination "platform=iOS Simulator,id=$C10_SIM_ID" -derivedDataPath /tmp/c10-derived -resultBundlePath /tmp/c10-tests.xcresult CODE_SIGNING_ALLOWED=NO test > deliverable/pruebas.txt 2>&1 || { tail -100 deliverable/pruebas.txt; exit 1; }
+          tail -40 deliverable/pruebas.txt
+      - name: Compilar paquete de dispositivo SIN FIRMA
+        run: |
+          xcodebuild -project ios/C10Widget.xcodeproj -scheme C10Widget -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath /tmp/c10-device CODE_SIGNING_ALLOWED=NO build > deliverable/compilacion.txt 2>&1 || { tail -100 deliverable/compilacion.txt; exit 1; }
+          APP=/tmp/c10-device/Build/Products/Release-iphoneos/C10Widget.app
+          /usr/libexec/PlistBuddy -c 'Print :NSExtension:NSExtensionPointIdentifier' "$APP/PlugIns/C10Widgets.appex/Info.plist" | grep com.apple.widgetkit-extension
+          mkdir -p /tmp/c10-package/Payload
+          cp -R "$APP" /tmp/c10-package/Payload/
+          cd /tmp/c10-package
+          zip -qr "$GITHUB_WORKSPACE/deliverable/C10-Widget-0.2-SIN-FIRMA.ipa" Payload
+      - name: Preparar código e instrucciones
+        run: |
+          cp ios/README.md deliverable/LEER-ANTES-DE-INSTALAR.md
+          zip -qr deliverable/C10-Widget-0.2-Codigo.zip ios -x 'ios/C10Widget.xcodeproj/*'
+          shasum -a 256 deliverable/*.ipa deliverable/*.zip > deliverable/SHA256.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: C10-Widget-0.2-Resultado
+          path: |
+            deliverable/*
+            /tmp/c10-tests.xcresult
+          if-no-files-found: error
+          retention-days: 14
