@@ -9,6 +9,8 @@ plugins {
     kotlin("kapt")
 }
 
+val c10Native = providers.gradleProperty("c10Native").orNull == "true"
+
 android {
     compileSdk = 36
     ndkVersion = "29.0.14206865"
@@ -92,6 +94,12 @@ android {
     tasks.matching { it.name.startsWith("check") && it.name.endsWith("AarMetadata") }.configureEach { enabled = false }
 
     sourceSets {
+        if (c10Native) {
+            getByName("main") {
+                manifest.srcFile("src/c10Native/AndroidManifest.xml")
+                java.srcDirs("src/c10Native/java")
+            }
+        }
         getByName("main") {
             assets.srcDirs("${project.layout.buildDirectory.get().asFile}/generated/assets/root")
         }
@@ -112,12 +120,12 @@ android {
         // installs, testers) and existing users just get a normal update. Only the display name
         // changed to Open Headunit. The code package and namespace stay openheadunit, so the
         // applicationId deliberately differs from the namespace, like com.google.talk for Hangouts.
-        applicationId = "com.headqlink.app" // headqlink: identificador propio del fork
+        applicationId = if (c10Native) "com.leapmotorguia.c10nativeplus" else "com.headqlink.app" // headqlink: identificador propio del fork
         // Android 6+: lo pide Material 3 (1.14) y, de todas formas, Android Auto ya exige Android 9 en el móvil.
         minSdk = 23
         targetSdk = 36
-        versionCode = 76
-        versionName = "0.3.19-qdauto"
+        versionCode = if (c10Native) 107 else 76
+        versionName = if (c10Native) "0.7-native-alpha" else "0.3.19-qdauto"
         setProperty("archivesBaseName", "Qonecta_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -127,6 +135,7 @@ android {
         // This is scanned at build time from values-XX directories
         buildConfigField("String", "AVAILABLE_LOCALES", "\"${availableLocales.joinToString(",")}\"")
         buildConfigField("String", "GIT_SHA", "\"$gitDescription\"")
+        buildConfigField("boolean", "C10_NATIVE", c10Native.toString())
         // Variante de pruebas (-Plab): el apartado de Claude (LabControl), con órdenes por el log en directo. Solo para el
         // móvil del desarrollador; la versión que se publica se compila sin -Plab (LAB false).
         val lab = project.hasProperty("lab")
@@ -198,8 +207,8 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = !c10Native
+            isShrinkResources = !c10Native
             // headqlink: la versión publicada solo para móviles ARM (todos los de los usuarios). Las librerías nativas
             // x86/x86_64 eran 21 MB del APK de 54 MB y solo sirven en emuladores del PC; las de prueba (debug) las
             // siguen llevando para el emulador.
@@ -214,6 +223,8 @@ android {
             val relConfig = signingConfigs.getByName("release")
             if (relConfig.storeFile != null && relConfig.storeFile!!.exists()) {
                 signingConfig = relConfig
+            } else if (c10Native) {
+                signingConfig = signingConfigs.getByName("debug")
             }
         }
 
