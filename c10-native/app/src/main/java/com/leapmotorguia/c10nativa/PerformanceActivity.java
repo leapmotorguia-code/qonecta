@@ -60,7 +60,7 @@ public final class PerformanceActivity extends Activity implements LocationListe
         getWindow().setStatusBarColor(BG); getWindow().setNavigationBarColor(BG);
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(true); scroll.setBackgroundColor(BG);
         LinearLayout column = new LinearLayout(this); column.setOrientation(LinearLayout.VERTICAL);
-        column.setPadding(dp(24), dp(18), dp(24), dp(24)); scroll.addView(column); setContentView(scroll);
+        column.setPadding(dp(24), dp(18), dp(24), dp(24)); scroll.addView(column); setContentView(scroll); ScreenInsets.apply(scroll);
         TextView title = text("Medición por GPS", 28, true); title.setTextColor(GREEN); add(column, title, 8);
         add(column, text("Estimación experimental. Úsala solo en un circuito autorizado y prepara todo antes de moverte. No manipules la pantalla al conducir.", 17, false), 12);
         add(column, text("Tipo de prueba", 18, true), 4);
