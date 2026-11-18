@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
     <application android:name="com.andrerinas.openheadunit.App"
-        android:label="C10 Nativa Plus · Alfa" android:icon="@mipmap/hql_launcher"
+        android:label="C10 Nativa Plus 0.8 Compat" android:icon="@mipmap/hql_launcher"
         android:hardwareAccelerated="true" android:allowBackup="false"
         android:usesCleartextTraffic="true" android:supportsRtl="true"
         android:theme="@style/AppTheme">
