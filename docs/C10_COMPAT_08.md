@@ -10,7 +10,7 @@ Cambios:
 - Firma de pruebas propia del entorno de compilación, no certificado de producción o del fabricante.
 - Mismo alcance funcional y limitaciones documentadas en C10_NATIVE_ALPHA.md. La variante 0.8 no añade telemetría, cámaras, centinela ni automatismos del vehículo.
 
-Comprobaciones previstas: firma, configuración, ausencia de modo depuración, bibliotecas ARM64; apertura y navegación en emulador API 30 con un APK x86_64 construido con idéntico bytecode DEX de la aplicación. Las bibliotecas ARM64 y las políticas de instalación del coche requieren prueba real.
+Comprobaciones previstas: firma, configuración, ausencia de modo depuración, bibliotecas ARM64; apertura y navegación en emulador API 30 con la compilación universal de distribución. Después se eliminan únicamente las bibliotecas x86_64, se vuelve a alinear y firmar el APK con la misma clave de pruebas del trabajo y se verifica que código, recursos y manifiesto sean idénticos a los probados. Las bibliotecas ARM64 y las políticas de instalación del coche requieren prueba real.
 
 Instalación de prueba: copiar C10-Nativa-Plus-0.8-Compat-Coche.apk al USB, abrirlo desde el explorador del coche con el vehículo estacionado, confirmar instalación. Cancelar si ofrece sustituir una aplicación distinta. No requiere instalar LeapLink ni cambiar AutoKit, firmware o adaptador.
 
