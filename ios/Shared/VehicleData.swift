@@ -39,8 +39,11 @@ struct VehicleData: Codable, Equatable {
 enum VehicleStore {
     static let key = "c10.manual.snapshot.v1"
     static var groupID: String {
-        Bundle.main.object(forInfoDictionaryKey: "C10AppGroup") as? String
-            ?? "group.com.leapmotorguia.c10widget"
+        resolvedGroup(configured: Bundle.main.object(forInfoDictionaryKey: "C10AppGroup") as? String
+            ?? "group.com.leapmotorguia.c10widget", remapped: Bundle.main.object(forInfoDictionaryKey: "ALTAppGroups") as? [String] ?? [])
+    }
+    static func resolvedGroup(configured: String, remapped: [String]) -> String {
+        remapped.first { $0 == configured || $0.hasPrefix(configured + ".") } ?? configured
     }
     static func defaults() -> UserDefaults? {
         #if DEBUG

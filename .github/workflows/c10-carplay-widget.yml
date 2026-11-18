@@ -44,13 +44,24 @@ jobs:
           xcodebuild -project ios/C10Widget.xcodeproj -scheme C10Widget -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath /tmp/c10-device CODE_SIGNING_ALLOWED=NO build > deliverable/compilacion.txt 2>&1 || { tail -100 deliverable/compilacion.txt; exit 1; }
           APP=/tmp/c10-device/Build/Products/Release-iphoneos/C10Widget.app
           /usr/libexec/PlistBuddy -c 'Print :NSExtension:NSExtensionPointIdentifier' "$APP/PlugIns/C10Widgets.appex/Info.plist" | grep com.apple.widgetkit-extension
+          python3 - <<'PYCODE'
+          import plistlib
+          with open('/tmp/c10-device/Build/Products/Release-iphoneos/C10Widget.app/Info.plist','rb') as f: group=plistlib.load(f)['C10AppGroup']
+          with open('/tmp/c10-entitlements.plist','wb') as f: plistlib.dump({'com.apple.security.application-groups':[group]},f)
+          PYCODE
+          codesign --force --sign - --timestamp=none --entitlements /tmp/c10-entitlements.plist "$APP/PlugIns/C10Widgets.appex"
+          codesign --force --sign - --timestamp=none --entitlements /tmp/c10-entitlements.plist "$APP"
+          codesign --verify --deep --strict "$APP"
+          codesign -d --entitlements :- "$APP" > deliverable/entitlements-app.plist
+          codesign -d --entitlements :- "$APP/PlugIns/C10Widgets.appex" > deliverable/entitlements-widget.plist
           mkdir -p /tmp/c10-package/Payload
           cp -R "$APP" /tmp/c10-package/Payload/
           cd /tmp/c10-package
-          zip -qr "$GITHUB_WORKSPACE/deliverable/C10-Widget-0.2-SIN-FIRMA.ipa" Payload
+          zip -qr "$GITHUB_WORKSPACE/deliverable/C10-Widget-0.2-Para-Firmar.ipa" Payload
       - name: Preparar código e instrucciones
         run: |
           cp ios/README.md deliverable/LEER-ANTES-DE-INSTALAR.md
+          cp ios/INSTALAR-WINDOWS.md deliverable/INSTALAR-WINDOWS.md
           zip -qr deliverable/C10-Widget-0.2-Codigo.zip ios -x 'ios/C10Widget.xcodeproj/*'
           shasum -a 256 deliverable/*.ipa deliverable/*.zip > deliverable/SHA256.txt
       - uses: actions/upload-artifact@v4

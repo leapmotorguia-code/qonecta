@@ -14,7 +14,7 @@ Proyecto iOS independiente. No instala nada en LeapOS ni modifica AutoKit o el f
 No conexión a la cuenta Leapmotor, OBD, cámaras o telemetría. No centinela, control del coche, velocidad o regeneración en directo. No app completa en el lanzador de CarPlay. El widget systemSmall es elegible para la galería de CarPlay en iOS 26 o superior; la prueba con el iPhone, AutoKit y C10 reales sigue pendiente.
 
 ## Para instalar en un iPhone real
-El archivo SIN-FIRMA.ipa de GitHub NO se puede instalar directamente. Un ZIP de código tampoco es una aplicación instalable. Falta una firma de Apple y perfiles de aprovisionamiento que autoricen tanto la app como su extensión y el App Group. No hay certificados, cuentas Apple ni TestFlight configurados o incluidos. No subir contraseñas, claves o certificados al repositorio ni enviarlos por el chat.
+El archivo Para-Firmar.ipa de GitHub tiene una firma local provisional que NO autoriza su instalación directa en iPhone. Un ZIP de código tampoco es una aplicación instalable. Falta una firma de Apple y perfiles de aprovisionamiento que autoricen tanto la app como su extensión y el App Group. No hay certificados, cuentas Apple ni TestFlight configurados o incluidos. No subir contraseñas, claves o certificados al repositorio ni enviarlos por el chat.
 
 Ruta de distribución sencilla para el usuario final: TestFlight, una vez que una cuenta Apple Developer configure los identificadores, App Group, firma y distribución. No se ha publicado ni aprobado en TestFlight.
 
@@ -28,9 +28,12 @@ En un Mac con Xcode y XcodeGen: ejecutar `xcodegen generate` dentro de ios, abri
 5. Abrir la zona de widgets de CarPlay. La ubicación exacta de los ajustes depende de la versión de iOS.
 
 ## Verificación automatizada
-GitHub macOS genera el proyecto, compila app y extensión, ejecuta pruebas de unidades, persistencia y estado antiguo y una prueba de edición del formulario. La prueba UI usa almacenamiento aislado DEBUG: no acredita App Groups en teléfono real. La compilación de dispositivo se realiza sin firma y se comprueba que contiene la extensión WidgetKit. No se simula una conexión AutoKit ni la pantalla del C10.
+GitHub macOS genera el proyecto, compila app y extensión, ejecuta pruebas de unidades, persistencia y estado antiguo y una prueba de edición del formulario. La prueba UI usa almacenamiento aislado DEBUG: no acredita App Groups en teléfono real. La compilación de dispositivo se realiza sin firma Apple, se aplica una firma local provisional para conservar los entitlements para una posterior firma con cuenta propia, y se comprueba que contiene la extensión WidgetKit. No se simula una conexión AutoKit ni la pantalla del C10.
 
 Fuentes oficiales:
 - https://developer.apple.com/documentation/widgetkit/adding-standby-and-carplay-support-to-your-widget
 - https://developer.apple.com/videos/play/wwdc2025/216/
 - https://developer.apple.com/documentation/xcode/configuring-app-groups
+
+## Prueba con Windows
+Se incluye INSTALAR-WINDOWS.md para probar la firma con cuenta propia mediante AltStore Classic/AltServer oficial. Esta vía y su funcionamiento en el iPhone del usuario NO están comprobados. Se conserva la extensión WidgetKit y se admite el remapeo del App Group informado por AltStore en ALTAppGroups; no se usan grupos de otras aplicaciones. La firma Apple sigue siendo necesaria: AltServer la gestiona con la cuenta del usuario, no este chat. Con cuenta gratuita hay caducidad de 7 días y límites de apps.

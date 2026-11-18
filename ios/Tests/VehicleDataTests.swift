@@ -2,6 +2,11 @@ import XCTest
 @testable import C10Widget
 
 final class VehicleDataTests: XCTestCase {
+    func testResignedGroupMappingDoesNotUseOtherAppGroups() {
+        let original = "group.com.leapmotorguia.c10widget"
+        XCTAssertEqual(VehicleStore.resolvedGroup(configured: original, remapped: ["group.other", original + ".TEAM"]), original + ".TEAM")
+        XCTAssertEqual(VehicleStore.resolvedGroup(configured: original, remapped: ["group.other"]), original)
+    }
     func testSpanishDecimalAndInvalidInputs() {
         XCTAssertEqual(VehicleData.number(" 0,23 "), 0.23)
         XCTAssertNil(VehicleData.number("")); XCTAssertNil(VehicleData.number("nan"))
