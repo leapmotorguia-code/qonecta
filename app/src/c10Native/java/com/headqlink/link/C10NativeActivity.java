@@ -51,7 +51,7 @@ public final class C10NativeActivity extends Activity {
         root.addView(title);
         HorizontalScrollView bar = new HorizontalScrollView(this);
         LinearLayout menu = new LinearLayout(this);
-        String[] sections = {"Inicio","Coche","Instrumentos","Eficiencia","Radio","Web","Fotos","Vídeos","TV","Herramientas GPS"};
+        String[] sections = {"Inicio","Diagnóstico","Coche","Instrumentos","Eficiencia","Radio","Web","Fotos","Vídeos","TV","Herramientas GPS"};
         for (String name : sections) {
             Button b = new Button(this);
             b.setText(name);
@@ -130,6 +130,7 @@ public final class C10NativeActivity extends Activity {
         section = name;
         try {
             switch (name) {
+                case "Diagnóstico": diagnostics(); return;
                 case "Coche": current = new CarHubScreen(); break;
                 case "Instrumentos": current = new InstrumentsScreen(); break;
                 case "Eficiencia": current = new EfficiencyScreen(); break;
@@ -152,6 +153,38 @@ public final class C10NativeActivity extends Activity {
                 e.getClass().getSimpleName()+": "+String.valueOf(e.getMessage())+
                 "\nEsta función necesita adaptación; no está verificada.",18));
         }
+    }
+
+
+    private void diagnostics() {
+        StringBuilder report = new StringBuilder();
+        report.append("DIAGNÓSTICO C10 0.9\n");
+        report.append("Android: ").append(Build.VERSION.RELEASE).append(" · API ").append(Build.VERSION.SDK_INT).append("\n");
+        report.append("Fabricante: ").append(Build.MANUFACTURER).append("\nModelo: ").append(Build.MODEL).append("\n");
+        report.append("Arquitecturas: ").append(java.util.Arrays.toString(Build.SUPPORTED_ABIS)).append("\n");
+        report.append("Paquete: ").append(getPackageName()).append("\n");
+        report.append("Android mínimo / objetivo: ").append(getApplicationInfo().minSdkVersion).append(" / ").append(getApplicationInfo().targetSdkVersion).append("\n");
+        report.append("Espacio disponible para la app: ").append(getFilesDir().getUsableSpace()/1024/1024).append(" MiB\n");
+        PackageManager pm = getPackageManager();
+        for (String feature : new String[]{"android.hardware.location","android.hardware.location.gps",
+                "android.hardware.location.network","android.hardware.touchscreen","android.hardware.faketouch",
+                "android.hardware.usb.host","android.hardware.type.automotive"}) {
+            report.append(feature).append(": ").append(pm.hasSystemFeature(feature) ? "sí" : "no").append("\n");
+        }
+        report.append("Permiso GPS: ").append(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED ? "concedido" : "sin conceder").append("\n");
+        try {
+            String installer = pm.getInstallSourceInfo(getPackageName()).getInstallingPackageName();
+            report.append("Instalador de esta app: ").append(installer == null ? "no informado" : installer).append("\n");
+        } catch (Exception e) {
+            report.append("Instalador de esta app: no disponible\n");
+        }
+        report.append("\nEsta pantalla solo funciona después de instalar esta app. No puede leer el motivo de rechazo de otro APK ni los registros privados del instalador. No demuestra acceso a cámaras o datos del vehículo.\n");
+        report.append("\nNo incluye VIN, número de serie ni datos de tu cuenta. Puedes fotografiar esta pantalla para revisar la compatibilidad.");
+        ScrollView sc = new ScrollView(this);
+        TextView result = text(report.toString(),18);
+        result.setTextIsSelectable(true);
+        sc.addView(result);
+        body.addView(sc,new FrameLayout.LayoutParams(-1,-1));
     }
 
     private void status() {
