@@ -1,0 +1,37 @@
+name: C10 Nativa Plus comprobar APK ya compilado
+on:
+  push:
+    branches: [c10-nativa-qonecta-01]
+    paths: ['tools/c10_native_smoke.py', '.github/workflows/c10-native-retest.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: C10-Nativa-Plus-0.7-alfa
+          run-id: 44328289331
+          github-token: ${{ github.token }}
+          path: /tmp/native-artifact
+      - name: Verificar APK que se prueba
+        run: |
+          cp /tmp/native-artifact/*.apk /tmp/native.apk
+          echo '9766b178aa6412d5d6aa14244720f614378172d3b34610e53e619680cd00b7c3  /tmp/native.apk' | sha256sum -c -
+      - name: Habilitar emulador
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-c10-kvm.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          target: default
+          disable-animations: true
+          script: python3 tools/c10_native_smoke.py
