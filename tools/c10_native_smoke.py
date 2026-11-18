@@ -21,9 +21,18 @@ def tap(label):
                     time.sleep(1)
                     return
         w,h=map(int,re.search(r'(\d+)x(\d+)',run('adb','shell','wm','size')).groups())
-        run('adb','shell','input','swipe',str(w*4//5),'140',str(w//4),'140','300')
+        # Find the actual native toolbar; a fixed y can swipe the panel instead.
+        nav_y = None
+        for n in ET.fromstring(ui()).iter('node'):
+            if n.attrib.get('class')=='android.widget.Button' and n.attrib.get('text') in ['Inicio','Coche','Instrumentos','Eficiencia','Radio','Web','Fotos','Vídeos','TV','Herramientas GPS']:
+                x1,y1,x2,y2=map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',n.attrib['bounds']).groups())
+                if x2>x1 and y2>y1:
+                    nav_y=(y1+y2)//2
+                    break
+        assert nav_y is not None,ui()
+        run('adb','shell','input','swipe',str(w*4//5),str(nav_y),str(w//4),str(nav_y),'300')
         time.sleep(.4)
-    raise AssertionError('No se encontró '+label)
+    raise AssertionError('No se encontró '+label+'\\n'+ui())
 
 run('adb','shell','wm','size','1920x1080')
 run('adb','shell','wm','density','160')
