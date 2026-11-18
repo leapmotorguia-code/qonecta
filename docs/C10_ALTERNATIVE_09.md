@@ -6,6 +6,8 @@ Alfa separada de 0.8. No modifica AutoKit, firmware ni el repositorio original.
 - Ubicación, ubicación de red, GPS, pantalla táctil y faketouch no obligatorios en el manifiesto.
 - Retirado DummyVpnService heredado del flavor github: no utilizado en el host nativo.
 - Misma selección de paneles, herramientas y limitaciones funcionales de 0.8.
+## Diagnóstico local
+Pantalla Diagnóstico con versión/API, modelo, arquitecturas, espacio disponible, funciones declaradas, permiso GPS e instalador de esta app. No incluye VIN, serie ni cuenta. Solo accesible después de instalar; no lee registros privados de PackageInstaller ni deduce una causa exacta de un rechazo.
 ## Verificación y límites
 Se compila una vez incluyendo ARM64 y x86_64, se prueban los paneles en emulador API30 y se retiran las bibliotecas x86_64. El APK ARM64 final conserva exactamente los demás contenidos probados, se alinea y firma con un certificado local de prueba. No es certificado de Leapmotor.
 El target30 cambia las reglas de almacenamiento respecto de target29; las funciones de archivos siguen pendientes de verificación real. Ninguna de estas pruebas demuestra aceptación por LeapOS ni el motivo del rechazo anterior.
