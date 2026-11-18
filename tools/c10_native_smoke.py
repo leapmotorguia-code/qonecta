@@ -1,6 +1,6 @@
 import re,subprocess,time,xml.etree.ElementTree as ET
 
-PKG='com.leapmotorguia.c10nativeplus'
+PKG='com.leapmotorguia.c10nativealt'
 
 def run(*args):
     p=subprocess.run(args,capture_output=True,text=True)
@@ -54,6 +54,7 @@ run('adb','shell','input','keyevent','4')
 time.sleep(1)
 assert 'C10 Nativa Plus' in ui()
 services=run('adb','shell','dumpsys','activity','services',PKG)
+assert 'DummyVpnService' not in run('adb','shell','dumpsys','package',PKG)
 assert 'com.headqlink.link.LinkService' not in services,services
 assert 'com.andrerinas.openheadunit.aap.AapService' not in services,services
 print('PASS native host: actual Qonecta panels, own tools, foreground lifecycle; no projection service.')
