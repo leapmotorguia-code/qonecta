@@ -2,7 +2,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
-    <application android:label="C10 Prueba C" android:theme="@android:style/Theme.Material.NoActionBar" android:allowBackup="false" android:usesCleartextTraffic="false">
+    <application android:label="C10 Prueba 0.6" android:theme="@android:style/Theme.Material.NoActionBar" android:allowBackup="false" android:usesCleartextTraffic="false">
         <activity android:name=".PerformanceActivity" android:exported="false" />
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
