@@ -117,7 +117,7 @@ android {
 
     defaultConfig {
         if (c10Native) {
-            ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
+            ndk { abiFilters += (providers.gradleProperty("c10NativeAbis").orNull ?: "arm64-v8a").split(",") }
         }
         // Keep the original Play Store application id so the app stays the same listing (reviews,
         // installs, testers) and existing users just get a normal update. Only the display name
@@ -125,10 +125,10 @@ android {
         // applicationId deliberately differs from the namespace, like com.google.talk for Hangouts.
         applicationId = if (c10Native) "com.leapmotorguia.c10nativeplus" else "com.headqlink.app" // headqlink: identificador propio del fork
         // Android 6+: lo pide Material 3 (1.14) y, de todas formas, Android Auto ya exige Android 9 en el móvil.
-        minSdk = if (c10Native) 30 else 23
-        targetSdk = 36
-        versionCode = if (c10Native) 107 else 76
-        versionName = if (c10Native) "0.7-native-alpha" else "0.3.19-qdauto"
+        minSdk = if (c10Native) 29 else 23
+        targetSdk = if (c10Native) 29 else 36
+        versionCode = if (c10Native) 108 else 76
+        versionName = if (c10Native) "0.8-compat-alpha" else "0.3.19-qdauto"
         setProperty("archivesBaseName", "Qonecta_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -212,13 +212,15 @@ android {
 
     buildTypes {
         getByName("release") {
+            isDebuggable = false
+            isTestCoverageEnabled = false
             isMinifyEnabled = !c10Native
             isShrinkResources = !c10Native
             // headqlink: la versión publicada solo para móviles ARM (todos los de los usuarios). Las librerías nativas
             // x86/x86_64 eran 21 MB del APK de 54 MB y solo sirven en emuladores del PC; las de prueba (debug) las
             // siguen llevando para el emulador.
             ndk {
-                abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+                abiFilters += if (c10Native) (providers.gradleProperty("c10NativeAbis").orNull ?: "arm64-v8a").split(",") else listOf("arm64-v8a", "armeabi-v7a")
             }
             proguardFiles(
                 getDefaultProguardFile("proguard-android.txt"),
