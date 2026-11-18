@@ -116,13 +116,16 @@ android {
     }
 
     defaultConfig {
+        if (c10Native) {
+            ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
+        }
         // Keep the original Play Store application id so the app stays the same listing (reviews,
         // installs, testers) and existing users just get a normal update. Only the display name
         // changed to Open Headunit. The code package and namespace stay openheadunit, so the
         // applicationId deliberately differs from the namespace, like com.google.talk for Hangouts.
         applicationId = if (c10Native) "com.leapmotorguia.c10nativeplus" else "com.headqlink.app" // headqlink: identificador propio del fork
         // Android 6+: lo pide Material 3 (1.14) y, de todas formas, Android Auto ya exige Android 9 en el móvil.
-        minSdk = 23
+        minSdk = if (c10Native) 30 else 23
         targetSdk = 36
         versionCode = if (c10Native) 107 else 76
         versionName = if (c10Native) "0.7-native-alpha" else "0.3.19-qdauto"
@@ -145,6 +148,8 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags("")
+                // This native-panel alpha does not expose game emulators.
+                if (c10Native) targets += listOf("hur_aaudio", "usbhelper", "hur_soft_hevc", "hqlnet")
             }
         }
     }
