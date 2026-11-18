@@ -104,10 +104,11 @@ public class MainActivity extends Activity {
         page.setPadding(dp(24), dp(18), dp(24), dp(24));
         scroll.addView(page, new ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         setContentView(scroll);
+        ScreenInsets.apply(scroll);
 
-        page.addView(label("C10 PRUEBA C", 30, accent, true));
+        page.addView(label("C10 PRUEBA 0.6", 30, accent, true));
         spacer(page, 4);
-        page.addView(label("0.5 C · compatibilidad de instalación", 18, text, false));
+        page.addView(label("0.6 · prueba en Samsung y Android 11+", 18, text, false));
         spacer(page, 16);
         LinearLayout status = card();
         status.addView(label("La aplicación se ha abierto", 22, text, true));
