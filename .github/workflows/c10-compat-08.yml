@@ -24,47 +24,12 @@ jobs:
           packages: ''
       - run: sdkmanager "ndk;29.0.14206865" "cmake;3.22.1"
       - uses: gradle/actions/setup-gradle@v4
-      - name: Compilar APK ARM64 para el coche
+        with:
+          cache-read-only: false
+      - name: Compilar una sola versión de distribución
         run: |
-          ./gradlew :app:assembleGithubRelease -Pc10Native=true -Pc10NativeAbis=arm64-v8a --stacktrace
-          mkdir -p deliverable
-          cp app/build/outputs/apk/github/release/*.apk deliverable/C10-Nativa-Plus-0.8-Compat-Coche.apk
-      - name: Verificar configuración y firma del archivo para el coche
-        run: |
-          TOOL_DIR="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
-          APK=deliverable/C10-Nativa-Plus-0.8-Compat-Coche.apk
-          "$TOOL_DIR/apksigner" verify --verbose "$APK" | tee deliverable/firma.txt
-          "$TOOL_DIR/aapt" dump badging "$APK" > deliverable/configuracion.txt
-          grep "name='com.leapmotorguia.c10nativeplus'" deliverable/configuracion.txt
-          grep "sdkVersion:'29'" deliverable/configuracion.txt
-          grep "targetSdkVersion:'29'" deliverable/configuracion.txt
-          grep "versionCode='108'" deliverable/configuracion.txt
-          if grep -q 'application-debuggable' deliverable/configuracion.txt; then exit 1; fi
-          if grep -q 'testOnly' deliverable/configuracion.txt; then exit 1; fi
-          python3 - <<'PY'
-          import zipfile
-          p='deliverable/C10-Nativa-Plus-0.8-Compat-Coche.apk'
-          with zipfile.ZipFile(p) as z:
-              assert z.testzip() is None
-              abis={n.split('/')[1] for n in z.namelist() if n.startswith('lib/')}
-              assert abis=={'arm64-v8a'},abis
-          print('ARM64 only, correct native identity; no replacement of AutoKit.')
-          PY
-          sha256sum "$APK" > deliverable/SHA256.txt
-      - name: Compilar variante equivalente para el emulador
-        run: |
-          ./gradlew :app:assembleGithubRelease -Pc10Native=true -Pc10NativeAbis=x86_64 --stacktrace
+          ./gradlew :app:assembleGithubRelease -Pc10Native=true -Pc10NativeAbis=arm64-v8a,x86_64 --stacktrace
           cp app/build/outputs/apk/github/release/*.apk /tmp/native.apk
-          python3 - <<'PY'
-          import zipfile,hashlib
-          def dex(path):
-              with zipfile.ZipFile(path) as z:
-                  return {n:hashlib.sha256(z.read(n)).hexdigest() for n in z.namelist() if n.startswith('classes') and n.endswith('.dex')}
-          arm=dex('deliverable/C10-Nativa-Plus-0.8-Compat-Coche.apk')
-          emulator=dex('/tmp/native.apk')
-          assert arm and arm==emulator,(arm,emulator)
-          print('PASS: ARM64 deliverable and x86 emulator build have identical application DEX bytecode.')
-          PY
       - name: Habilitar emulador
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-c10-kvm.rules
@@ -77,6 +42,49 @@ jobs:
           target: default
           disable-animations: true
           script: python3 tools/c10_native_smoke.py
+      - name: Preparar ARM64 sin recompilar ni cambiar código o recursos probados
+        run: |
+          mkdir -p deliverable
+          python3 - <<'PY'
+          import zipfile,re,hashlib
+          with zipfile.ZipFile('/tmp/native.apk') as src, zipfile.ZipFile('/tmp/native-arm-unsigned.apk','w') as out:
+              for item in src.infolist():
+                  n=item.filename
+                  if n.startswith('lib/') and not n.startswith('lib/arm64-v8a/'):
+                      continue
+                  if n=='META-INF/MANIFEST.MF' or re.match(r'^META-INF/[^/]+\.(RSA|DSA|EC|SF)$',n,re.I):
+                      continue
+                  out.writestr(item,src.read(n))
+          with zipfile.ZipFile('/tmp/native.apk') as src,zipfile.ZipFile('/tmp/native-arm-unsigned.apk') as dst:
+              for n in dst.namelist():
+                  assert dst.read(n)==src.read(n),n
+              assert {n.split('/')[1] for n in dst.namelist() if n.startswith('lib/')}=={'arm64-v8a'}
+              assert dst.testzip() is None
+          print('PASS: identical tested code, resources and manifest; removed emulator libraries only.')
+          PY
+          TOOL_DIR="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$TOOL_DIR/zipalign" -P 16 -f 4 /tmp/native-arm-unsigned.apk /tmp/native-arm-aligned.apk
+          "$TOOL_DIR/apksigner" sign --ks "$HOME/.android/debug.keystore" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled false --out deliverable/C10-Nativa-Plus-0.8-Compat-Coche.apk /tmp/native-arm-aligned.apk
+          "$TOOL_DIR/apksigner" verify --verbose deliverable/C10-Nativa-Plus-0.8-Compat-Coche.apk | tee deliverable/firma.txt
+          "$TOOL_DIR/zipalign" -c -P 16 4 deliverable/C10-Nativa-Plus-0.8-Compat-Coche.apk
+          "$TOOL_DIR/aapt" dump badging deliverable/C10-Nativa-Plus-0.8-Compat-Coche.apk > deliverable/configuracion.txt
+          grep "name='com.leapmotorguia.c10nativeplus'" deliverable/configuracion.txt
+          grep "sdkVersion:'29'" deliverable/configuracion.txt
+          grep "targetSdkVersion:'29'" deliverable/configuracion.txt
+          grep "versionCode='108'" deliverable/configuracion.txt
+          if grep -q 'application-debuggable' deliverable/configuracion.txt; then exit 1; fi
+          if grep -q 'testOnly' deliverable/configuracion.txt; then exit 1; fi
+          python3 - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('/tmp/native.apk') as src,zipfile.ZipFile('deliverable/C10-Nativa-Plus-0.8-Compat-Coche.apk') as dst:
+              assert dst.testzip() is None
+              assert {n.split('/')[1] for n in dst.namelist() if n.startswith('lib/')}=={'arm64-v8a'}
+              for n in dst.namelist():
+                  if not n.startswith('META-INF/'):
+                      assert dst.read(n)==src.read(n),n
+          print('PASS: final signed ARM64 APK retains exactly the tested application payload.')
+          PY
+          sha256sum deliverable/*.apk > deliverable/SHA256.txt
       - uses: actions/upload-artifact@v4
         with:
           name: C10-Nativa-Plus-0.8-Compat-Coche
