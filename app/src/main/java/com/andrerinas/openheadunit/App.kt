@@ -140,6 +140,15 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         if (unlockedInitDone) return
         unlockedInitDone = true
 
+        if (BuildConfig.C10_NATIVE) {
+            // Native car UI: no root registration, accessibility repair, phone auto-connect
+            // or periodic cloud jobs. Only explicit foreground panels are started.
+            com.headqlink.link.CarSpec.load(this)
+            com.headqlink.link.Money.init(this)
+            com.andrerinas.openheadunit.utils.AppLog.init(Settings(this), this)
+            return
+        }
+
         // headqlink: logcat continuo del proceso y registro de fallos, el coche del perfil (C10 o T03) y por qué terminó
         // la app la vez anterior (bloqueo, memoria, fallo nativo, cierre forzado). Leen ajustes: con el móvil desbloqueado.
         com.headqlink.link.CarSpec.load(this)
