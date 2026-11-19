@@ -22,6 +22,8 @@ struct C10Provider: TimelineProvider {
 }
 struct C10Widget: Widget {
     let type: CardKind
+    init() { type = .vehicle }
+    init(type: CardKind) { self.type = type }
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "C10Widget.\(type.rawValue)", provider: C10Provider()) { entry in
             WidgetCard(data: entry.data, date: entry.date, kind: type)
