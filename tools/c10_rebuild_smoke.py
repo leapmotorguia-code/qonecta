@@ -20,15 +20,21 @@ def tap(label):
                 x1,y1,x2,y2=nums
                 if x2>x1 and y2>y1:
                     run('adb','shell','input','tap',str((x1+x2)//2),str((y1+y2)//2));time.sleep(.8);return
-        nav_y=None
+        menus=['Inicio','Coche','Instrumentos','Eficiencia','Radio','Web','Fotos','Vídeos','TV','Herramientas','OBD','Ajustes','Diagnóstico','Integraciones']
+        visible=[];nav_y=None;left=0;right=0
         for n in tree.iter('node'):
-            if n.attrib.get('content-desc','').startswith('nav:'):
+            desc=n.attrib.get('content-desc','')
+            if desc.startswith('nav:'):
                 x1,y1,x2,y2=map(int,re.findall(r'\d+',n.attrib['bounds']))
-                if y2>y1 and x2>x1:nav_y=(y1+y2)//2;break
+                if y2>y1 and x2>x1:
+                    nav_y=(y1+y2)//2;left=min(left,x1);right=max(right,x2)
+                    visible.append(menus.index(desc[4:]))
         if nav_y is None: raise AssertionError('Not found '+label+'\n'+ui())
-        # Cycle the horizontal toolbar so both earlier and later entries are reachable.
-        if attempt==8:run('adb','shell','input','swipe','50',str(nav_y),'1800',str(nav_y),'400')
-        else:run('adb','shell','input','swipe','1700',str(nav_y),'250',str(nav_y),'250')
+        width=right-left
+        xlo=int(left+width*.15);xhi=int(left+width*.85)
+        backward=label in menus and menus.index(label)<min(visible)
+        start,end=(xlo,xhi) if backward else (xhi,xlo)
+        run('adb','shell','input','swipe',str(start),str(nav_y),str(end),str(nav_y),'300')
         time.sleep(.3)
     raise AssertionError('Not found '+label+'\n'+ui())
 run('adb','shell','wm','size','1920x1080');run('adb','shell','wm','density','160')
@@ -41,6 +47,8 @@ assert 'C10 ControlPlus' in ui()
 for name in ['Coche','Instrumentos','Eficiencia','Radio','Diagnóstico','Integraciones','Ajustes']:
     tap(name);screen=ui();assert 'El panel no pudo abrirse' not in screen,screen
     assert run('adb','shell','pidof',PKG).strip()
+for name in ['Fotos','Vídeos']:
+    tap(name);tap('Estoy estacionado');assert 'El panel no pudo abrirse' not in ui()
 tap('OBD');assert 'OBD · lecturas estándar' in ui();assert 'Sin lecturas actuales.' in ui()
 run('adb','shell','input','keyevent','4');time.sleep(1)
 tap('Herramientas');assert 'HERRAMIENTAS C10' in ui()

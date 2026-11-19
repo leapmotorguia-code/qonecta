@@ -156,14 +156,14 @@ public class MainActivity extends Activity {
         });
         LinearLayout live = card();
         live.addView(label("Datos del coche", 22, text, true));
-        live.addView(label("Revoluciones del motor, encendido, potencia y regeneración real: no disponibles. Necesitan una conexión y datos compatibles comprobados para este C10.", 16, Color.LTGRAY, false));
+        live.addView(label("Las RPM estándar pueden consultarse desde OBD con un adaptador compatible. Potencia, batería de tracción y regeneración real del C10 siguen sin una fuente validada.", 16, Color.LTGRAY, false));
 
         costSection("Coste eléctrico", "Consumo: kWh / 100 km", "Precio: € / kWh");
         costSection("Coste gasolina", "Consumo: litros / 100 km", "Precio: € / litro");
         LinearLayout next = card();
         next.addView(label("Funciones aún no disponibles", 21, text, true));
         spacer(next, 7);
-        next.addView(label("Android Auto, CarPlay, datos reales del vehículo, cámaras, centinela y OBD no están incluidos.", 17, Color.LTGRAY, false));
+        next.addView(label("Cámaras, centinela, control del motor y una integración nativa Android Auto/CarPlay no están disponibles. OBD estándar se consulta desde el menú principal.", 17, Color.LTGRAY, false));
         spacer(next, 7);
         next.addView(label("Realiza la configuración únicamente con el coche estacionado.", 16, accent, false));
     }
