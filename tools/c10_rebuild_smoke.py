@@ -15,7 +15,7 @@ def tap(label):
     for attempt in range(16):
         tree=ET.fromstring(ui())
         for n in tree.iter('node'):
-            if n.attrib.get('text')==label or n.attrib.get('content-desc')=='nav:'+label:
+            if n.attrib.get('text','').casefold()==label.casefold() or n.attrib.get('content-desc')=='nav:'+label:
                 nums=list(map(int,re.findall(r'\d+',n.attrib['bounds'])))
                 x1,y1,x2,y2=nums
                 if x2>x1 and y2>y1:
