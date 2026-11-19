@@ -2,234 +2,194 @@ package com.headqlink.link;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Insets;
+import android.graphics.Color;
+import android.hardware.SensorManager;
+import android.hardware.camera2.CameraManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import android.widget.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
-/**
- * C10 native host for the actual Qonecta+ CarScreen implementations.
- * No VirtualDisplay, projection, LinkService, AA server or demo data.
- * Derived project: AGPL-3.0; original authors and licences remain in LICENSE/NOTICE.
- */
+/** New native shell; original CarScreen engines remain credited under AGPL-3.0. */
 public final class C10NativeActivity extends Activity {
-    private LinearLayout root;
+    private static final int LOCATION=91, MEDIA=92, EXPORT=93, FOLDER=94;
+    private static final int BG=0xff0c1721, INK=0xffedf7f5, MINT=0xff67e3b7;
     private FrameLayout body;
+    private LinearLayout root;
     private CarScreen current;
-    private String section = "Inicio";
-    private String pendingSection;
-    private boolean stopped;
-
-    private int dp(int px) {
-        return Math.round(px * getResources().getDisplayMetrics().density);
+    private String section="Inicio", pending;
+    private boolean paused;
+    private int dp(int v) { return Math.round(v*getResources().getDisplayMetrics().density); }
+    private TextView text(String s,int size) {
+        TextView t=new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(INK);
+        t.setPadding(dp(12),dp(8),dp(12),dp(8)); t.setTextIsSelectable(true); return t;
     }
-
+    private void action(LinearLayout col,String name,Runnable task) {
+        Button b=new Button(this); b.setText(name); b.setAllCaps(false); b.setMinHeight(dp(52));
+        b.setOnClickListener(v->task.run()); col.addView(b,new LinearLayout.LayoutParams(-1,-2));
+    }
     @Override public void onCreate(Bundle state) {
-        super.onCreate(state);
-        L.init(this);
-        // This build is for the user's C10 REEV. Persist its profile once, without
-        // credentials or a cloud request; do not silently use the 69.9 kWh EV.
-        android.content.SharedPreferences nativePrefs = getSharedPreferences("c10_native",MODE_PRIVATE);
-        if (!nativePrefs.getBoolean("reev_profile_initialized",false)) {
+        super.onCreate(state); L.init(this); Str.init(this);
+        Thread.UncaughtExceptionHandler previous=Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((thread,error)->{
+            // Exception type and our call sites only: no credentials, URLs, VIN or device identifiers.
+            StringBuilder trace=new StringBuilder(error.getClass().getName()+"\n");
+            for(StackTraceElement e:error.getStackTrace()) if(e.getClassName().startsWith("com.headqlink")||e.getClassName().startsWith("com.leapmotorguia")) trace.append(e).append('\n');
+            getSharedPreferences("c10_rebuild",MODE_PRIVATE).edit().putString("last_crash",trace.toString()).commit();
+            if(previous!=null)previous.uncaughtException(thread,error);
+        });
+        if(!getSharedPreferences("c10_rebuild",MODE_PRIVATE).getBoolean("profile",false)) {
             new CarCloudStore(this).setProfile(CarCloudStore.PROFILE_C10_REEV,0);
-            nativePrefs.edit().putBoolean("reev_profile_initialized",true).apply();
+            getSharedPreferences("c10_rebuild",MODE_PRIVATE).edit().putBoolean("profile",true).apply();
         }
-        root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(CarKit.BG);
-        TextView title = text("C10 Nativa Plus · 0.9 ALTERNATIVA", 22);
-        title.setPadding(dp(14),dp(10),dp(14),dp(6));
-        root.addView(title);
-        HorizontalScrollView bar = new HorizontalScrollView(this);
-        LinearLayout menu = new LinearLayout(this);
-        String[] sections = {"Inicio","Diagnóstico","Coche","Instrumentos","Eficiencia","Radio","Web","Fotos","Vídeos","TV","Herramientas GPS"};
-        for (String name : sections) {
-            Button b = new Button(this);
-            b.setText(name);
-            b.setAllCaps(false);
-            b.setOnClickListener(v -> select(name));
-            menu.addView(b,new LinearLayout.LayoutParams(-2,dp(52)));
+        root=new LinearLayout(this); root.setOrientation(1); root.setBackgroundColor(BG);
+        TextView title=text("C10 ControlPlus · 1.0 PRUEBA",22); title.setTextColor(MINT); root.addView(title);
+        HorizontalScrollView bar=new HorizontalScrollView(this); LinearLayout row=new LinearLayout(this);
+        for(String name:new String[]{"Inicio","Coche","Instrumentos","Eficiencia","Radio","Web","Fotos","Vídeos","TV","Herramientas","OBD","Ajustes","Diagnóstico","Integraciones"}) {
+            Button b=new Button(this); b.setText(name); b.setAllCaps(false); b.setContentDescription("nav:"+name);
+            b.setOnClickListener(v->select(name));row.addView(b,new LinearLayout.LayoutParams(-2,dp(54)));
         }
-        bar.addView(menu);
-        root.addView(bar);
-        body = new FrameLayout(this);
-        root.addView(body,new LinearLayout.LayoutParams(-1,0,1));
+        bar.addView(row);root.addView(bar);body=new FrameLayout(this);root.addView(body,new LinearLayout.LayoutParams(-1,0,1));
         setContentView(root);
-        if (Build.VERSION.SDK_INT >= 35) {
-            root.setOnApplyWindowInsetsListener((v,insets) -> {
-                Insets safe = insets.getInsets(WindowInsets.Type.systemBars()
-                    | WindowInsets.Type.displayCutout() | WindowInsets.Type.ime());
-                v.setPadding(safe.left,safe.top,safe.right,safe.bottom);
-                return insets;
-            });
-            root.requestApplyInsets();
-        }
-        // Start with a truthful status page, not simulated telemetry or automatically playing media.
+        if(Build.VERSION.SDK_INT>=35)root.setOnApplyWindowInsetsListener((v,in)->{
+            android.graphics.Insets safe=in.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout()|WindowInsets.Type.ime());
+            v.setPadding(safe.left,safe.top,safe.right,safe.bottom);return in;
+        });
         show("Inicio");
     }
-
-    private TextView text(String value,int size) {
-        TextView t = new TextView(this);
-        t.setText(value); t.setTextSize(size); t.setTextColor(CarKit.TEXT);
-        t.setPadding(dp(12),dp(8),dp(12),dp(8));
-        return t;
+    private LinearLayout page() {
+        ScrollView sc=new ScrollView(this);LinearLayout p=new LinearLayout(this);p.setOrientation(1);p.setPadding(dp(16),dp(10),dp(16),dp(20));
+        sc.addView(p);body.addView(sc,new FrameLayout.LayoutParams(-1,-1));return p;
     }
-
     private void clear() {
-        if (current != null) {
-            try { current.destroy(); } catch (RuntimeException e) { L.e("C10 native panel cleanup",e); }
-            current = null;
-        }
-        body.removeAllViews();
+        if(current!=null)try{current.destroy();}catch(RuntimeException e){remember(e);}
+        current=null;body.removeAllViews();
     }
-
+    private void remember(Throwable e) {
+        getSharedPreferences("c10_rebuild",MODE_PRIVATE).edit().putString("last_panel_error",section+": "+e.getClass().getSimpleName()).apply();
+    }
+    private void launch(Class<?> type) {
+        try{startActivity(new Intent(this,type));}catch(RuntimeException e){remember(e);new AlertDialog.Builder(this).setMessage("Este componente no se pudo abrir: "+e.getClass().getSimpleName()).setPositiveButton("Cerrar",null).show();}
+    }
     private void select(String name) {
-        if ("Herramientas GPS".equals(name)) {
-            startActivity(new Intent(this, com.leapmotorguia.c10nativa.MainActivity.class));
-            return;
+        if(name.equals("Herramientas")){launch(com.leapmotorguia.c10nativa.MainActivity.class);return;}
+        if(name.equals("OBD")){launch(com.leapmotorguia.c10nativa.ObdActivity.class);return;}
+        if(Arrays.asList("Coche","Instrumentos","Eficiencia").contains(name)&&checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED) {
+            pending=name;requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},LOCATION);return;
         }
-        if (("Coche".equals(name) || "Instrumentos".equals(name) || "Eficiencia".equals(name))
-                && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            pendingSection = name;
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION},91);
-            return;
-        }
-        if ("Vídeos".equals(name) || "TV".equals(name) || "Web".equals(name) || "Fotos".equals(name)) {
-            new android.app.AlertDialog.Builder(this)
-                .setTitle("Contenido para uso estacionado")
-                .setMessage("Esta alfa no recibe la posición P ni el estado de conducción del coche. Abre este contenido solo con el vehículo estacionado.")
-                .setNegativeButton("Cancelar",null)
-                .setPositiveButton("Estoy estacionado",(d,w) -> show(name)).show();
-            return;
+        if(Arrays.asList("Web","Fotos","Vídeos","TV").contains(name)) {
+            new AlertDialog.Builder(this).setTitle("Uso estacionado").setMessage("La app no recibe una señal P validada del coche. Abre este contenido con el vehículo estacionado.")
+                .setNegativeButton("Cancelar",null).setPositiveButton("Estoy estacionado",(d,w)->media(name)).show();return;
         }
         show(name);
     }
-
-    @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] results) {
-        super.onRequestPermissionsResult(request,permissions,results);
-        if (request == 91) {
-            String name = pendingSection;
-            pendingSection = null;
-            // Panels must remain usable without permission and label missing GPS themselves.
-            if (name != null) show(name);
+    private void media(String name) {
+        if(name.equals("Fotos")||name.equals("Vídeos")) {
+            String perm=Build.VERSION.SDK_INT>=33?(name.equals("Fotos")?Manifest.permission.READ_MEDIA_IMAGES:Manifest.permission.READ_MEDIA_VIDEO):Manifest.permission.READ_EXTERNAL_STORAGE;
+            if(checkSelfPermission(perm)!=PackageManager.PERMISSION_GRANTED){pending=name;requestPermissions(new String[]{perm},MEDIA);return;}
         }
+        show(name);
     }
-
+    @Override public void onRequestPermissionsResult(int req,String[] perms,int[] results) {
+        super.onRequestPermissionsResult(req,perms,results);
+        if(req==LOCATION||req==MEDIA){String name=pending;pending=null;if(name!=null)show(name);}
+    }
     private void show(String name) {
-        clear();
-        section = name;
+        clear();section=name;
         try {
-            switch (name) {
-                case "Diagnóstico": diagnostics(); return;
-                case "Coche": current = new CarHubScreen(); break;
-                case "Instrumentos": current = new InstrumentsScreen(); break;
-                case "Eficiencia": current = new EfficiencyScreen(); break;
-                case "Radio": current = new RadioScreen(); break;
-                case "Web": current = new WebScreen(); break;
-                case "Fotos": current = new GalleryScreen(false); break;
-                case "Vídeos": current = new GalleryScreen(true); break;
-                case "TV": current = new IptvScreen(); break;
-                default: status(); return;
+            switch(name) {
+                case "Coche":current=new CarHubScreen();break;
+                case "Instrumentos":current=new InstrumentsScreen();break;
+                case "Eficiencia":current=new EfficiencyScreen();break;
+                case "Radio":current=new RadioScreen();break;
+                case "Web":current=new WebScreen();break;
+                case "Fotos":current=new GalleryScreen(false);break;
+                case "Vídeos":current=new GalleryScreen(true);break;
+                case "TV":current=new IptvScreen();break;
+                case "Diagnóstico":diagnostics();return;
+                case "Ajustes":settings();return;
+                case "Integraciones":integrations();return;
+                default:home();return;
             }
-            CarStyle.setUiScale(1f,false);
-            CarKit.narrow = host.width() < CarUi.NARROW_MIN_W;
-            CarKit.pageH = host.height();
-            try { body.addView(current.create(host),new FrameLayout.LayoutParams(-1,-1)); }
-            finally { CarKit.narrow = false; }
-        } catch (RuntimeException | LinkageError e) {
-            L.e("C10 native panel "+name,e);
-            clear();
-            body.addView(text("No se ha podido abrir "+name+".\n"+
-                e.getClass().getSimpleName()+": "+String.valueOf(e.getMessage())+
-                "\nEsta función necesita adaptación; no está verificada.",18));
+            CarStyle.setUiScale(1f,false);CarKit.narrow=host.width()<CarUi.NARROW_MIN_W;CarKit.pageH=host.height();
+            try{body.addView(current.create(host),new FrameLayout.LayoutParams(-1,-1));}finally{CarKit.narrow=false;}
+        } catch(RuntimeException|LinkageError error) {
+            remember(error);clear();LinearLayout p=page();p.addView(text("El panel no pudo abrirse: "+error.getClass().getSimpleName()+". Consulta Diagnóstico.",20));action(p,"Volver al inicio",()->show("Inicio"));
         }
     }
-
-
+    private void home() {
+        LinearLayout p=page();p.addView(text("Tu panel nativo para el C10 REEV",26));
+        p.addView(text("Conserva los paneles de coche, ruta, viajes, instrumentos, eficiencia, radio, navegador y multimedia de Qonecta+. Inicio y herramientas de diagnóstico reconstruidos para esta prueba.",18));
+        p.addView(text("Los valores del modelo son estimaciones. Solo una fuente GPS, nube u OBD conectada puede aportar sus datos; no se sustituyen lecturas ausentes por datos inventados.",18));
+        action(p,"Abrir coche y rutas",()->select("Coche"));action(p,"Prestaciones GPS y cálculos",()->select("Herramientas"));
+        action(p,"OBD de solo lectura",()->select("OBD"));action(p,"Comprobar este dispositivo",()->show("Diagnóstico"));
+        p.addView(text("La instalación en LeapOS no está validada. No es equivalente a todas las funciones de la app de teléfono ni incluye una integración nativa con CarPlay/Android Auto.",17));
+        p.addView(text("Derivado de Qonecta+ / CharlysEV, HeadQLink / ryazrm y Open Headunit. Licencias y autores conservados. AGPL-3.0.",16));
+    }
+    private String report() {
+        StringBuilder r=new StringBuilder("C10 ControlPlus 1.0 · INFORME SIN CREDENCIALES\n");
+        r.append("Paquete: ").append(getPackageName()).append("\nAndroid: ").append(Build.VERSION.RELEASE).append(" · API ").append(Build.VERSION.SDK_INT);
+        r.append("\nModelo: ").append(Build.MANUFACTURER).append(" / ").append(Build.MODEL).append("\nABI: ").append(Arrays.toString(Build.SUPPORTED_ABIS));
+        r.append("\nSDK mínimo: ").append(getApplicationInfo().minSdkVersion).append(" · objetivo: ").append(getApplicationInfo().targetSdkVersion);
+        r.append("\nEspacio libre: ").append(getFilesDir().getUsableSpace()/1048576).append(" MiB\n");
+        for(String f:new String[]{"android.hardware.location.gps","android.hardware.bluetooth","android.hardware.camera.any"})r.append(f).append(": ").append(getPackageManager().hasSystemFeature(f)).append('\n');
+        try{CameraManager cm=(CameraManager)getSystemService(CAMERA_SERVICE);r.append("Cámaras declaradas a Android: ").append(cm==null?"sin servicio":cm.getCameraIdList().length).append(" (no prueba acceso a cámaras ADAS/360)\n");}catch(Exception e){r.append("Cámaras: acceso a inventario no disponible\n");}
+        try{SensorManager sm=(SensorManager)getSystemService(SENSOR_SERVICE);r.append("Sensores Android declarados: ").append(sm==null?0:sm.getSensorList(-1).size()).append(" (no son lecturas del vehículo)\n");}catch(Exception ignored){}
+        r.append("GPS permitido: ").append(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED).append('\n');
+        r.append("Último error de panel: ").append(getSharedPreferences("c10_rebuild",MODE_PRIVATE).getString("last_panel_error","ninguno")).append('\n');
+        r.append("Último cierre capturado: ").append(getSharedPreferences("c10_rebuild",MODE_PRIVATE).getString("last_crash","ninguno")).append('\n');
+        r.append("Este informe solo existe después de instalar. No lee logs privados del instalador ni prueba conexión real con el C10. No contiene VIN, serie, Bluetooth MAC ni cuenta.");
+        return r.toString();
+    }
     private void diagnostics() {
-        StringBuilder report = new StringBuilder();
-        report.append("DIAGNÓSTICO C10 0.9\n");
-        report.append("Android: ").append(Build.VERSION.RELEASE).append(" · API ").append(Build.VERSION.SDK_INT).append("\n");
-        report.append("Fabricante: ").append(Build.MANUFACTURER).append("\nModelo: ").append(Build.MODEL).append("\n");
-        report.append("Arquitecturas: ").append(java.util.Arrays.toString(Build.SUPPORTED_ABIS)).append("\n");
-        report.append("Paquete: ").append(getPackageName()).append("\n");
-        report.append("Android mínimo / objetivo: ").append(getApplicationInfo().minSdkVersion).append(" / ").append(getApplicationInfo().targetSdkVersion).append("\n");
-        report.append("Espacio disponible para la app: ").append(getFilesDir().getUsableSpace()/1024/1024).append(" MiB\n");
-        PackageManager pm = getPackageManager();
-        for (String feature : new String[]{"android.hardware.location","android.hardware.location.gps",
-                "android.hardware.location.network","android.hardware.touchscreen","android.hardware.faketouch",
-                "android.hardware.usb.host","android.hardware.type.automotive"}) {
-            report.append(feature).append(": ").append(pm.hasSystemFeature(feature) ? "sí" : "no").append("\n");
-        }
-        report.append("Permiso GPS: ").append(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED ? "concedido" : "sin conceder").append("\n");
+        LinearLayout p=page();p.addView(text(report(),17));action(p,"Guardar informe TXT",()->{
+            Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("text/plain").putExtra(Intent.EXTRA_TITLE,"C10-informe-1.0.txt");
+            try{startActivityForResult(i,EXPORT);}catch(RuntimeException e){new AlertDialog.Builder(this).setMessage("Este sistema no ofrece un selector para guardar archivos. Puedes fotografiar el informe.").setPositiveButton("Cerrar",null).show();}
+        });
+    }
+    private void settings() {
+        LinearLayout p=page();p.addView(text("Archivos y conexiones opcionales",24));
+        action(p,"Elegir carpeta de vídeos / USB",()->{
+            try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION),FOLDER);}catch(RuntimeException e){p.addView(text("Selector de carpetas no disponible en este sistema.",17));}
+        });
+        p.addView(text("Los siguientes son los ajustes originales de Qonecta+. Sus integraciones necesitan sus propios requisitos y no se han probado en tu coche. No introduzcas credenciales por chat.",17));
+        action(p,"Cuenta Leapmotor · integración experimental",()->launch(CarCloudActivity.class));
+        action(p,"Home Assistant · integración opcional",()->launch(HomeAssistantActivity.class));
+        action(p,"Ajustes de esta aplicación en Android",()->{
+            try{startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName())));}catch(RuntimeException e){p.addView(text("Ajustes del sistema no disponibles.",17));}
+        });
+    }
+    private void integrations() {
+        LinearLayout p=page();p.addView(text("Qué podemos medir y qué sigue pendiente",24));
+        p.addView(text("GPS: velocidad y prestaciones aproximadas, si hay proveedor y señal. OBD: RPM, velocidad y temperatura si el coche y un adaptador Bluetooth clásico ELM327 responden a los PID estándar. La tensión ATRV es la del adaptador/12 V, no la batería de tracción.",18));
+        p.addView(text("Regeneración y costes: cálculo manual. No existe aún un PID de batería, potencia o regeneración del C10 validado en este proyecto.",18));
+        p.addView(text("Cámara del parabrisas, distancia delantera, centinela y cámaras 360: no hay una API/proveedor confirmado. No se activan con botones simulados. Encontrar una cámara Android no demuestra acceso al sistema del coche.",18));
+        p.addView(text("Aparcamiento autónomo, mover el coche desde el móvil, reprogramar potencia o regeneración y autorregular el motor: no implementados. La app no manda órdenes de dirección, freno o aceleración.",18));
+        action(p,"Ver capacidades reales declaradas",()->show("Diagnóstico"));
+    }
+    @Override protected void onActivityResult(int req,int result,Intent data) {
+        super.onActivityResult(req,result,data);if(result!=RESULT_OK||data==null||data.getData()==null)return;
         try {
-            String installer = pm.getInstallSourceInfo(getPackageName()).getInstallingPackageName();
-            report.append("Instalador de esta app: ").append(installer == null ? "no informado" : installer).append("\n");
-        } catch (Exception e) {
-            report.append("Instalador de esta app: no disponible\n");
-        }
-        report.append("\nEsta pantalla solo funciona después de instalar esta app. No puede leer el motivo de rechazo de otro APK ni los registros privados del instalador. No demuestra acceso a cámaras o datos del vehículo.\n");
-        report.append("\nNo incluye VIN, número de serie ni datos de tu cuenta. Puedes fotografiar esta pantalla para revisar la compatibilidad.");
-        ScrollView sc = new ScrollView(this);
-        TextView result = text(report.toString(),18);
-        result.setTextIsSelectable(true);
-        sc.addView(result);
-        body.addView(sc,new FrameLayout.LayoutParams(-1,-1));
+            if(req==EXPORT){try(java.io.OutputStream out=getContentResolver().openOutputStream(data.getData())){if(out==null)throw new java.io.IOException();out.write(report().getBytes(StandardCharsets.UTF_8));}Toast.makeText(this,"Informe guardado",Toast.LENGTH_LONG).show();}
+            if(req==FOLDER){getContentResolver().takePersistableUriPermission(data.getData(),Intent.FLAG_GRANT_READ_URI_PERMISSION);new Config(this).setVideoTree(data.getData().toString());Toast.makeText(this,"Carpeta guardada. Abre Vídeos.",Toast.LENGTH_LONG).show();}
+        }catch(Exception e){new AlertDialog.Builder(this).setMessage("No se pudo guardar: "+e.getClass().getSimpleName()).setPositiveButton("Cerrar",null).show();}
     }
-
-    private void status() {
-        ScrollView sc = new ScrollView(this);
-        LinearLayout col = new LinearLayout(this);
-        col.setOrientation(LinearLayout.VERTICAL);
-        sc.addView(col);
-        col.addView(text("Paneles originales de Qonecta+ en una actividad nativa",24));
-        col.addView(text("Alfa 0.9 de compatibilidad para el coche. No es una versión definitiva ni garantiza la instalación en LeapOS.",18));
-        col.addView(text("Perfil de estimación: C10 REEV. Los parámetros del modelo no son mediciones del coche.",18));
-        col.addView(text("Android "+Build.VERSION.RELEASE+" · API "+Build.VERSION.SDK_INT+
-            "\nModelo: "+Build.MODEL,18));
-        col.addView(text("Coche, instrumentos, eficiencia, radio, web, fotos, vídeos y TV reutilizan sus implementaciones de Qonecta+. Algunas dependen de internet, archivos o servicios no disponibles en el coche.",18));
-        col.addView(text("Sin cuenta configurada, los datos reales del vehículo no están disponibles. Potencia, consumo y regeneración calculados por el modelo son estimaciones, no lecturas OBD.",18));
-        col.addView(text("No incluye receptor Android Auto/CarPlay nativo, acceso a cámaras, centinela, aparcamiento remoto, control del motor ni ajustes de potencia o frenada.",18));
-        col.addView(text("Sin modo demostración. Sin arranque automático ni cambios en firmware. GPS y datos disponibles deben comprobarse en este vehículo.",18));
-        col.addView(text("Proyecto derivado de Qonecta+ (CharlysEV), HeadQLink (ryazrm) y Open Headunit. AGPL-3.0; créditos y licencias conservados.",16));
-        body.addView(sc,new FrameLayout.LayoutParams(-1,-1));
-    }
-
-    private final CarScreen.Host host = new CarScreen.Host() {
-        public android.content.Context context() { return C10NativeActivity.this; }
-        public void setContent(View v) { body.removeAllViews(); body.addView(v,new FrameLayout.LayoutParams(-1,-1)); }
-        public int width() { return body.getWidth()>0 ? body.getWidth() : getResources().getDisplayMetrics().widthPixels; }
-        public int height() { return body.getHeight()>0 ? body.getHeight() : Math.max(240,getResources().getDisplayMetrics().heightPixels-dp(112)); }
-        public void post(Runnable r) { body.post(r); }
-        // Keep native navigation and the vehicle's system UI accessible.
-        public void setFullscreen(boolean on) { }
-        public void setImmersive(boolean on) { }
+    private final CarScreen.Host host=new CarScreen.Host(){
+        public android.content.Context context(){return C10NativeActivity.this;}
+        public void setContent(View v){body.removeAllViews();body.addView(v,new FrameLayout.LayoutParams(-1,-1));}
+        public int width(){return body.getWidth()>0?body.getWidth():getResources().getDisplayMetrics().widthPixels;}
+        public int height(){return body.getHeight()>0?body.getHeight():getResources().getDisplayMetrics().heightPixels-dp(112);}
+        public void post(Runnable r){body.post(r);}public void setFullscreen(boolean on){}public void setImmersive(boolean on){}
     };
-
-    @Override protected void onStop() {
-        stopped = true;
-        clear();
-        RadioPlayer.stop();
-        super.onStop();
-    }
-
-    @Override protected void onStart() {
-        super.onStart();
-        if (stopped) { stopped=false; show("Inicio"); }
-    }
-
-    @Override protected void onDestroy() {
-        clear();
-        super.onDestroy();
-    }
+    @Override protected void onStop(){paused=true;clear();RadioPlayer.stop();super.onStop();}
+    @Override protected void onStart(){super.onStart();if(paused){paused=false;show("Inicio");}}
+    @Override protected void onDestroy(){clear();super.onDestroy();}
+    @Override public void onBackPressed(){if(!section.equals("Inicio"))show("Inicio");else super.onBackPressed();}
 }

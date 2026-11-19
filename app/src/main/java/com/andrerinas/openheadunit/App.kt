@@ -53,6 +53,12 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         // proceso anterior), y la radio sin la música. No lee ajustes.
         com.headqlink.link.RadioSession.sourceAtStart(this)
         instance = this
+        if (BuildConfig.C10_NATIVE) {
+            // The native build starts only its requested foreground panels.
+            // Avoid phone projection, receiver registration and background work.
+            if (isUserUnlocked()) initUnlockedOnce()
+            return
+        }
         registerActivityLifecycleCallbacks(this)
 
         try {

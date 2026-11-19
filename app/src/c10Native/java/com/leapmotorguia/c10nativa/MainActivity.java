@@ -125,7 +125,7 @@ public class MainActivity extends Activity {
         LinearLayout timing = card();
         timing.addView(label("Medición de prestaciones por GPS", 22, text, true));
         spacer(timing, 7);
-        timing.addView(label("0–100 y 80–120 aproximados, con resultados locales. Necesita señal GPS y permiso de ubicación.", 17, Color.LTGRAY, false));
+        timing.addView(label("Salida desde parado (cronómetro a 3 km/h) y 80–120 aproximados, con resultados locales. Necesita señal GPS y permiso de ubicación.", 17, Color.LTGRAY, false));
         Button openTiming = new Button(this);
         openTiming.setText("Abrir medición GPS");
         openTiming.setTextSize(18);

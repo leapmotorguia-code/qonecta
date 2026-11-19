@@ -9,27 +9,31 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
+    <uses-feature android:name="android.hardware.location.network" android:required="false"/>
+    <uses-feature android:name="android.hardware.location" android:required="false"/>
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
     <uses-feature android:name="android.hardware.faketouch" android:required="false"/>
-    <uses-feature android:name="android.hardware.location" android:required="false"/>
-    <uses-feature android:name="android.hardware.location.network" android:required="false"/>
+    <queries><intent><action android:name="android.intent.action.OPEN_DOCUMENT"/><category android:name="android.intent.category.OPENABLE"/><data android:mimeType="*/*"/></intent></queries>
     <application android:name="com.andrerinas.openheadunit.App"
-        android:label="C10 Nativa Plus 0.9 Alternativa" android:icon="@mipmap/hql_launcher"
-        android:hardwareAccelerated="true" android:allowBackup="false"
+        android:label="C10 ControlPlus 1.0" android:icon="@mipmap/hql_launcher"
+        android:hardwareAccelerated="true" android:allowBackup="false" android:extractNativeLibs="true"
         android:usesCleartextTraffic="true" android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name="com.headqlink.link.C10NativeActivity" android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity>
-        <activity android:name="com.leapmotorguia.c10nativa.MainActivity" android:exported="false"
-            android:theme="@android:style/Theme.Material.NoActionBar"/>
-        <activity android:name="com.leapmotorguia.c10nativa.PerformanceActivity" android:exported="false"
-            android:theme="@android:style/Theme.Material.NoActionBar"/>
+        <activity android:name="com.leapmotorguia.c10nativa.MainActivity" android:exported="false" android:theme="@android:style/Theme.Material.NoActionBar"/>
+        <activity android:name="com.leapmotorguia.c10nativa.PerformanceActivity" android:exported="false" android:theme="@android:style/Theme.Material.NoActionBar"/>
+        <activity android:name="com.leapmotorguia.c10nativa.ObdActivity" android:exported="false" android:theme="@android:style/Theme.Material.NoActionBar"/>
+        <activity android:name="com.headqlink.link.CarCloudActivity" android:exported="false" android:theme="@style/Theme.HeadQLink"/>
+        <activity android:name="com.headqlink.link.HomeAssistantActivity" android:exported="false" android:theme="@style/Theme.HeadQLink"/>
+        <activity android:name="com.headqlink.link.TripMapActivity" android:exported="false" android:theme="@style/Theme.HeadQLink"/>
         <service android:name="com.andrerinas.openheadunit.aap.DummyVpnService" tools:node="remove"/>
         <service android:name="com.headqlink.link.RadioBrowserService" android:exported="false"/>
     </application>

@@ -64,7 +64,7 @@ public final class PerformanceActivity extends Activity implements LocationListe
         TextView title = text("Medición por GPS", 28, true); title.setTextColor(GREEN); add(column, title, 8);
         add(column, text("Estimación experimental. Úsala solo en un circuito autorizado y prepara todo antes de moverte. No manipules la pantalla al conducir.", 17, false), 12);
         add(column, text("Tipo de prueba", 18, true), 4);
-        measurement = spinner(new String[]{"Desde parado: 0–50, 0–100, 0–120, 0–130 y 0–140", "Recuperación: 80–100, 80–120, 80–130 y 80–140"}); add(column, measurement, 8);
+        measurement = spinner(new String[]{"Salida desde parado: tiempos desde 3 km/h hasta 50, 100, 120, 130 y 140", "Recuperación: 80–100, 80–120, 80–130 y 80–140"}); add(column, measurement, 8);
         add(column, text("Modo elegido manualmente", 18, true), 4);
         drivingMode = spinner(new String[]{"Eléctrico Sport", "Power Sport", "Otro modo"}); add(column, drivingMode, 8);
         start = button("Preparar medición"); stop = button("Detener medición"); stop.setEnabled(false); add(column, start, 6); add(column, stop, 12);
@@ -159,7 +159,7 @@ public final class PerformanceActivity extends Activity implements LocationListe
             case TIMING: instructions.setText("Midiendo… resultados estimados a partir de la señal GPS."); break;
             case COMPLETE: instructions.setText("Medición finalizada."); break;
         }
-        String prefix = mode == PerformanceTimer.Mode.FROM_STOP ? "0" : "80";
+        String prefix = mode == PerformanceTimer.Mode.FROM_STOP ? "3" : "80";
         int[] targets = mode == PerformanceTimer.Mode.FROM_STOP ? new int[]{50,100,120,130,140} : new int[]{100,120,130,140};
         StringBuilder out = new StringBuilder();
         for (int target : targets) {

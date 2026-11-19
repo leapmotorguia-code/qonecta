@@ -63,7 +63,9 @@ final class GalleryScreen implements CarScreen {
     public View create(Host h) {
         host = h;
         Context c = h.context();
-        String perm = videos ? android.Manifest.permission.READ_MEDIA_VIDEO : android.Manifest.permission.READ_MEDIA_IMAGES;
+        String perm = android.os.Build.VERSION.SDK_INT >= 33
+            ? (videos ? android.Manifest.permission.READ_MEDIA_VIDEO : android.Manifest.permission.READ_MEDIA_IMAGES)
+            : android.Manifest.permission.READ_EXTERNAL_STORAGE;
         boolean granted = c.checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED;
         if (granted) all.addAll(MediaLibrary.query(c, videos));
         if (videos) {

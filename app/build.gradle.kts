@@ -123,12 +123,12 @@ android {
         // installs, testers) and existing users just get a normal update. Only the display name
         // changed to Open Headunit. The code package and namespace stay openheadunit, so the
         // applicationId deliberately differs from the namespace, like com.google.talk for Hangouts.
-        applicationId = if (c10Native) "com.leapmotorguia.c10nativealt" else "com.headqlink.app" // headqlink: identificador propio del fork
+        applicationId = if (c10Native) "com.leapmotorguia.c10rebuilt" else "com.headqlink.app" // headqlink: identificador propio del fork
         // Android 6+: lo pide Material 3 (1.14) y, de todas formas, Android Auto ya exige Android 9 en el móvil.
-        minSdk = if (c10Native) 30 else 23
-        targetSdk = if (c10Native) 30 else 36
-        versionCode = if (c10Native) 109 else 76
-        versionName = if (c10Native) "0.9-alt-api30-alpha" else "0.3.19-qdauto"
+        minSdk = if (c10Native) 26 else 23
+        targetSdk = if (c10Native) 35 else 36
+        versionCode = if (c10Native) 110 else 76
+        versionName = if (c10Native) "1.0-native-rebuild" else "0.3.19-qdauto"
         setProperty("archivesBaseName", "Qonecta_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -218,8 +218,8 @@ android {
         getByName("release") {
             isDebuggable = false
             isTestCoverageEnabled = false
-            isMinifyEnabled = !c10Native
-            isShrinkResources = !c10Native
+            isMinifyEnabled = true
+            isShrinkResources = true
             // headqlink: la versión publicada solo para móviles ARM (todos los de los usuarios). Las librerías nativas
             // x86/x86_64 eran 21 MB del APK de 54 MB y solo sirven en emuladores del PC; las de prueba (debug) las
             // siguen llevando para el emulador.
@@ -256,6 +256,7 @@ android {
     }
 
     packaging {
+        jniLibs.useLegacyPackaging = c10Native
         resources {
             excludes += "META-INF/DEPENDENCIES"
             excludes += "META-INF/LICENSE"
