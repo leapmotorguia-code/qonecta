@@ -1,0 +1,81 @@
+name: C10 Control Pro prueba independiente
+on:
+  push:
+    branches: [c10-dual-tests-01]
+    paths: ['android-pro/**', '.github/workflows/c10-pro-test.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: c10-pro-independent
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Compilar y probar cálculos
+        run: |
+          mkdir -p deliverable
+          gradle -p android-pro :app:assembleRelease :app:testReleaseUnitTest --stacktrace > deliverable/compilacion.txt 2>&1 || { tail -100 deliverable/compilacion.txt; exit 1; }
+          cp android-pro/app/build/outputs/apk/release/*.apk deliverable/C10-Control-Pro-0.2.apk
+          cp android-pro/app/build/test-results/testReleaseUnitTest/TEST-es.c10.controlpro.MeasurementsTest.xml deliverable/pruebas.xml
+      - name: Verificar APK
+        run: |
+          TOOL_DIR="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$TOOL_DIR/apksigner" verify --verbose --print-certs deliverable/C10-Control-Pro-0.2.apk > deliverable/firma.txt
+          "$TOOL_DIR/zipalign" -c -P 16 4 deliverable/C10-Control-Pro-0.2.apk
+          "$TOOL_DIR/aapt" dump badging deliverable/C10-Control-Pro-0.2.apk > deliverable/configuracion.txt
+          grep "sdkVersion:'28'" deliverable/configuracion.txt
+          grep "targetSdkVersion:'35'" deliverable/configuracion.txt
+          ! grep -q 'application-debuggable\|testOnly\|^[[:space:]]*uses-feature:' deliverable/configuracion.txt
+          python3 - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('deliverable/C10-Control-Pro-0.2.apk') as z:
+              assert z.testzip() is None
+              assert not any(n.startswith('lib/') for n in z.namelist())
+          PY
+      - name: Preparar emulador
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-c10-kvm.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          target: default
+          disable-animations: true
+          script: python3 android-pro/smoke.py
+      - name: Preparar entrega
+        run: |
+          cp android-pro/LEER-PRIMERO.md deliverable/LEER-PRIMERO.md
+          git archive --format=zip --output=deliverable/C10-Control-Pro-0.2-Codigo.zip HEAD android-pro .github/workflows/c10-pro-test.yml
+          git rev-parse HEAD > deliverable/COMMIT.txt
+          sha256sum deliverable/*.apk deliverable/*Codigo.zip > deliverable/SHA256.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: C10-Control-Pro-0.2-Resultado
+          path: deliverable/*
+          retention-days: 14
+      - name: Publicar descarga independiente
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=c10-control-pro-0.2-prueba
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --target "$GITHUB_SHA" --prerelease --title "C10 Control Pro0.2 · prueba propia" --notes-file android-pro/LEER-PRIMERO.md
+          fi
+          gh release upload "$TAG" deliverable/C10-Control-Pro-0.2.apk deliverable/C10-Control-Pro-0.2-Codigo.zip deliverable/LEER-PRIMERO.md deliverable/SHA256.txt --clobber

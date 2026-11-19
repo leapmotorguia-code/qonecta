@@ -1,0 +1,8 @@
+plugins { id 'com.android.application' }
+android {
+ namespace 'es.c10.controlpro'; compileSdk 35
+ defaultConfig { applicationId 'es.c10.controlpro'; minSdk 28; targetSdk 35; versionCode 2; versionName '0.2-prueba' }
+ buildTypes { release { debuggable false; minifyEnabled false; signingConfig signingConfigs.debug } }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+}
+dependencies { testImplementation 'junit:junit:4.13.2' }
