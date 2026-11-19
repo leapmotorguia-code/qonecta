@@ -38,7 +38,7 @@ def tap(label):
         time.sleep(.3)
     raise AssertionError('Not found '+label+'\n'+ui())
 run('adb','shell','wm','size','1920x1080');run('adb','shell','wm','density','160')
-run('adb','install','-r','deliverable/C10-ControlPlus-1.0.apk')
+run('adb','install','-r','deliverable/C10-ControlPlus-1.1.apk')
 run('adb','install','-r','deliverable/C10-Instalador-1.0.apk')
 for perm in ['android.permission.ACCESS_COARSE_LOCATION','android.permission.ACCESS_FINE_LOCATION','android.permission.READ_EXTERNAL_STORAGE']:
     run('adb','shell','pm','grant',PKG,perm)
@@ -53,7 +53,7 @@ tap('OBD');assert 'OBD · lecturas estándar' in ui();assert 'Sin lecturas actua
 run('adb','shell','input','keyevent','4');time.sleep(1)
 tap('Herramientas');assert 'HERRAMIENTAS C10' in ui()
 run('adb','shell','input','keyevent','4');time.sleep(1)
-tap('Diagnóstico');screen=ui();assert 'API 30' in screen;assert 'SDK mínimo: 26 · objetivo: 35' in screen
+tap('Diagnóstico');screen=ui();assert 'API 30' in screen;assert 'SDK mínimo: 28 · objetivo: 36' in screen
 assert 'Último error de panel: ninguno' in screen,screen
 services=run('adb','shell','dumpsys','activity','services',PKG)
 assert 'LinkService' not in services and 'AapService' not in services,services

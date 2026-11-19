@@ -19,8 +19,8 @@
     <uses-feature android:name="android.hardware.faketouch" android:required="false"/>
     <queries><intent><action android:name="android.intent.action.OPEN_DOCUMENT"/><category android:name="android.intent.category.OPENABLE"/><data android:mimeType="*/*"/></intent></queries>
     <application android:name="com.andrerinas.openheadunit.App"
-        android:label="C10 ControlPlus 1.0" android:icon="@mipmap/hql_launcher"
-        android:hardwareAccelerated="true" android:allowBackup="false" android:extractNativeLibs="true"
+        android:label="C10 ControlPlus 1.1" android:icon="@mipmap/hql_launcher"
+        android:hardwareAccelerated="true" android:allowBackup="false" android:extractNativeLibs="false"
         android:usesCleartextTraffic="true" android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name="com.headqlink.link.C10NativeActivity" android:exported="true"

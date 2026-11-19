@@ -50,7 +50,7 @@ public final class C10NativeActivity extends Activity {
             getSharedPreferences("c10_rebuild",MODE_PRIVATE).edit().putBoolean("profile",true).apply();
         }
         root=new LinearLayout(this); root.setOrientation(1); root.setBackgroundColor(BG);
-        TextView title=text("C10 ControlPlus · 1.0 PRUEBA",22); title.setTextColor(MINT); root.addView(title);
+        TextView title=text("C10 ControlPlus · 1.1 PRUEBA",22); title.setTextColor(MINT); root.addView(title);
         HorizontalScrollView bar=new HorizontalScrollView(this); LinearLayout row=new LinearLayout(this);
         for(String name:new String[]{"Inicio","Coche","Instrumentos","Eficiencia","Radio","Web","Fotos","Vídeos","TV","Herramientas","OBD","Ajustes","Diagnóstico","Integraciones"}) {
             Button b=new Button(this); b.setText(name); b.setAllCaps(false); b.setContentDescription("nav:"+name);
@@ -134,7 +134,7 @@ public final class C10NativeActivity extends Activity {
         p.addView(text("Derivado de Qonecta+ / CharlysEV, HeadQLink / ryazrm y Open Headunit. Licencias y autores conservados. AGPL-3.0.",16));
     }
     private String report() {
-        StringBuilder r=new StringBuilder("C10 ControlPlus 1.0 · INFORME SIN CREDENCIALES\n");
+        StringBuilder r=new StringBuilder("C10 ControlPlus 1.1 · INFORME SIN CREDENCIALES\n");
         r.append("Paquete: ").append(getPackageName()).append("\nAndroid: ").append(Build.VERSION.RELEASE).append(" · API ").append(Build.VERSION.SDK_INT);
         r.append("\nModelo: ").append(Build.MANUFACTURER).append(" / ").append(Build.MODEL).append("\nABI: ").append(Arrays.toString(Build.SUPPORTED_ABIS));
         r.append("\nSDK mínimo: ").append(getApplicationInfo().minSdkVersion).append(" · objetivo: ").append(getApplicationInfo().targetSdkVersion);
@@ -150,7 +150,7 @@ public final class C10NativeActivity extends Activity {
     }
     private void diagnostics() {
         LinearLayout p=page();p.addView(text(report(),17));action(p,"Guardar informe TXT",()->{
-            Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("text/plain").putExtra(Intent.EXTRA_TITLE,"C10-informe-1.0.txt");
+            Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("text/plain").putExtra(Intent.EXTRA_TITLE,"C10-informe-1.1.txt");
             try{startActivityForResult(i,EXPORT);}catch(RuntimeException e){new AlertDialog.Builder(this).setMessage("Este sistema no ofrece un selector para guardar archivos. Puedes fotografiar el informe.").setPositiveButton("Cerrar",null).show();}
         });
     }

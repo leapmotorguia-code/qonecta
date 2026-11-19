@@ -125,10 +125,10 @@ android {
         // applicationId deliberately differs from the namespace, like com.google.talk for Hangouts.
         applicationId = if (c10Native) "com.leapmotorguia.c10rebuilt" else "com.headqlink.app" // headqlink: identificador propio del fork
         // Android 6+: lo pide Material 3 (1.14) y, de todas formas, Android Auto ya exige Android 9 en el móvil.
-        minSdk = if (c10Native) 26 else 23
-        targetSdk = if (c10Native) 35 else 36
-        versionCode = if (c10Native) 110 else 76
-        versionName = if (c10Native) "1.0-native-rebuild" else "0.3.19-qdauto"
+        minSdk = if (c10Native) 28 else 23
+        targetSdk = 36
+        versionCode = if (c10Native) 111 else 76
+        versionName = if (c10Native) "1.1-unit-packaging-test" else "0.3.19-qdauto"
         setProperty("archivesBaseName", "Qonecta_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -256,7 +256,7 @@ android {
     }
 
     packaging {
-        jniLibs.useLegacyPackaging = c10Native
+        jniLibs.useLegacyPackaging = false
         resources {
             excludes += "META-INF/DEPENDENCIES"
             excludes += "META-INF/LICENSE"
@@ -272,7 +272,7 @@ android {
         // dentro (18 MB de .so de ML Kit) el APK pasaba de 32 a 51 MB; así se queda en ~28, a cambio de ~38 MB más en el
         // móvil una vez instalado.
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = !c10Native
         }
     }
 

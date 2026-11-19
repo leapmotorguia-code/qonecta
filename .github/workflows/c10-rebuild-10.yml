@@ -1,8 +1,8 @@
-name: C10 ControlPlus 1.0 nativa reconstruida
+name: C10 ControlPlus 1.1 nativa reconstruida
 on:
   push:
     branches: [c10-nativa-rebuild-10]
-    paths: ['app/**', 'c10installer/**', 'tools/c10_rebuild_smoke.py', 'docs/C10_REBUILD_10.md', 'settings.gradle.kts', '.github/workflows/c10-rebuild-10.yml']
+    paths: ['app/**', 'c10installer/**', 'tools/c10_rebuild_smoke.py', 'docs/C10_REBUILD_11.md', 'settings.gradle.kts', '.github/workflows/c10-rebuild-10.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -35,7 +35,7 @@ jobs:
           set -o pipefail
           ./gradlew :app:assembleGithubRelease :c10installer:assembleRelease -Pc10Native=true -Pc10NativeAbis=arm64-v8a,armeabi-v7a,x86_64 --max-workers=2 --stacktrace > deliverable/compilacion.txt 2>&1 || { tail -100 deliverable/compilacion.txt; exit 1; }
           ./gradlew :app:testGithubReleaseUnitTest -Pc10Native=true -Pc10NativeAbis=arm64-v8a,armeabi-v7a,x86_64 --tests 'com.headqlink.link.C10RebuildTest' --max-workers=2 --stacktrace > deliverable/pruebas-unitarias.txt 2>&1 || { tail -100 deliverable/pruebas-unitarias.txt; exit 1; }
-          cp app/build/outputs/apk/github/release/*.apk deliverable/C10-ControlPlus-1.0.apk
+          cp app/build/outputs/apk/github/release/*.apk deliverable/C10-ControlPlus-1.1.apk
           cp c10installer/build/outputs/apk/release/*.apk deliverable/C10-Instalador-1.0.apk
           cp app/build/outputs/mapping/githubRelease/mapping.txt deliverable/mapping.txt
           cp app/build/test-results/testGithubReleaseUnitTest/TEST-com.headqlink.link.C10RebuildTest.xml deliverable/pruebas-unitarias.xml
@@ -49,13 +49,14 @@ jobs:
             if grep -q 'application-debuggable\|testOnly' "$APK.configuracion.txt"; then exit 1; fi
             if grep -q '^[[:space:]]*uses-feature:' "$APK.configuracion.txt"; then echo 'Unexpected required feature'; exit 1; fi
           done
-          grep "sdkVersion:'26'" deliverable/C10-ControlPlus-1.0.apk.configuracion.txt
-          grep "targetSdkVersion:'35'" deliverable/C10-ControlPlus-1.0.apk.configuracion.txt
+          grep "sdkVersion:'28'" deliverable/C10-ControlPlus-1.1.apk.configuracion.txt
+          grep "targetSdkVersion:'36'" deliverable/C10-ControlPlus-1.1.apk.configuracion.txt
           grep "sdkVersion:'23'" deliverable/C10-Instalador-1.0.apk.configuracion.txt
           python3 - <<'PY'
           import zipfile
-          with zipfile.ZipFile('deliverable/C10-ControlPlus-1.0.apk') as z:
+          with zipfile.ZipFile('deliverable/C10-ControlPlus-1.1.apk') as z:
               assert z.testzip() is None
+              assert all(z.getinfo(n).compress_type == zipfile.ZIP_STORED for n in z.namelist() if n.startswith('lib/') and n.endswith('.so'))
               assert {n.split('/')[1] for n in z.namelist() if n.startswith('lib/')} == {'arm64-v8a','armeabi-v7a','x86_64'}
           with zipfile.ZipFile('deliverable/C10-Instalador-1.0.apk') as z:
               assert z.testzip() is None
@@ -75,15 +76,15 @@ jobs:
           script: python3 tools/c10_rebuild_smoke.py
       - name: Preparar paquete revisable
         run: |
-          cp docs/C10_REBUILD_10.md deliverable/LEER-PRIMERO.md
-          git archive --format=zip --output=deliverable/C10-ControlPlus-1.0-Codigo.zip HEAD
+          cp docs/C10_REBUILD_11.md deliverable/LEER-PRIMERO.md
+          git archive --format=zip --output=deliverable/C10-ControlPlus-1.1-Codigo.zip HEAD
           git rev-parse HEAD > deliverable/COMMIT.txt
           sha256sum deliverable/*.apk deliverable/*Codigo.zip > deliverable/SHA256.txt
-          (cd deliverable && zip -q C10-ControlPlus-1.0-Paquete.zip C10-ControlPlus-1.0.apk C10-Instalador-1.0.apk C10-ControlPlus-1.0-Codigo.zip LEER-PRIMERO.md SHA256.txt COMMIT.txt *.configuracion.txt *.firma.txt pruebas-unitarias.xml emulador-api30.txt)
+          (cd deliverable && zip -q C10-ControlPlus-1.1-Paquete.zip C10-ControlPlus-1.1.apk C10-Instalador-1.0.apk C10-ControlPlus-1.1-Codigo.zip LEER-PRIMERO.md SHA256.txt COMMIT.txt *.configuracion.txt *.firma.txt pruebas-unitarias.xml emulador-api30.txt)
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: C10-ControlPlus-1.0-Resultado
+          name: C10-ControlPlus-1.1-Resultado
           path: deliverable/*
           if-no-files-found: error
           retention-days: 14
@@ -91,8 +92,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG=c10-controlplus-1.0-prueba
+          TAG=c10-controlplus-1.1-prueba
           if ! gh release view "$TAG" >/dev/null 2>&1; then
-            gh release create "$TAG" --target "$GITHUB_SHA" --prerelease --title "C10 ControlPlus 1.0 · prueba nativa" --notes-file docs/C10_REBUILD_10.md
+            gh release create "$TAG" --target "$GITHUB_SHA" --prerelease --title "C10 ControlPlus 1.1 · prueba nativa" --notes-file docs/C10_REBUILD_11.md
           fi
-          gh release upload "$TAG" deliverable/C10-ControlPlus-1.0.apk deliverable/C10-Instalador-1.0.apk deliverable/C10-ControlPlus-1.0-Codigo.zip deliverable/C10-ControlPlus-1.0-Paquete.zip deliverable/LEER-PRIMERO.md deliverable/SHA256.txt --clobber
+          gh release upload "$TAG" deliverable/C10-ControlPlus-1.1.apk deliverable/C10-Instalador-1.0.apk deliverable/C10-ControlPlus-1.1-Codigo.zip deliverable/C10-ControlPlus-1.1-Paquete.zip deliverable/LEER-PRIMERO.md deliverable/SHA256.txt --clobber
