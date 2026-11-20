@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-feature android:name="android.hardware.location.gps" android:required="false"/>
+<uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false"/>
+<queries><package android:name="com.tencent.qqmusiccar"/><package android:name="com.leapmotor.autosdk.server"/><package android:name="com.leapmotor.media"/><package android:name="com.leapmotor.carcontrol"/></queries>
+<application android:allowBackup="false" android:label="C10 Complemento 1.3" android:theme="@android:style/Theme.Material.NoActionBar" android:supportsRtl="true">
+<activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
+</application></manifest>
