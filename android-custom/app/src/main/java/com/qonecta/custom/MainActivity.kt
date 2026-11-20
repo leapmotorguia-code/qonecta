@@ -50,7 +50,7 @@ class MainActivity : Activity(), SensorEventListener {
  }
  private fun panel(name:String) {
   stopSensors();page=name;live=null;timings=null;status=null
-  val scroll=ScrollView(this);body=LinearLayout(this);body.orientation=LinearLayout.VERTICAL;body.setPadding(24,24,24,36);body.setBackgroundColor(Color.rgb(13,21,32));scroll.addView(body);setContentView(scroll)
+  val scroll=ScrollView(this);body=LinearLayout(this);body.orientation=LinearLayout.VERTICAL;body.setPadding(24,24,24,36);body.setBackgroundColor(Color.rgb(13,21,32));scroll.addView(body);scroll.setOnApplyWindowInsetsListener { v,insets -> v.setPadding(insets.systemWindowInsetLeft,insets.systemWindowInsetTop,insets.systemWindowInsetRight,insets.systemWindowInsetBottom);insets };setContentView(scroll)
   text(name,24f)
   if(name!="C10 LABORATORIO 1.2") button("Volver al inicio"){home()}
  }
