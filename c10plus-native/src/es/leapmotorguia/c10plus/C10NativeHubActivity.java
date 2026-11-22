@@ -373,9 +373,50 @@ public final class C10NativeHubActivity extends Activity {
             real.setGravity(Gravity.CENTER_VERTICAL);
             header.addView(real);
             custom.addView(header);
+            // Icon rail, available also inside UNIT's split-screen right-side panel.
+            LinearLayout horizontal = row();
+            android.widget.ScrollView railScroll = new android.widget.ScrollView(activity);
+            railScroll.setFillViewport(false);
+            railScroll.setVerticalScrollBarEnabled(false);
+            LinearLayout rail = new LinearLayout(activity);
+            rail.setOrientation(LinearLayout.VERTICAL);
+            rail.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+            rail.setPadding(dip(3), dip(7), dip(3), dip(7));
+            rail.setBackgroundColor(0xff0b2331);
+            final int[] icons = {
+                android.R.drawable.ic_menu_mapmode,
+                android.R.drawable.ic_media_play,
+                android.R.drawable.ic_menu_info_details,
+                android.R.drawable.ic_menu_sort_by_size,
+                android.R.drawable.ic_menu_manage,
+                android.R.drawable.ic_menu_compass,
+                android.R.drawable.stat_sys_download_done,
+                android.R.drawable.ic_menu_preferences
+            };
+            for (int i = 0; i < TABS.length; i++) {
+                final int which = i;
+                android.widget.ImageView circle = new android.widget.ImageView(activity);
+                circle.setImageResource(icons[i]);
+                circle.setColorFilter(which == tab ? 0xff08232a : 0xffb7deeb);
+                int size = dip(49);
+                circle.setPadding(dip(12), dip(12), dip(12), dip(12));
+                android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+                bg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+                bg.setColor(which == tab ? 0xff22d7ba : 0xff213f50);
+                bg.setStroke(dip(1), which == tab ? 0xff8bffe9 : 0xff466576);
+                circle.setBackground(bg);
+                circle.setContentDescription(TABS[i]);
+                circle.setOnClickListener(v -> selectExtra(which));
+                LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(size, size);
+                cp.setMargins(dip(2), dip(5), dip(2), dip(6));
+                rail.addView(circle, cp);
+            }
+            railScroll.addView(rail);
+            horizontal.addView(railScroll, new LinearLayout.LayoutParams(dip(66), -1));
             Pane p = new Pane(tab);
             leftPane = p;
-            custom.addView(p.layout, new LinearLayout.LayoutParams(-1, 0, 1));
+            horizontal.addView(p.layout, new LinearLayout.LayoutParams(0, -1, 1f));
+            custom.addView(horizontal, new LinearLayout.LayoutParams(-1, 0, 1f));
             body.removeAllViews();
             body.addView(custom, new FrameLayout.LayoutParams(-1,-1));
             updateHandler.post(refresh);
@@ -505,7 +546,7 @@ public final class C10NativeHubActivity extends Activity {
                 Button b=button("Elegir APK e instalar");
                 b.setOnClickListener(v->((C10NativeHubActivity)activity).chooseUpdateApk());
                 layout.addView(b);
-                layout.addView(label("Prueba 3.1 → 3.2: abre aquí el APK 3.2 descargado. La confirmación de seguridad es obligatoria.",14,0xffb5ced9));
+                layout.addView(label("Elige la nueva APK descargada para actualizar. La confirmación de seguridad es obligatoria.",14,0xffb5ced9));
             }
             void model() {
                 info("Perfil de visualización; no reprograma el coche");
