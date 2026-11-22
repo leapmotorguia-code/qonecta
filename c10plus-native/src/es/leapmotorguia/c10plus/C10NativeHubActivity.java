@@ -369,11 +369,15 @@ public final class C10NativeHubActivity extends Activity {
 
     /** Attach only to UNIT's own visible tab row and body, not a second activity. */
     private static final class C10Bridge {
-        private static final String[] TABS = {"Maps", "Multimedia", "Consumos", "Gráficas",
-            "Accesos C10", "Prestaciones", "Actualizaciones", "Modelo"};
-        private static final String[] MEDIA = {"Spotify","YouTube","Netflix","Prime Video","Max","Pluto TV"};
-        private static final String[] URLS = {"https://open.spotify.com","https://www.youtube.com",
-            "https://www.netflix.com","https://www.primevideo.com","https://www.max.com","https://pluto.tv"};
+        private static final String[] TABS = {"Maps", "Consumos", "Gráficas",
+            "Accesos C10", "Actualizaciones", "Modelo"};
+        // Media providers live ONLY in UNIT's original RADIO and TV screens.
+        private static final String[] RADIO_NAMES = {"Spotify"};
+        private static final String[] RADIO_URLS = {"https://open.spotify.com"};
+        private static final String[] TV_NAMES = {"Netflix","Prime Video","Max (HBO)","Pluto TV","YouTube"};
+        private static final String[] TV_URLS = {"https://www.netflix.com",
+            "https://www.primevideo.com","https://www.max.com","https://pluto.tv",
+            "https://www.youtube.com"};
         private final Activity activity;
         private final FrameLayout body;
         private final LinearLayout nativeRow;
@@ -389,6 +393,20 @@ public final class C10NativeHubActivity extends Activity {
         private Spinner leftChoice, rightChoice;
         private Pane leftPane, rightPane;
         private boolean split, showing, closed;
+        private View nativeMediaBar, nativeMediaOverlay;
+        private WebView nativeMediaBrowser;
+        private android.app.Dialog nativeVideoFullscreen;
+        private int nativeSelectionGeneration;
+        private final Runnable nativeMediaSafetyTick = new Runnable() {
+            @Override public void run() {
+                if(nativeMediaOverlay == null || nativeMediaBrowser == null || closed) return;
+                readReal();
+                if(Double.isFinite(speed) && Math.abs(speed) > 1.5d) {
+                    closeNativeMediaWeb();
+                    Toast.makeText(activity,"Vídeo detenido: vehículo en movimiento",Toast.LENGTH_LONG).show();
+                } else updateHandler.postDelayed(this,2000);
+            }
+        };
         private long lastSample;
         private double latestSoc = Double.NaN;
         private String latestSource = "Sin telemetría confirmada";
@@ -432,10 +450,27 @@ public final class C10NativeHubActivity extends Activity {
                 TextView tv=(TextView)e.getValue();
                 String key=String.valueOf(e.getKey()).toLowerCase(Locale.ROOT);
                 String title=tv.getText().toString().toLowerCase(Locale.ROOT);
-                if (key.contains("game")||key.contains("karaoke")||title.contains("juego")||title.contains("karaoke"))
+                if(key.contains("game")||key.contains("karaoke")||title.contains("juego")||title.contains("karaoke")) {
                     tv.setVisibility(View.GONE);
-                else tv.setOnTouchListener((v,event)->{
-                    if (event.getActionMasked()==MotionEvent.ACTION_DOWN && showing) stopCustom();
+                    continue;
+                }
+                final String role=(key.contains("radio")||title.equals("radio"))?"radio":
+                    (key.contains("tv")||title.equals("tv")||title.contains("televisi"))?"tv":"";
+                tv.setOnTouchListener((v,event)->{
+                    if(event.getActionMasked()==MotionEvent.ACTION_DOWN) {
+                        ++nativeSelectionGeneration;
+                        stopCustom();
+                        closeNativeMediaWeb();
+                        clearNativeMediaBar();
+                        if(!role.isEmpty()) {
+                            final int marker=nativeSelectionGeneration;
+                            // UNIT's original OnClick owns selection. We append AFTER it renders.
+                            updateHandler.postDelayed(()->{
+                                if(!closed && !showing && marker==nativeSelectionGeneration)
+                                    showNativeMediaBar(role);
+                            },200);
+                        }
+                    }
                     return false;
                 });
             }
@@ -579,69 +614,33 @@ public final class C10NativeHubActivity extends Activity {
          * original rail (AA on one side, this view on the other). No duplicate
          * selectors and no cross-category content.
          */
+        /** Each enhancement is opened in UNIT's own tab row. No second icon rail. */
         private void selectExtra(int tab) {
+            ++nativeSelectionGeneration;
+            closeNativeMediaWeb();
+            clearNativeMediaBar();
             stopCustom();
-            showing = true;
+            showing=true;
             stopNativeTick();
-            custom = new LinearLayout(activity);
+            custom=new LinearLayout(activity);
             custom.setOrientation(LinearLayout.VERTICAL);
             custom.setBackgroundColor(0xff081520);
-            LinearLayout header = row();
-            TextView title = label("C10 PLUS   /   " + TABS[tab].toUpperCase(Locale.ROOT), 21, 0xff08e2c0);
+            LinearLayout header=row();
+            TextView title=label("C10 PLUS  ·  "+TABS[tab].toUpperCase(Locale.ROOT),21,0xff08e2c0);
             title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-            header.addView(title, new LinearLayout.LayoutParams(0, dip(53), 1));
-            TextView real = label("DATOS REALES", 13, 0xff8cabbc);
+            header.addView(title,new LinearLayout.LayoutParams(0,dip(48),1));
+            TextView real=label("EN UNIT",12,0xff88bcc9);
             real.setGravity(Gravity.CENTER_VERTICAL);
             header.addView(real);
             custom.addView(header);
-            // Icon rail, available also inside UNIT's split-screen right-side panel.
-            LinearLayout horizontal = row();
-            android.widget.ScrollView railScroll = new android.widget.ScrollView(activity);
-            railScroll.setFillViewport(false);
-            railScroll.setVerticalScrollBarEnabled(false);
-            LinearLayout rail = new LinearLayout(activity);
-            rail.setOrientation(LinearLayout.VERTICAL);
-            rail.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
-            rail.setPadding(dip(3), dip(7), dip(3), dip(7));
-            rail.setBackgroundColor(0xff0b2331);
-            final int[] icons = {
-                android.R.drawable.ic_menu_mapmode,
-                android.R.drawable.ic_media_play,
-                android.R.drawable.ic_menu_info_details,
-                android.R.drawable.ic_menu_sort_by_size,
-                android.R.drawable.ic_menu_manage,
-                android.R.drawable.ic_menu_compass,
-                android.R.drawable.stat_sys_download_done,
-                android.R.drawable.ic_menu_preferences
-            };
-            for (int i = 0; i < TABS.length; i++) {
-                final int which = i;
-                android.widget.ImageView circle = new android.widget.ImageView(activity);
-                circle.setImageResource(icons[i]);
-                circle.setColorFilter(which == tab ? 0xff08232a : 0xffb7deeb);
-                int size = dip(49);
-                circle.setPadding(dip(12), dip(12), dip(12), dip(12));
-                android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
-                bg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-                bg.setColor(which == tab ? 0xff22d7ba : 0xff213f50);
-                bg.setStroke(dip(1), which == tab ? 0xff8bffe9 : 0xff466576);
-                circle.setBackground(bg);
-                circle.setContentDescription(TABS[i]);
-                circle.setOnClickListener(v -> selectExtra(which));
-                LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(size, size);
-                cp.setMargins(dip(2), dip(5), dip(2), dip(6));
-                rail.addView(circle, cp);
-            }
-            railScroll.addView(rail);
-            horizontal.addView(railScroll, new LinearLayout.LayoutParams(dip(66), -1));
-            Pane p = new Pane(tab);
-            leftPane = p;
-            horizontal.addView(p.layout, new LinearLayout.LayoutParams(0, -1, 1f));
-            custom.addView(horizontal, new LinearLayout.LayoutParams(-1, 0, 1f));
+            Pane pane=new Pane(tab);
+            leftPane=pane;
+            custom.addView(pane.layout,new LinearLayout.LayoutParams(-1,0,1f));
             body.removeAllViews();
-            body.addView(custom, new FrameLayout.LayoutParams(-1,-1));
+            body.addView(custom,new FrameLayout.LayoutParams(-1,-1));
             updateHandler.post(refresh);
         }
+
         private void stopCustom() {
             boolean previouslyShowing=showing;
             showing=false;updateHandler.removeCallbacks(refresh);
@@ -657,6 +656,9 @@ public final class C10NativeHubActivity extends Activity {
         }
         void dispose() {
             closed=true;stopCustom();
+            closeNativeMediaWeb();
+            clearNativeMediaBar();
+            updateHandler.removeCallbacks(nativeMediaSafetyTick);
             for(TextView tab:extraButtons)if(tab.getParent()==nativeRow)nativeRow.removeView(tab);
             extraButtons.clear();
         }
@@ -680,13 +682,11 @@ public final class C10NativeHubActivity extends Activity {
                 layout.addView(label(TABS[kind],19,0xff02e5c2));
                 switch(kind) {
                     case 0:maps();break;
-                    case 1:media();break;
-                    case 2:consumption();break;
-                    case 3:graph();break;
-                    case 4:access();break;
-                    case 5:performance();break;
-                    case 6:updates();break;
-                    case 7:model();break;
+                    case 1:consumption();break;
+                    case 2:graph();break;
+                    case 3:access();break;
+                    case 4:updates();break;
+                    case 5:model();break;
                 }
             }
             void info(String s) {value=label(s,15,0xffcadfe7);layout.addView(value);}
@@ -765,36 +765,6 @@ public final class C10NativeHubActivity extends Activity {
                 });
                 web.loadUrl("https://www.google.com/maps");
             }
-            void media() {
-                info("Servicios dentro de UNIT, sin abrir navegador externo. Vídeo solo estacionado. DRM según el proveedor.");
-                stationary=new android.widget.CheckBox(activity);
-                stationary.setText("Confirmo que el coche está estacionado");
-                stationary.setTextColor(0xffd9ebf6);
-                stationary.setTextSize(15);
-                layout.addView(stationary);
-                LinearLayout chooser=row();
-                Spinner providers=new Spinner(activity);
-                ArrayAdapter<String> adapter=new ArrayAdapter<>(activity,
-                    android.R.layout.simple_spinner_item,MEDIA);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                providers.setAdapter(adapter);
-                chooser.addView(providers,new LinearLayout.LayoutParams(0,dip(48),1));
-                Button open=button("Abrir dentro");
-                chooser.addView(open);
-                layout.addView(chooser);
-                web();
-                open.setEnabled(false);
-                stationary.setOnCheckedChangeListener((v,checked)->open.setEnabled(checked));
-                open.setOnClickListener(v->{
-                    if(!stationary.isChecked())return;
-                    if(Double.isFinite(speed)&&Math.abs(speed)>1.5){
-                        if(value!=null)value.setText("Multimedia bloqueada: vehículo en movimiento");
-                        return;
-                    }
-                    stoppedForMotion=false;
-                    if(web!=null)web.loadUrl(URLS[providers.getSelectedItemPosition()]);
-                });
-            }
             void consumption() {
                 info("DESDE EL ÚLTIMO REINICIO · Balance = gastado − entrante · combustible consumido no disponible");
                 dashboard=new MetricDashboard(activity);
@@ -825,7 +795,6 @@ public final class C10NativeHubActivity extends Activity {
                     "\nCámaras originales del C10: NO VERIFICADO\nBus CAN / OBD: NO VERIFICADO"+
                     "\nBatería y combustible: ver panel de consumo\nGPS: dispositivo Android",16,Color.WHITE));
             }
-            void performance() {info("0–100 y 80–120 requieren GPS/OBD fiable. No hay tiempos inventados.");}
             void updates() {
                 info("Actualización desde UNIT · sin borrar ajustes");
                 layout.addView(label("1. Descarga el APK nuevo en este dispositivo.\n2. Pulsa «Elegir APK».\n3. Selecciona el archivo y confirma en el instalador Android.\n\nSolo se instalará encima si conserva el paquete y certificado de C10 Plus. No actualiza el software LeapOS.",16,Color.WHITE));
@@ -843,22 +812,14 @@ public final class C10NativeHubActivity extends Activity {
             }
             void refresh() {
                 if(disposed)return;
-                if(value!=null && kind==2) value.setText(
+                if(value!=null && kind==1) value.setText(
                     "Potencia: "+latestSource+"  ·  "+balanceSource+
                     (balancePartial?"  ·  DATOS PARCIALES":""));
                 if(dashboard!=null)dashboard.invalidate();
-                if(value!=null && kind==3)value.setText(
+                if(value!=null && kind==2)value.setText(
                     Double.isFinite(latestSoc)?"REAL · "+display(latestSoc,"%")+" · "+latestSource:
                     "NO DISPONIBLE: sin lectura de batería");
                 if(graph!=null)graph.invalidate();
-                if(kind==1&&web!=null&&Double.isFinite(speed)&&Math.abs(speed)>1.5&&!stoppedForMotion){
-                    stoppedForMotion=true;
-                    web.stopLoading();
-                    web.loadUrl("about:blank");
-                    web.onPause();
-                    if(value!=null)value.setText("Multimedia detenida: el coche está en movimiento");
-                    if(fullScreenWeb!=null)fullScreenWeb.dismiss();
-                }
             }
             void active(boolean visible) {if(web!=null)try{if(visible)web.onResume();else web.onPause();}catch(Throwable ignored){}}
             void close() {
