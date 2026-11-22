@@ -155,7 +155,6 @@ android {
     signingConfigs {
         getByName("debug") {
             // Isolated user-testing package: never overwrite an installed UNIT or Qonecta.
-            if (project.hasProperty("c10plusTest")) applicationIdSuffix = ".c10plusbeta"
             // storeFile = file("../keystore.jkc")
             // storePassword = property("HEADUNIT_KEYSTORE_PASSWORD") as String
             // keyAlias = property("HEADUNIT_KEYSTORE_ALIAS") as String
@@ -220,6 +219,7 @@ android {
         }
 
         getByName("debug") {
+            if (project.hasProperty("c10plusTest")) applicationIdSuffix = ".c10plusbeta"
             // headqlink: con clave propia (key.properties), tambiÃ©n las de prueba se firman con ella,
             // para poder instalar una versiÃ³n encima de otra sin desinstalar.
             val relConfig = signingConfigs.getByName("release")
