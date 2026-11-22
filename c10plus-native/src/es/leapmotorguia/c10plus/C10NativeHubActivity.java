@@ -535,7 +535,7 @@ public final class C10NativeHubActivity extends Activity {
                 info("Actualización desde UNIT · sin borrar ajustes");
                 layout.addView(label("1. Descarga el APK nuevo en este dispositivo.\n2. Pulsa «Elegir APK».\n3. Selecciona el archivo y confirma en el instalador Android.\n\nSolo se instalará encima si conserva el paquete y certificado de C10 Plus. No actualiza el software LeapOS.",16,Color.WHITE));
                 Button b=button("Elegir APK e instalar");
-                b.setOnClickListener(v->activity.chooseUpdateApk());
+                b.setOnClickListener(v->((C10NativeHubActivity)activity).chooseUpdateApk());
                 layout.addView(b);
                 layout.addView(label("Prueba 3.1 → 3.2: abre aquí el APK 3.2 descargado. La confirmación de seguridad es obligatoria.",14,0xffb5ced9));
             }
@@ -604,7 +604,7 @@ public final class C10NativeHubActivity extends Activity {
                     cv.drawText(v,x+25,y+Math.max(61,cardH*.69f),p);
                     if(Double.isFinite(vals[i]) && i==0) {
                         p.setColor(0xff183b4b);cv.drawRoundRect(x+22,y+cardH-15,x+cardW-14,y+cardH-8,4,4,p);
-                        p.setColor(colors[i]);cv.drawRoundRect(x+22,y+cardH-15,x+22+(cardW-36)*Math.max(0,Math.min(1,vals[i]/100d)),y+cardH-8,4,4,p);
+                        p.setColor(colors[i]);cv.drawRoundRect(x+22,y+cardH-15,x+22+(float)((cardW-36)*Math.max(0,Math.min(1,vals[i]/100d))),y+cardH-8,4,4,p);
                     }
                 }
             }
