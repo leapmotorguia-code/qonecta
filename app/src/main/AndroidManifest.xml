@@ -161,7 +161,7 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/hql_launcher"
         android:roundIcon="@mipmap/hql_launcher_round"
-        android:label="Qonecta+"
+        android:label="UNIT C10 Plus · prueba"
         android:localeConfig="@xml/hql_locales_config"
         android:largeHeap="true"
         android:usesCleartextTraffic="true"
