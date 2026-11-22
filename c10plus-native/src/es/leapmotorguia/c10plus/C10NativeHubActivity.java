@@ -976,6 +976,8 @@ public final class C10NativeHubActivity extends Activity {
             boolean stoppedForMotion;
             Graph graph;
             MetricDashboard dashboard;
+            VehicleAccessAudit.Report accessReport;
+            LinearLayout accessList;
             boolean disposed;
             Pane(int selected) {
                 kind=selected;layout=new LinearLayout(activity);
@@ -1091,12 +1093,77 @@ public final class C10NativeHubActivity extends Activity {
                 layout.addView(graph,new LinearLayout.LayoutParams(-1,0,1f));
             }
             void access() {
-                info("Permisos Android ≠ acceso a cámaras/ECU del C10");
-                SensorManager m=(SensorManager)activity.getSystemService(Context.SENSOR_SERVICE);
-                int count=m==null?0:m.getSensorList(-1).size();
-                layout.addView(label("Sensores Android: "+count+
-                    "\nCámaras originales del C10: NO VERIFICADO\nBus CAN / OBD: NO VERIFICADO"+
-                    "\nBatería y combustible: ver panel de consumo\nGPS: dispositivo Android",16,Color.WHITE));
+                info("Diagnóstico solo lectura: comprobar qué detecta UNIT sin modificar el coche");
+                LinearLayout tools=row();
+                Button scan=button("Volver a comprobar");
+                Button copy=button("Copiar informe");
+                tools.addView(scan,new LinearLayout.LayoutParams(0,dip(48),1f));
+                tools.addView(copy,new LinearLayout.LayoutParams(0,dip(48),1f));
+                layout.addView(tools);
+                android.widget.ScrollView scroll=new android.widget.ScrollView(activity);
+                scroll.setFillViewport(false);
+                scroll.setVerticalScrollBarEnabled(true);
+                accessList=new LinearLayout(activity);
+                accessList.setOrientation(LinearLayout.VERTICAL);
+                accessList.setPadding(dip(7),dip(8),dip(7),dip(16));
+                scroll.addView(accessList);
+                layout.addView(scroll,new LinearLayout.LayoutParams(-1,0,1f));
+                scan.setOnClickListener(v->updateAccessReport());
+                copy.setOnClickListener(v->{
+                    if(accessReport==null)updateAccessReport();
+                    if(accessReport==null)return;
+                    android.content.ClipboardManager clipboard=
+                        (android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                    if(clipboard!=null) {
+                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText(
+                            "Diagnóstico UNIT C10 Plus",accessReport.asText()));
+                        Toast.makeText(activity,
+                            "Informe copiado. Puedes pegarlo en este chat para revisarlo.",
+                            Toast.LENGTH_LONG).show();
+                    }
+                });
+                updateAccessReport();
+            }
+            void updateAccessReport() {
+                if(disposed || accessList==null)return;
+                accessReport=VehicleAccessAudit.scan(activity);
+                accessList.removeAllViews();
+                TextView header=label("ÚLTIMA COMPROBACIÓN  ·  "+
+                    new java.text.SimpleDateFormat("dd/MM HH:mm:ss",Locale.getDefault())
+                        .format(new java.util.Date(accessReport.checkedAt)),14,0xffb5d2de);
+                accessList.addView(header);
+                accessList.addView(label(
+                    "Lectura real ≠ capacidad Android ≠ acceso al coche. "+
+                    "No se intenta conectar a centralitas ni activar cámaras.",14,0xffd7e7ef));
+                addAuditGroup("DATOS REALES DEL VEHÍCULO",accessReport.vehicle);
+                addAuditGroup("HARDWARE Y PERMISOS ANDROID",accessReport.android);
+                addAuditGroup("ANDROID AUTO Y CARPLAY",accessReport.projection);
+                addAuditGroup("POSIBILIDADES POR INVESTIGAR",accessReport.future);
+            }
+            void addAuditGroup(String title,java.util.List<VehicleAccessAudit.Item> entries) {
+                TextView heading=label(title,17,0xff12e3c0);
+                heading.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+                accessList.addView(heading);
+                for(VehicleAccessAudit.Item entry:entries) {
+                    LinearLayout card=new LinearLayout(activity);
+                    card.setOrientation(LinearLayout.VERTICAL);
+                    card.setPadding(dip(10),dip(6),dip(10),dip(8));
+                    GradientDrawable bg=new GradientDrawable();
+                    bg.setColor(0xff163546);
+                    bg.setCornerRadius(dip(9));
+                    card.setBackground(bg);
+                    TextView name=label(entry.title,16,Color.WHITE);
+                    name.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+                    card.addView(name);
+                    int statusColor=entry.state==VehicleAccessAudit.LIVE?0xff28e2af:
+                        entry.state==VehicleAccessAudit.DEVICE?0xff79ceff:
+                        entry.state==VehicleAccessAudit.PERMISSION?0xffffd279:0xffbac7d2;
+                    card.addView(label(entry.status(),12,statusColor));
+                    card.addView(label(entry.detail,14,0xffd0e1e8));
+                    LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);
+                    lp.bottomMargin=dip(7);
+                    accessList.addView(card,lp);
+                }
             }
             void updates() {
                 info("Actualización desde UNIT · sin borrar ajustes");
