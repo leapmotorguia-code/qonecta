@@ -6,6 +6,7 @@ on:
     paths:
       - "app/src/main/java/com/headqlink/link/C10PlusScreen.java"
       - "app/src/main/java/com/headqlink/link/CarHubScreen.java"
+      - "app/src/main/java/com/headqlink/link/CarUi.java"
       - "app/src/main/AndroidManifest.xml"
       - "app/build.gradle.kts"
       - ".github/workflows/c10plus-prueba-apk.yml"
