@@ -92,6 +92,16 @@ public final class VehicleAccessAudit {
     }
 
     /** Entries added only after the original UNIT reports credible, usable data. */
+    private static void inspectProfile(Context ctx,Report r) {
+        String configured=CompatibilityTestLog.configuredProfile(ctx);
+        VehicleProfileHints.Hint hint=VehicleProfileHints.interpret(configured);
+        r.vehicle.add(new Item("Perfil seleccionado en UNIT",INFO,
+            "Etiqueta: "+configured+"; familia orientativa: "+hint.model+
+            "; tipo: "+hint.friendlyDrivetrain()+". Esto no identifica automáticamente el coche."));
+        r.vehicle.add(new Item("Alcance de compatibilidad",INFO,
+            hint.guidance()+" La disponibilidad depende de la instalación en el sistema del coche y las señales autorizadas."));
+    }
+
     private static void inspectSnapshot(Report r) {
         boolean good=false;
         String evidence="No se ha recibido una muestra válida de UNIT.";
@@ -238,11 +248,15 @@ public final class VehicleAccessAudit {
                 "Declara el permiso, pero aún no está concedido.":
                 "La APK no declara permiso Wi-Fi cercano."));
         }
+        r.android.add(new Item("Sistema operativo de UNIT",INFO,
+            "Android API "+Build.VERSION.SDK_INT+". Tipo de hardware y compatibilidad de proyección pendientes de prueba física."));
         r.android.add(new Item("Acceso a cámaras del C10",UNKNOWN,
             "Enumerar cámaras Android NO habilita cámaras del vehículo. "+
             "Se requiere interfaz documentada y autorización específica."));
     }
     private static void inspectConnectivity(Report r){
+        r.projection.add(new Item("Pruebas de conectividad registradas",INFO,
+            "El informe de pruebas manuales se incluye al pulsar «Copiar informe». No equivale a detección automática."));
         r.projection.add(new Item("Android Auto",INFO,
             "Conecta Android al C10 y verifica vídeo, audio, tacto, reconexión y pantalla dividida. "+
             "La presencia de servicios Android no acredita por sí sola una sesión proyectada."));
@@ -267,6 +281,7 @@ public final class VehicleAccessAudit {
     }
     public static Report scan(Context c) {
         Report result=new Report(System.currentTimeMillis());
+        inspectProfile(c,result);
         inspectSnapshot(result);
         inspectTrips(c,result);
         inspectAndroid(c,result);
