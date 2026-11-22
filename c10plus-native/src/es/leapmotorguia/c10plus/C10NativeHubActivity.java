@@ -393,7 +393,11 @@ public final class C10NativeHubActivity extends Activity {
         private double latestSoc = Double.NaN;
         private String latestSource = "Sin telemetría confirmada";
         private double consumed = Double.NaN, recovered = Double.NaN, gasoline = Double.NaN;
-        private double speed = Double.NaN;
+        private double speed = Double.NaN, powerKw = Double.NaN, tripKm = Double.NaN;
+        private double measuredSeconds = Double.NaN;
+        private boolean balancePartial, hasTripTotals;
+        private String balanceSource = "Sin potencia real integrada";
+        private EnergyBalance.Result energyBalance = EnergyBalance.calculate(Double.NaN,Double.NaN,false);
         private final Runnable refresh = new Runnable() {
             @Override public void run() {
                 if (closed || !showing) return;
@@ -458,26 +462,92 @@ public final class C10NativeHubActivity extends Activity {
                 ((Handler)nativeHandler).removeCallbacks((Runnable)nativeTick);
         }
         private void readReal() {
-            latestSoc = consumed = recovered = gasoline = speed = Double.NaN;
+            latestSoc = gasoline = speed = powerKw = Double.NaN;
             try {
                 Class<?> r=Class.forName("es.c10.unitplus.integrated.NativeSnapshot");
                 Object d=r.getMethod("read").invoke(null);
-                if (!(Boolean)d.getClass().getMethod("usable").invoke(d)) {
-                    latestSource="No disponible: sin lectura real reciente";return;
+                if ((Boolean)d.getClass().getMethod("usable").invoke(d)
+                        && (Boolean)d.getClass().getField("authoritative").get(d)) {
+                    latestSource=String.valueOf(d.getClass().getField("source").get(d));
+                    latestSoc=number(d,"soc");
+                    // fuelLitres is tank remaining, NEVER liters consumed.
+                    gasoline=number(d,"fuelLitres");
+                    speed=number(d,"speed");
+                    powerKw=number(d,"power");
+                    if(Double.isFinite(latestSoc)&&latestSoc>=0&&latestSoc<=100
+                        &&System.currentTimeMillis()-lastSample>=7000) {
+                        realSoc.add(latestSoc);
+                        if(realSoc.size()>120)realSoc.remove(0);
+                        lastSample=System.currentTimeMillis();
+                    }
+                } else latestSource="No disponible: sin lectura real reciente";
+            } catch(Throwable e) {
+                latestSource="Sin lectura: "+e.getClass().getSimpleName();
+            }
+            // Gross consumption and incoming battery energy are integrated by the
+            // existing original C10 TripStore using real signed power samples.
+            // The battery tank level is NOT a gross consumption meter.
+            readTripTotals();
+        }
+
+        private void readTripTotals() {
+            consumed=recovered=tripKm=measuredSeconds=Double.NaN;
+            balancePartial=false;hasTripTotals=false;
+            try {
+                Class<?> storeClass=Class.forName("es.c10.unitplus.integrated.TripStore");
+                Object store=storeClass.getMethod("get",Context.class).invoke(null,activity);
+                Object session=storeClass.getField("current").get(store);
+                Class<?> c=session.getClass();
+                boolean measured=c.getField("measured").getBoolean(session);
+                boolean legacy=c.getField("legacyEnergy").getBoolean(session);
+                boolean hasEnergy=c.getField("hasEnergy").getBoolean(session);
+                boolean hasReceived=c.getField("hasRecovered").getBoolean(session);
+                balancePartial=c.getField("gap").getBoolean(session) ||
+                    c.getField("energyIncomplete").getBoolean(session) ||
+                    c.getField("recoveredIncomplete").getBoolean(session);
+                tripKm=number(session,"km");
+                measuredSeconds=number(session,"measuredSeconds");
+                if(measured&&!legacy&&hasEnergy&&hasReceived) {
+                    consumed=number(session,"kwh");
+                    recovered=number(session,"recovered");
+                    energyBalance=EnergyBalance.calculate(consumed,recovered,balancePartial);
+                    hasTripTotals=energyBalance.available();
+                    balanceSource=hasTripTotals?
+                        "Potencia REAL integrada · "+(balancePartial?"cobertura parcial":"intervalos medidos") :
+                        "Los acumulados no son válidos";
+                } else {
+                    energyBalance=EnergyBalance.calculate(Double.NaN,Double.NaN,balancePartial);
+                    balanceSource=legacy?"Registro anterior sin origen verificable":
+                        "Esperando muestras de potencia real";
                 }
-                latestSource=String.valueOf(d.getClass().getField("source").get(d));
-                latestSoc=number(d,"soc");
-                consumed=number(d,"nativeEnergy");
-                recovered=number(d,"nativeRecovered");
-                gasoline=number(d,"fuelLitres");
-                speed=number(d,"speed");
-                if(Double.isFinite(latestSoc) && latestSoc >= 0 && latestSoc <= 100
-                    && System.currentTimeMillis()-lastSample >= 7000) {
-                    realSoc.add(latestSoc);
-                    if(realSoc.size()>90)realSoc.remove(0);
-                    lastSample=System.currentTimeMillis();
+            } catch(Throwable e) {
+                energyBalance=EnergyBalance.calculate(Double.NaN,Double.NaN,true);
+                balanceSource="Datos de sesión no disponibles: "+e.getClass().getSimpleName();
+            }
+        }
+        private void tripAction(boolean save) {
+            try {
+                Class<?> storeClass=Class.forName("es.c10.unitplus.integrated.TripStore");
+                Object store=storeClass.getMethod("get",Context.class).invoke(null,activity);
+                if(save){
+                    Object ok=storeClass.getMethod("saveAndReset").invoke(store);
+                    if(!Boolean.TRUE.equals(ok)) {
+                        Toast.makeText(activity,"Aún no hay datos medidos para guardar",Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    Toast.makeText(activity,"Medición guardada. Nueva medición iniciada.",Toast.LENGTH_LONG).show();
+                } else {
+                    storeClass.getMethod("resetCurrent").invoke(store);
+                    Toast.makeText(activity,"Contadores de medición reiniciados",Toast.LENGTH_SHORT).show();
                 }
-            } catch(Throwable e){latestSource="No disponible: "+e.getClass().getSimpleName();}
+                realSoc.clear();
+                lastSample=0;
+                readReal();
+                if(leftPane!=null)leftPane.refresh();
+            } catch(Throwable err) {
+                Toast.makeText(activity,"No se pudo cambiar la medición: "+
+                    err.getClass().getSimpleName(),Toast.LENGTH_LONG).show();
+            }
         }
         private static double number(Object obj,String field) {
             try{Object val=obj.getClass().getField(field).get(obj);
