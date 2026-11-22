@@ -743,9 +743,21 @@ public final class C10NativeHubActivity extends Activity {
                 // No initial URL and no links out to another app; leave a clean start.
             }
             void consumption() {
-                info("DATOS REALES · Si no hay lectura, se muestra —");
+                info("Energía REAL · balance = gastado − entrante · consumo de combustible NO inferido");
                 dashboard=new MetricDashboard(activity);
                 layout.addView(dashboard,new LinearLayout.LayoutParams(-1,0,1f));
+                LinearLayout actions=row();
+                Button restart=button("Reiniciar medición");
+                restart.setOnClickListener(v->new AlertDialog.Builder(activity)
+                    .setTitle("Reiniciar contadores")
+                    .setMessage("Borrar los totales de la medición actual. El historial guardado se conserva.")
+                    .setPositiveButton("Reiniciar",(d,w)->tripAction(false))
+                    .setNegativeButton("Cancelar",null).show());
+                actions.addView(restart,new LinearLayout.LayoutParams(0,dip(48),1));
+                Button save=button("Guardar y reiniciar");
+                save.setOnClickListener(v->tripAction(true));
+                actions.addView(save,new LinearLayout.LayoutParams(0,dip(48),1));
+                layout.addView(actions);
             }
             void graph() {
                 info("Batería: historial en tiempo real · sin simulaciones");
@@ -779,7 +791,8 @@ public final class C10NativeHubActivity extends Activity {
             void refresh() {
                 if(disposed)return;
                 if(value!=null && kind==2) value.setText(
-                    "Fuente: "+latestSource+"\nConsumo y recuperación: solo si el coche los publica");
+                    "Potencia: "+latestSource+"  ·  "+balanceSource+
+                    (balancePartial?"  ·  DATOS PARCIALES":""));
                 if(dashboard!=null)dashboard.invalidate();
                 if(value!=null && kind==3)value.setText(
                     Double.isFinite(latestSoc)?"REAL · "+display(latestSoc,"%")+" · "+latestSource:
@@ -797,66 +810,130 @@ public final class C10NativeHubActivity extends Activity {
                 }
             }
         }
-        /** UNIT-style visual cards. Values absent in ECU/cloud stay blank; never synthesize. */
+        /**
+         * Professional native Canvas dashboard modeled after UNIT's card
+         * style and the C10's instant-power display. No chart is populated
+         * with demo readings.
+         */
         private final class MetricDashboard extends View {
             final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-            final android.graphics.RectF arc=new android.graphics.RectF();
-            MetricDashboard(Context c){super(c);}
-            void txt(Canvas c,String s,float x,float y,float size,int color,boolean bold) {
-                p.setColor(color);p.setTextSize(size);
-                p.setTypeface(bold?android.graphics.Typeface.DEFAULT_BOLD:
-                    android.graphics.Typeface.DEFAULT);
-                p.setStyle(Paint.Style.FILL);
-                c.drawText(s,x,y,p);
+            final android.graphics.RectF oval=new android.graphics.RectF();
+            MetricDashboard(Context c){super(c);setLayerType(View.LAYER_TYPE_SOFTWARE,null);}
+            void words(Canvas c,String text,float x,float y,float size,int color,boolean bold,float maxWidth) {
+                p.setColor(color);p.setStyle(Paint.Style.FILL);
+                p.setTypeface(bold?android.graphics.Typeface.DEFAULT_BOLD:android.graphics.Typeface.DEFAULT);
+                p.setTextSize(size);
+                while(p.measureText(text)>maxWidth && p.getTextSize()>10f)p.setTextSize(p.getTextSize()*.91f);
+                c.drawText(text,x,y,p);
             }
-            @Override protected void onDraw(Canvas cv) {
-                super.onDraw(cv);
+            void card(Canvas c,float l,float t,float r,float b,int color) {
+                p.setColor(color);p.setStyle(Paint.Style.FILL);
+                c.drawRoundRect(l,t,r,b,16,16,p);
+            }
+            @Override protected void onDraw(Canvas cv){
                 float w=getWidth(),h=getHeight();
-                if(w<250||h<180)return;
-                float scale=Math.max(.65f,Math.min(1.7f,Math.min(w/920f,h/470f)));
-                int blue=0xff45bffc,green=0xff24d6a2,orange=0xfff4a261,amber=0xfff4cd6a;
-                float pad=15*scale;
-                p.setStyle(Paint.Style.FILL);p.setColor(0xff122a3a);
-                cv.drawRoundRect(pad,pad,w-pad,h-pad,22*scale,22*scale,p);
-                float gaugeWidth=Math.min(w*.42f,400*scale);
-                float cx=pad+gaugeWidth/2+5*scale,cy=h*.52f;
-                float r=Math.min(gaugeWidth*.37f,h*.33f);
-                arc.set(cx-r,cy-r,cx+r,cy+r);
-                p.setStyle(Paint.Style.STROKE);
-                p.setStrokeCap(Paint.Cap.ROUND);p.setStrokeWidth(20*scale);
-                p.setColor(0xff274655);
-                cv.drawArc(arc,140,260,false,p);
-                if(Double.isFinite(latestSoc) && latestSoc>=0 && latestSoc<=100) {
-                    p.setColor(blue);
-                    cv.drawArc(arc,140,(float)(260*latestSoc/100f),false,p);
+                if(w<260||h<170)return;
+                final float k=Math.max(.55f,Math.min(1.45f,Math.min(w/940f,h/515f)));
+                final float pad=12*k;
+                final int BLUE=0xff57bdff,GREEN=0xff23d3aa,ORANGE=0xfff3a05b,YELLOW=0xffffd16d,
+                    MUTE=0xff98b7c5,WHITE=0xffeaf7fd;
+                p.setStyle(Paint.Style.FILL);p.setColor(0xff091925);
+                cv.drawColor(0xff091925);
+                float topHeight=h*.54f;
+                float gaugeRight=w*.42f;
+                card(cv,pad,pad,gaugeRight-pad,topHeight-pad,0xff142f41);
+                // Instant-power track from OEM: charge left, discharge right.
+                float meterY=topHeight*.15f;
+                float cx=(gaugeRight)/2f;
+                float trackLeft=pad*2,trackRight=gaugeRight-pad*2;
+                p.setStrokeWidth(5*k);p.setColor(0xff3c5663);
+                cv.drawLine(trackLeft,meterY,trackRight,meterY,p);
+                p.setColor(0xffc2d1d7);
+                cv.drawCircle(cx,meterY,4*k,p);
+                if(Double.isFinite(powerKw)){
+                    float extent=Math.min(1f,(float)Math.abs(powerKw)/150f);
+                    p.setStrokeWidth(8*k);
+                    p.setColor(powerKw>=0?ORANGE:GREEN);
+                    cv.drawLine(cx,meterY,cx+(powerKw>=0?1:-1)*(trackRight-cx)*extent,meterY,p);
+                }
+                words(cv,"CARGA",trackLeft,meterY-13*k,14*k,MUTE,false,cx-trackLeft);
+                words(cv,"GASTO",cx+12*k,meterY-13*k,14*k,MUTE,false,trackRight-cx-12*k);
+                words(cv,Double.isFinite(powerKw)?
+                    String.format(Locale.ROOT,"%.1f kW",Math.abs(powerKw)):"— kW",
+                    trackLeft,meterY+33*k,24*k,Double.isFinite(powerKw)?
+                    (powerKw>=0?ORANGE:GREEN):WHITE,true,trackRight-trackLeft);
+                // Thick circular battery indicator.
+                float r=Math.min((gaugeRight-3*pad)*.27f,topHeight*.245f);
+                float gy=topHeight*.68f;
+                oval.set(cx-r,gy-r,cx+r,gy+r);
+                p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(17*k);
+                p.setStrokeCap(Paint.Cap.ROUND);p.setColor(0xff2b4a5b);
+                cv.drawArc(oval,130,280,false,p);
+                if(Double.isFinite(latestSoc)&&latestSoc>=0&&latestSoc<=100){
+                    p.setColor(BLUE);cv.drawArc(oval,130,(float)(280*latestSoc/100f),false,p);
                 }
                 p.setStyle(Paint.Style.FILL);
-                String soc=Double.isFinite(latestSoc)?
+                String battery=Double.isFinite(latestSoc)?
                     String.format(Locale.ROOT,"%.0f%%",latestSoc):"—";
-                txt(cv,soc,cx-r*.72f,cy+17*scale,51*scale,0xfff0fcff,true);
-                txt(cv,"BATERÍA",cx-r*.62f,cy+52*scale,17*scale,0xffa7c5d6,false);
-                float bx=pad+gaugeWidth+20*scale;
-                float bw=Math.max(100,w-bx-pad-12*scale);
-                float rowH=(h-2*pad)/3;
-                String[] title={"ELECTRICIDAD CONSUMIDA","ENERGÍA RECUPERADA","GASOLINA CONSUMIDA"};
-                double[] numbers={consumed,recovered,gasoline};
-                String[] units={" kWh"," kWh"," L"};
-                int[] colors={orange,green,amber};
-                for(int i=0;i<3;i++) {
-                    float yy=pad+i*rowH+5*scale;
-                    p.setColor(0xff1c3b4b);
-                    cv.drawRoundRect(bx,yy,bx+bw,yy+rowH-9*scale,12*scale,12*scale,p);
-                    p.setColor(colors[i]);
-                    cv.drawRoundRect(bx+8*scale,yy+10*scale,bx+13*scale,yy+rowH-19*scale,2*scale,2*scale,p);
-                    txt(cv,title[i],bx+24*scale,yy+25*scale,17*scale,0xffa5cad6,false);
-                    txt(cv,Double.isFinite(numbers[i])?
-                        String.format(Locale.ROOT,"%.2f",numbers[i])+units[i]:"NO DISPONIBLE",
-                        bx+24*scale,yy+rowH-23*scale,29*scale,
-                        Double.isFinite(numbers[i])?colors[i]:0xff90a8b3,true);
+                words(cv,battery,cx-r*.54f,gy+12*k,37*k,WHITE,true,r*1.28f);
+                words(cv,"BATERÍA",cx-r*.67f,gy+33*k,14*k,MUTE,false,r*1.6f);
+
+                float rightLeft=gaugeRight+pad,rightRight=w-pad;
+                float rh=(topHeight-3*pad)/2;
+                double[] metrics={consumed,recovered,gasoline,tripKm};
+                String[] names={"GASTADO · BATERÍA","ENTRADA · BATERÍA","COMBUSTIBLE RESTANTE","DISTANCIA MEDIDA"};
+                String[] units={" kWh"," kWh"," L"," km"};
+                int[] colors={ORANGE,GREEN,YELLOW,BLUE};
+                for(int i=0;i<4;i++){
+                    int col=i%2,row=i/2;
+                    float cw=(rightRight-rightLeft-pad)/2;
+                    float x=rightLeft+col*(cw+pad),y=pad+row*(rh+pad);
+                    card(cv,x,y,x+cw,y+rh,0xff153546);
+                    p.setColor(colors[i]);cv.drawRoundRect(x+7*k,y+7*k,x+12*k,y+rh-7*k,3,3,p);
+                    words(cv,names[i],x+20*k,y+27*k,16*k,MUTE,false,cw-29*k);
+                    String number=Double.isFinite(metrics[i])?
+                        String.format(Locale.ROOT,"%.2f",metrics[i])+units[i]:"—";
+                    words(cv,number,x+20*k,y+rh-19*k,30*k,
+                        Double.isFinite(metrics[i])?colors[i]:MUTE,true,cw-30*k);
                 }
-                if(Double.isFinite(consumed)&&Double.isFinite(recovered))
-                    txt(cv,"BALANCE NETO  "+display(consumed-recovered,"kWh"),pad+14*scale,
-                        h-pad-11*scale,15*scale,green,true);
+                // Comparative charge/discharge bars and net energy status.
+                float lowerY=topHeight+pad, lowerB=h-pad;
+                card(cv,pad,lowerY,w-pad,lowerB,0xff132d3d);
+                float barX=pad+21*k,barR=w*.66f;
+                float total=lowerB-lowerY;
+                float labelY=lowerY+26*k;
+                words(cv,"BALANCE ENERGÉTICO MEDIDO",barX,labelY,19*k,WHITE,true,barR-barX);
+                double max=hasTripTotals?Math.max(consumed,recovered):Double.NaN;
+                float barW=Math.max(20,barR-barX);
+                for(int i=0;i<2;i++){
+                    float y=lowerY+total*(i==0?.42f:.68f);
+                    words(cv,i==0?"Gasto":"Entrada",barX,y-8*k,15*k,MUTE,false,barW*.35f);
+                    float yy=y+2*k;float left=barX+barW*.32f;
+                    float right=barR-11*k;
+                    card(cv,left,yy,right,yy+15*k,0xff2a4556);
+                    if(Double.isFinite(max)&&max>0&&hasTripTotals){
+                        float ratio=(float)Math.min(1,(i==0?consumed:recovered)/max);
+                        p.setColor(i==0?ORANGE:GREEN);
+                        cv.drawRoundRect(left,yy,left+(right-left)*ratio,yy+15*k,7,7,p);
+                    }
+                }
+                float bx=w*.68f, bw=w-bx-pad;
+                if(energyBalance.available()){
+                    boolean gain=energyBalance.status==EnergyBalance.Status.GAIN;
+                    boolean neutral=energyBalance.status==EnergyBalance.Status.EQUAL;
+                    int color=neutral?BLUE:(gain?GREEN:ORANGE);
+                    words(cv,gain?"GANANCIA NETA":neutral?"EN EQUILIBRIO":"GASTO NETO",
+                        bx,lowerY+39*k,21*k,color,true,bw);
+                    words(cv,String.format(Locale.ROOT,"%+.3f kWh",-energyBalance.netKwh),
+                        bx,lowerY+80*k,30*k,WHITE,true,bw);
+                    words(cv,energyBalance.partial?"MEDICIÓN PARCIAL":"MEDICIÓN COMPLETA",
+                        bx,lowerY+105*k,14*k,MUTE,false,bw);
+                } else {
+                    words(cv,"SIN DATOS",bx,lowerY+44*k,25*k,MUTE,true,bw);
+                    words(cv,"Necesita potencia real",bx,lowerY+71*k,16*k,MUTE,false,bw);
+                }
+                words(cv,"Entrada incluye cualquier carga de la batería; no solo frenada regenerativa.",
+                    barX,lowerB-10*k,13*k,MUTE,false,w-2*pad-16*k);
             }
         }
         private final class Graph extends View {
