@@ -36,10 +36,19 @@ jobs:
               --lib "$ANDROID_HOME/platforms/android-35/android.jar" \
               --output c10plus-native/out/dex
           test -s c10plus-native/out/dex/classes.dex
-      - name: Upload DEX to merge into existing signed C10 Plus package
+      - name: Bundle SDK signing utilities (no private keys)
+        run: |
+          mkdir -p c10plus-native/out/tools
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" c10plus-native/out/tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" c10plus-native/out/tools/
+          chmod +x c10plus-native/out/tools/zipalign
+      - name: Upload DEX and Android tools
         uses: actions/upload-artifact@v4
         with:
           name: C10Plus-Native-Addon-DEX
-          path: c10plus-native/out/dex/classes.dex
+          path: |
+            c10plus-native/out/dex/classes.dex
+            c10plus-native/out/tools/apksigner.jar
+            c10plus-native/out/tools/zipalign
           if-no-files-found: error
           retention-days: 14
