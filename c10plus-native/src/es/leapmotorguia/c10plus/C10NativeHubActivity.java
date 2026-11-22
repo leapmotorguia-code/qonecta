@@ -643,9 +643,17 @@ public final class C10NativeHubActivity extends Activity {
             updateHandler.post(refresh);
         }
         private void stopCustom() {
+            boolean previouslyShowing=showing;
             showing=false;updateHandler.removeCallbacks(refresh);
             if(leftPane!=null)leftPane.close();if(rightPane!=null)rightPane.close();
             leftPane=rightPane=null;custom=null;
+            // Re-enable UNIT's original live refresh after the user returns to
+            // its native Ruta, Viajes, Radio etc. Our custom pages pause it.
+            if(previouslyShowing && nativeHandler instanceof Handler && nativeTick instanceof Runnable) {
+                Handler h=(Handler)nativeHandler;
+                h.removeCallbacks((Runnable)nativeTick);
+                h.postDelayed((Runnable)nativeTick,550);
+            }
         }
         void dispose() {
             closed=true;stopCustom();
@@ -657,6 +665,10 @@ public final class C10NativeHubActivity extends Activity {
             final LinearLayout layout;
             TextView value;
             WebView web;
+            android.app.Dialog fullScreenWeb;
+            android.webkit.WebChromeClient.CustomViewCallback fullScreenCallback;
+            android.widget.CheckBox stationary;
+            boolean stoppedForMotion;
             Graph graph;
             MetricDashboard dashboard;
             boolean disposed;
@@ -680,13 +692,46 @@ public final class C10NativeHubActivity extends Activity {
             void info(String s) {value=label(s,15,0xffcadfe7);layout.addView(value);}
             void web() {
                 web=new WebView(activity);
-                WebSettings ws=web.getSettings();ws.setJavaScriptEnabled(true);
-                ws.setDomStorageEnabled(true);ws.setAllowFileAccess(false);
-                ws.setAllowContentAccess(false);ws.setMediaPlaybackRequiresUserGesture(true);
-                web.setWebChromeClient(new WebChromeClient());
+                WebSettings ws=web.getSettings();
+                ws.setJavaScriptEnabled(true);
+                ws.setDomStorageEnabled(true);
+                ws.setAllowFileAccess(false);
+                ws.setAllowContentAccess(false);
+                ws.setAllowFileAccessFromFileURLs(false);
+                ws.setAllowUniversalAccessFromFileURLs(false);
+                ws.setSupportMultipleWindows(false);
+                ws.setJavaScriptCanOpenWindowsAutomatically(false);
+                ws.setMediaPlaybackRequiresUserGesture(true);
+                if(Build.VERSION.SDK_INT>=21)ws.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+                web.setWebChromeClient(new WebChromeClient() {
+                    @Override public void onShowCustomView(View view,CustomViewCallback cb) {
+                        if(fullScreenWeb!=null) { cb.onCustomViewHidden();return; }
+                        fullScreenCallback=cb;
+                        fullScreenWeb=new Dialog(activity,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                        fullScreenWeb.setContentView(view);
+                        fullScreenWeb.setOnDismissListener(d->{
+                            if(fullScreenCallback!=null)fullScreenCallback.onCustomViewHidden();
+                            fullScreenCallback=null;fullScreenWeb=null;
+                        });
+                        fullScreenWeb.show();
+                    }
+                    @Override public void onHideCustomView() {
+                        if(fullScreenWeb!=null)fullScreenWeb.dismiss();
+                    }
+                });
                 web.setWebViewClient(new WebViewClient() {
-                    @Override public boolean shouldOverrideUrlLoading(WebView w, WebResourceRequest request) {
-                        return !"https".equalsIgnoreCase(request.getUrl().getScheme());
+                    @Override public boolean shouldOverrideUrlLoading(WebView w,WebResourceRequest request) {
+                        // Deep links, intents and external app redirects are deliberately refused.
+                        String scheme=request.getUrl().getScheme();
+                        if("https".equalsIgnoreCase(scheme)||"about".equalsIgnoreCase(scheme)) return false;
+                        if(value!=null)value.setText("Enlace externo bloqueado: permanece dentro de UNIT");
+                        return true;
+                    }
+                    @Override public boolean shouldOverrideUrlLoading(WebView w,String url) {
+                        return !url.startsWith("https://")&&!url.startsWith("about:");
+                    }
+                    @Override public void onReceivedError(WebView w,WebResourceRequest r,android.webkit.WebResourceError error) {
+                        if(r.isForMainFrame()&&value!=null)value.setText("El sitio no se pudo cargar dentro de UNIT. Puede no admitir WebView.");
                     }
                 });
                 layout.addView(web,new LinearLayout.LayoutParams(-1,0,1));
@@ -721,26 +766,34 @@ public final class C10NativeHubActivity extends Activity {
                 web.loadUrl("https://www.google.com/maps");
             }
             void media() {
-                info("Reproductores y servicios dentro de UNIT. Algunos requieren DRM que WebView no admite.");
-                LinearLayout chooser = row();
-                Spinner providers = new Spinner(activity);
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
-                    android.R.layout.simple_spinner_item, MEDIA);
+                info("Servicios dentro de UNIT, sin abrir navegador externo. Vídeo solo estacionado. DRM según el proveedor.");
+                stationary=new android.widget.CheckBox(activity);
+                stationary.setText("Confirmo que el coche está estacionado");
+                stationary.setTextColor(0xffd9ebf6);
+                stationary.setTextSize(15);
+                layout.addView(stationary);
+                LinearLayout chooser=row();
+                Spinner providers=new Spinner(activity);
+                ArrayAdapter<String> adapter=new ArrayAdapter<>(activity,
+                    android.R.layout.simple_spinner_item,MEDIA);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 providers.setAdapter(adapter);
-                chooser.addView(providers, new LinearLayout.LayoutParams(0, dip(46), 1));
-                Button open = button("Reproducir aquí");
+                chooser.addView(providers,new LinearLayout.LayoutParams(0,dip(48),1));
+                Button open=button("Abrir dentro");
                 chooser.addView(open);
                 layout.addView(chooser);
                 web();
-                open.setOnClickListener(v -> {
-                    if (Double.isFinite(speed) && Math.abs(speed)>1.5d) {
-                        if(value != null) value.setText("Multimedia no disponible mientras se conduce");
+                open.setEnabled(false);
+                stationary.setOnCheckedChangeListener((v,checked)->open.setEnabled(checked));
+                open.setOnClickListener(v->{
+                    if(!stationary.isChecked())return;
+                    if(Double.isFinite(speed)&&Math.abs(speed)>1.5){
+                        if(value!=null)value.setText("Multimedia bloqueada: vehículo en movimiento");
                         return;
                     }
-                    if (web != null) web.loadUrl(URLS[providers.getSelectedItemPosition()]);
+                    stoppedForMotion=false;
+                    if(web!=null)web.loadUrl(URLS[providers.getSelectedItemPosition()]);
                 });
-                // No initial URL and no links out to another app; leave a clean start.
             }
             void consumption() {
                 info("Energía REAL · balance = gastado − entrante · consumo de combustible NO inferido");
@@ -798,11 +851,22 @@ public final class C10NativeHubActivity extends Activity {
                     Double.isFinite(latestSoc)?"REAL · "+display(latestSoc,"%")+" · "+latestSource:
                     "NO DISPONIBLE: sin lectura de batería");
                 if(graph!=null)graph.invalidate();
-                if(dashboard!=null)dashboard.invalidate();
+                if(kind==1&&web!=null&&Double.isFinite(speed)&&Math.abs(speed)>1.5&&!stoppedForMotion){
+                    stoppedForMotion=true;
+                    web.stopLoading();
+                    web.loadUrl("about:blank");
+                    web.onPause();
+                    if(value!=null)value.setText("Multimedia detenida: el coche está en movimiento");
+                    if(fullScreenWeb!=null)fullScreenWeb.dismiss();
+                }
             }
             void active(boolean visible) {if(web!=null)try{if(visible)web.onResume();else web.onPause();}catch(Throwable ignored){}}
             void close() {
                 disposed=true;
+                if(fullScreenWeb!=null) {
+                    try{fullScreenWeb.dismiss();}catch(Throwable ignored){}
+                    fullScreenWeb=null;
+                }
                 if(web!=null) {
                     try{web.stopLoading();web.loadUrl("about:blank");web.onPause();layout.removeView(web);web.destroy();}
                     catch(Throwable ignored){}
