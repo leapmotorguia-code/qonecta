@@ -29,13 +29,18 @@ jobs:
           javac -source 8 -target 8 -Xlint:none -encoding UTF-8 \
             -classpath "$ANDROID_HOME/platforms/android-35/android.jar" \
             -d c10plus-native/out/classes \
-            c10plus-native/src/es/leapmotorguia/c10plus/C10NativeHubActivity.java
+            c10plus-native/src/es/leapmotorguia/c10plus/*.java
           find c10plus-native/out/classes -name '*.class' -print0 | \
             xargs -0 "$ANDROID_HOME/build-tools/35.0.0/d8" \
               --min-api 28 \
               --lib "$ANDROID_HOME/platforms/android-35/android.jar" \
               --output c10plus-native/out/dex
           test -s c10plus-native/out/dex/classes.dex
+      - name: Test energy balance calculations
+        run: |
+          mkdir -p c10plus-native/out/tests
+          javac -source 8 -target 8 -encoding UTF-8 -d c10plus-native/out/tests             c10plus-native/src/es/leapmotorguia/c10plus/EnergyBalance.java             c10plus-native/tests/es/leapmotorguia/c10plus/EnergyBalanceTest.java
+          java -cp c10plus-native/out/tests es.leapmotorguia.c10plus.EnergyBalanceTest
       - name: Bundle SDK signing utilities (no private keys)
         run: |
           mkdir -p c10plus-native/out/tools
