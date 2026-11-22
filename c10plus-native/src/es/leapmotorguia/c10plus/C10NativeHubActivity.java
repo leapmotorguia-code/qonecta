@@ -393,6 +393,9 @@ public final class C10NativeHubActivity extends Activity {
         private ViewGroup savedTvParent;
         private ViewGroup.LayoutParams savedTvParams;
         private FrameLayout tvPlayerWrapper;
+        private FrameLayout nativeTvPlayerSlot;
+        private android.widget.VideoView pausedTvVideo;
+        private boolean tvIsEmbedded;
         private int savedTvIndex=-1;
         private final Runnable nativeMediaTabMonitor=new Runnable() {
             @Override public void run() {
@@ -406,6 +409,7 @@ public final class C10NativeHubActivity extends Activity {
                     if(!showing && !role.isEmpty() && body.getChildCount()>0) {
                         View current=firstNativeBodyChild();
                         boolean changed=!role.equals(observedNativeRole) ||
+                            current!=nativeBodyContent ||
                             (nativeMediaBar==null || nativeMediaBar.getParent()!=body);
                         if(changed) {
                             if(!role.equals(observedNativeRole))closeNativeMediaWeb();
@@ -612,6 +616,20 @@ public final class C10NativeHubActivity extends Activity {
         private void openNativeMedia(String section,String title,String url,boolean video) {
             closeNativeMediaWeb();
             if(showing || closed)return;
+            // The TV service must occupy the EXISTING player rectangle (RTVE etc.),
+            // not cover the channel grid and the rest of UNIT.
+            FrameLayout tvSlot=null;
+            if(video) {
+                tvSlot=findNativeTvPlayerSlot(body);
+                if(tvSlot==null) {
+                    Toast.makeText(activity,
+                        "Reproductor de TV no detectado. No se cambiará la pantalla original.",
+                        Toast.LENGTH_LONG).show();
+                    return;
+                }
+                nativeTvPlayerSlot=tvSlot;
+                pauseOriginalTvPlayer(tvSlot);
+            }
             LinearLayout content=new LinearLayout(activity);
             content.setOrientation(LinearLayout.VERTICAL);
             content.setBackgroundColor(0xff071b2a);
@@ -655,6 +673,11 @@ public final class C10NativeHubActivity extends Activity {
             browser.setWebChromeClient(new WebChromeClient() {
                 private CustomViewCallback activeCb;
                 @Override public void onShowCustomView(View view,CustomViewCallback cb){
+                    if(video){
+                        // Provider fullscreen must not escape the small TV rectangle.
+                        cb.onCustomViewHidden();
+                        return;
+                    }
                     if(nativeVideoFullscreen!=null){cb.onCustomViewHidden();return;}
                     activeCb=cb;
                     android.app.Dialog dlg=new android.app.Dialog(activity,
@@ -674,7 +697,13 @@ public final class C10NativeHubActivity extends Activity {
             content.addView(browser,new LinearLayout.LayoutParams(-1,0,1f));
             nativeMediaBrowser=browser;
             nativeMediaOverlay=content;
-            body.addView(content,new FrameLayout.LayoutParams(-1,-1));
+            if(video && tvSlot!=null) {
+                tvIsEmbedded=true;
+                tvSlot.addView(content,new FrameLayout.LayoutParams(-1,-1));
+            } else {
+                tvIsEmbedded=false;
+                body.addView(content,new FrameLayout.LayoutParams(-1,-1));
+            }
             browser.loadUrl(url);
             updateHandler.removeCallbacks(nativeMediaSafetyTick);
             if(video)updateHandler.postDelayed(nativeMediaSafetyTick,1700);
@@ -701,6 +730,67 @@ public final class C10NativeHubActivity extends Activity {
                 if(nativeMediaOverlay.getParent() instanceof ViewGroup)
                     ((ViewGroup)nativeMediaOverlay.getParent()).removeView(nativeMediaOverlay);
                 nativeMediaOverlay=null;
+            }
+            if(savedTvWebView!=null){
+                try{savedTvWebView.onResume();}catch(Throwable ignored){}
+                savedTvWebView=null;
+            }
+            if(pausedTvVideo!=null){
+                // Original channel playback is restored by choosing a channel in UNIT.
+                pausedTvVideo=null;
+            }
+            nativeTvPlayerSlot=null;
+            tvIsEmbedded=false;
+        }
+
+        /** Locate the real television player host without changing UNIT's channel grid. */
+        private FrameLayout findNativeTvPlayerSlot(View root) {
+            View player=findNativePlayerCandidate(root);
+            if(player==null)return null;
+            android.view.ViewParent parent=player.getParent();
+            while(parent instanceof View && parent!=body){
+                View v=(View)parent;
+                if(v instanceof FrameLayout &&
+                   v.getWidth()>=dip(140) && v.getHeight()>=dip(75) &&
+                   v.getHeight()<body.getHeight()*.92f){
+                    return (FrameLayout)v;
+                }
+                parent=v.getParent();
+            }
+            return null;
+        }
+        private View findNativePlayerCandidate(View root) {
+            if(root==null || root==nativeMediaBar || root==nativeMediaOverlay)return null;
+            if(root instanceof WebView && root!=nativeMediaBrowser){
+                String name=root.getClass().getName();
+                if(name.contains("buildTvView") || root.getWidth()>=dip(160))
+                    return root;
+            }
+            if(root instanceof android.widget.VideoView ||
+               root instanceof android.view.TextureView ||
+               root instanceof android.view.SurfaceView) return root;
+            if(root instanceof ViewGroup){
+                ViewGroup g=(ViewGroup)root;
+                for(int i=0;i<g.getChildCount();i++){
+                    View found=findNativePlayerCandidate(g.getChildAt(i));
+                    if(found!=null)return found;
+                }
+            }
+            return null;
+        }
+        private void pauseOriginalTvPlayer(View root) {
+            if(root instanceof WebView && root!=nativeMediaBrowser) {
+                savedTvWebView=(WebView)root;
+                try{savedTvWebView.onPause();}catch(Throwable ignored){}
+            }
+            if(root instanceof android.widget.VideoView) {
+                pausedTvVideo=(android.widget.VideoView)root;
+                try{pausedTvVideo.pause();}catch(Throwable ignored){}
+            }
+            if(root instanceof ViewGroup) {
+                ViewGroup g=(ViewGroup)root;
+                for(int i=0;i<g.getChildCount();i++)
+                    pauseOriginalTvPlayer(g.getChildAt(i));
             }
         }
 
