@@ -353,66 +353,32 @@ public final class C10NativeHubActivity extends Activity {
             arr.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             s.setAdapter(arr);s.setSelection(Math.max(0,Math.min(TABS.length-1,selected)));return s;
         }
+        /**
+         * One native UNIT tab = one feature. Split-screen is controlled by UNIT's
+         * original rail (AA on one side, this view on the other). No duplicate
+         * selectors and no cross-category content.
+         */
         private void selectExtra(int tab) {
             stopCustom();
-            showing=true;
+            showing = true;
             stopNativeTick();
-            custom=new LinearLayout(activity);custom.setOrientation(LinearLayout.VERTICAL);
-            custom.setBackgroundColor(0xff091925);
-            LinearLayout bar=row();
-            bar.addView(label("C10 PLUS · original UNIT",20,0xff00e2bc),new LinearLayout.LayoutParams(0,dip(49),1));
-            Button splitButton=button("Dividir");
-            bar.addView(splitButton);custom.addView(bar);
-            LinearLayout controls=row();
-            leftChoice=choice(tab);rightChoice=choice(prefs.getInt("right",2));
-            controls.addView(leftChoice,new LinearLayout.LayoutParams(0,dip(50),1));
-            controls.addView(rightChoice,new LinearLayout.LayoutParams(0,dip(50),1));
-            custom.addView(controls);
-            TextView hint=label("REAL = lectura verificada · Datos inexistentes = NO DISPONIBLE · vídeo solo estacionado",13,0xffbad1df);
-            custom.addView(hint);
-            LinearLayout halves=row();
-            leftSlot=new FrameLayout(activity);rightSlot=new FrameLayout(activity);
-            halves.addView(leftSlot,new LinearLayout.LayoutParams(0,-1,1));
-            halves.addView(rightSlot,new LinearLayout.LayoutParams(0,-1,1));
-            custom.addView(halves,new LinearLayout.LayoutParams(-1,0,1));
-            split=prefs.getBoolean("split",true);
-            splitButton.setOnClickListener(v->setSplit(!split));
-            body.removeAllViews();body.addView(custom,new FrameLayout.LayoutParams(-1,-1));
-            leftChoice.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-                @Override public void onItemSelected(android.widget.AdapterView<?> p,View v,int position,long id) {
-                    if(showing)swap(0,position);
-                }
-                @Override public void onNothingSelected(android.widget.AdapterView<?> p){}
-            });
-            rightChoice.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-                @Override public void onItemSelected(android.widget.AdapterView<?> p,View v,int position,long id) {
-                    if(showing)swap(1,position);
-                }
-                @Override public void onNothingSelected(android.widget.AdapterView<?> p){}
-            });
-            swap(0,tab);
-            swap(1,prefs.getInt("right",2));
-            setSplit(split);
+            custom = new LinearLayout(activity);
+            custom.setOrientation(LinearLayout.VERTICAL);
+            custom.setBackgroundColor(0xff081520);
+            LinearLayout header = row();
+            TextView title = label("C10 PLUS   /   " + TABS[tab].toUpperCase(Locale.ROOT), 21, 0xff08e2c0);
+            title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+            header.addView(title, new LinearLayout.LayoutParams(0, dip(53), 1));
+            TextView real = label("DATOS REALES", 13, 0xff8cabbc);
+            real.setGravity(Gravity.CENTER_VERTICAL);
+            header.addView(real);
+            custom.addView(header);
+            Pane p = new Pane(tab);
+            leftPane = p;
+            custom.addView(p.layout, new LinearLayout.LayoutParams(-1, 0, 1));
+            body.removeAllViews();
+            body.addView(custom, new FrameLayout.LayoutParams(-1,-1));
             updateHandler.post(refresh);
-        }
-        private void setSplit(boolean active) {
-            split=active;prefs.edit().putBoolean("split",active).apply();
-            if(rightSlot != null)rightSlot.setVisibility(split?View.VISIBLE:View.GONE);
-            if(rightChoice != null)rightChoice.setVisibility(split?View.VISIBLE:View.GONE);
-            if(rightPane != null)rightPane.active(split);
-        }
-        private void swap(int side,int type) {
-            if(!showing)return;
-            type=Math.max(0,Math.min(type,TABS.length-1));
-            FrameLayout slot=side==0?leftSlot:rightSlot;
-            Pane old=side==0?leftPane:rightPane;
-            if(old!=null)old.close();
-            if(slot==null)return;
-            slot.removeAllViews();
-            Pane p=new Pane(type);slot.addView(p.layout,new FrameLayout.LayoutParams(-1,-1));
-            if(side==0)leftPane=p;else rightPane=p;
-            p.active(side==0||split);
-            prefs.edit().putInt(side==0?"left":"right",type).apply();
         }
         private void stopCustom() {
             showing=false;updateHandler.removeCallbacks(refresh);
@@ -493,24 +459,26 @@ public final class C10NativeHubActivity extends Activity {
                 web.loadUrl("https://www.google.com/maps");
             }
             void media() {
-                info("Web integrado; algunos servicios bloquean DRM y acceso");
-                LinearLayout bar=row();
-                Spinner providers=new Spinner(activity);
-                ArrayAdapter<String> adapter=new ArrayAdapter<>(activity,android.R.layout.simple_spinner_item,MEDIA);
+                info("Reproductores y servicios dentro de UNIT. Algunos requieren DRM que WebView no admite.");
+                LinearLayout chooser = row();
+                Spinner providers = new Spinner(activity);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
+                    android.R.layout.simple_spinner_item, MEDIA);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 providers.setAdapter(adapter);
-                bar.addView(providers,new LinearLayout.LayoutParams(0,-2,1));
-                Button go=button("Abrir aquí");bar.addView(go);
-                layout.addView(bar);
+                chooser.addView(providers, new LinearLayout.LayoutParams(0, dip(46), 1));
+                Button open = button("Reproducir aquí");
+                chooser.addView(open);
+                layout.addView(chooser);
                 web();
-                go.setOnClickListener(v->{
-                    // No open-other-app fallback. WebView stays inside UNIT.
-                    if(Double.isFinite(speed) && Math.abs(speed) > 1.5) {
-                        if(value!=null)value.setText("Multimedia bloqueada mientras se conduce");
+                open.setOnClickListener(v -> {
+                    if (Double.isFinite(speed) && Math.abs(speed)>1.5d) {
+                        if(value != null) value.setText("Multimedia no disponible mientras se conduce");
                         return;
                     }
-                    web.loadUrl(URLS[providers.getSelectedItemPosition()]);
+                    if (web != null) web.loadUrl(URLS[providers.getSelectedItemPosition()]);
                 });
+                // No initial URL and no links out to another app; leave a clean start.
             }
             void consumption() {
                 info("DATOS REALES · Si no hay lectura, se muestra —");
@@ -575,65 +543,115 @@ public final class C10NativeHubActivity extends Activity {
                 }
             }
         }
-        /** Clear no-data cards: deliberate dashes, never synthetic sample values. */
+        /** UNIT-style visual cards. Values absent in ECU/cloud stay blank; never synthesize. */
         private final class MetricDashboard extends View {
             final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-            MetricDashboard(Context c) {super(c);}
+            final android.graphics.RectF arc=new android.graphics.RectF();
+            MetricDashboard(Context c){super(c);}
+            void txt(Canvas c,String s,float x,float y,float size,int color,boolean bold) {
+                p.setColor(color);p.setTextSize(size);
+                p.setTypeface(bold?android.graphics.Typeface.DEFAULT_BOLD:
+                    android.graphics.Typeface.DEFAULT);
+                p.setStyle(Paint.Style.FILL);
+                c.drawText(s,x,y,p);
+            }
             @Override protected void onDraw(Canvas cv) {
                 super.onDraw(cv);
                 float w=getWidth(),h=getHeight();
-                if(w<160||h<100)return;
-                float gap=12f, top=6f, cardW=(w-gap*3)/2f, cardH=(h-gap*3)/2f;
-                String[] names={"BATERÍA","CONSUMIDO","RECUPERADO","GASOLINA"};
-                double[] vals={latestSoc,consumed,recovered,gasoline};
-                String[] units={"%","kWh","kWh","L"};
-                int[] colors={0xff42b6f6,0xfff29e55,0xff30d8a5,0xffe6ca66};
-                for(int i=0;i<4;i++) {
-                    int row=i/2,col=i%2;
-                    float x=gap+col*(cardW+gap),y=top+row*(cardH+gap);
-                    p.setStyle(Paint.Style.FILL);p.setColor(0xff193747);
-                    cv.drawRoundRect(x,y,x+cardW,y+cardH,14,14,p);
-                    p.setColor(colors[i]);
-                    cv.drawRoundRect(x+10,y+12,x+15,y+cardH-12,3,3,p);
-                    p.setTextSize(Math.max(15f,Math.min(22f,cardH*.18f)));
-                    cv.drawText(names[i],x+25,y+Math.max(30,cardH*.33f),p);
-                    p.setColor(0xfff1f9fa);
-                    p.setTextSize(Math.max(18f,Math.min(38f,cardH*.30f)));
-                    String v=Double.isFinite(vals[i])?
-                        String.format(Locale.ROOT,"%.1f %s",vals[i],units[i]):"—";
-                    cv.drawText(v,x+25,y+Math.max(61,cardH*.69f),p);
-                    if(Double.isFinite(vals[i]) && i==0) {
-                        p.setColor(0xff183b4b);cv.drawRoundRect(x+22,y+cardH-15,x+cardW-14,y+cardH-8,4,4,p);
-                        p.setColor(colors[i]);cv.drawRoundRect(x+22,y+cardH-15,x+22+(float)((cardW-36)*Math.max(0,Math.min(1,vals[i]/100d))),y+cardH-8,4,4,p);
-                    }
+                if(w<250||h<180)return;
+                float scale=Math.max(.65f,Math.min(1.7f,Math.min(w/920f,h/470f)));
+                int blue=0xff45bffc,green=0xff24d6a2,orange=0xfff4a261,amber=0xfff4cd6a;
+                float pad=15*scale;
+                p.setStyle(Paint.Style.FILL);p.setColor(0xff122a3a);
+                cv.drawRoundRect(pad,pad,w-pad,h-pad,22*scale,22*scale,p);
+                float gaugeWidth=Math.min(w*.42f,400*scale);
+                float cx=pad+gaugeWidth/2+5*scale,cy=h*.52f;
+                float r=Math.min(gaugeWidth*.37f,h*.33f);
+                arc.set(cx-r,cy-r,cx+r,cy+r);
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeCap(Paint.Cap.ROUND);p.setStrokeWidth(20*scale);
+                p.setColor(0xff274655);
+                cv.drawArc(arc,140,260,false,p);
+                if(Double.isFinite(latestSoc) && latestSoc>=0 && latestSoc<=100) {
+                    p.setColor(blue);
+                    cv.drawArc(arc,140,(float)(260*latestSoc/100f),false,p);
                 }
+                p.setStyle(Paint.Style.FILL);
+                String soc=Double.isFinite(latestSoc)?
+                    String.format(Locale.ROOT,"%.0f%%",latestSoc):"—";
+                txt(cv,soc,cx-r*.72f,cy+17*scale,51*scale,0xfff0fcff,true);
+                txt(cv,"BATERÍA",cx-r*.62f,cy+52*scale,17*scale,0xffa7c5d6,false);
+                float bx=pad+gaugeWidth+20*scale;
+                float bw=Math.max(100,w-bx-pad-12*scale);
+                float rowH=(h-2*pad)/3;
+                String[] title={"ELECTRICIDAD CONSUMIDA","ENERGÍA RECUPERADA","GASOLINA CONSUMIDA"};
+                double[] numbers={consumed,recovered,gasoline};
+                String[] units={" kWh"," kWh"," L"};
+                int[] colors={orange,green,amber};
+                for(int i=0;i<3;i++) {
+                    float yy=pad+i*rowH+5*scale;
+                    p.setColor(0xff1c3b4b);
+                    cv.drawRoundRect(bx,yy,bx+bw,yy+rowH-9*scale,12*scale,12*scale,p);
+                    p.setColor(colors[i]);
+                    cv.drawRoundRect(bx+8*scale,yy+10*scale,bx+13*scale,yy+rowH-19*scale,2*scale,2*scale,p);
+                    txt(cv,title[i],bx+24*scale,yy+25*scale,17*scale,0xffa5cad6,false);
+                    txt(cv,Double.isFinite(numbers[i])?
+                        String.format(Locale.ROOT,"%.2f",numbers[i])+units[i]:"NO DISPONIBLE",
+                        bx+24*scale,yy+rowH-23*scale,29*scale,
+                        Double.isFinite(numbers[i])?colors[i]:0xff90a8b3,true);
+                }
+                if(Double.isFinite(consumed)&&Double.isFinite(recovered))
+                    txt(cv,"BALANCE NETO  "+display(consumed-recovered,"kWh"),pad+14*scale,
+                        h-pad-11*scale,15*scale,green,true);
             }
         }
         private final class Graph extends View {
             final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
             final Path path=new Path();
+            final android.graphics.RectF arc=new android.graphics.RectF();
             Graph(Context c){super(c);}
             @Override protected void onDraw(Canvas c) {
+                super.onDraw(c);
                 float w=getWidth(),h=getHeight();
-                if(w<=100||h<=100)return;
-                p.setColor(0xff264453);p.setStrokeWidth(2);
-                for(int i=0;i<=4;i++) {
-                    float y=35+(h-70)*i/4f;
-                    c.drawLine(45,y,w-20,y,p);
+                if(w<220||h<140)return;
+                float k=Math.max(.7f,Math.min(1.5f,Math.min(w/850f,h/440f)));
+                p.setColor(0xff112b3a);p.setStyle(Paint.Style.FILL);
+                c.drawRoundRect(12,12,w-12,h-12,24,24,p);
+                float left=54*k,right=w-28*k,top=79*k,bottom=h-57*k;
+                p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+                p.setTextSize(23*k);p.setColor(0xffe7f6fc);
+                c.drawText("HISTORIAL DE BATERÍA",left,45*k,p);
+                p.setTextSize(14*k);p.setColor(0xff91b2c1);
+                c.drawText("Lecturas reales recientes",left,65*k,p);
+                p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1.5f*k);
+                p.setColor(0xff34505f);
+                for(int i=0;i<=4;i++){
+                    float y=top+(bottom-top)*i/4;
+                    c.drawLine(left,y,right,y,p);
                 }
-                if(realSoc.size()<2) {
-                    p.setTextSize(24);p.setColor(0xffccdce4);
-                    c.drawText("Sin suficientes datos REALES",40,h/2f,p);return;
+                p.setStyle(Paint.Style.FILL);
+                if(realSoc.size()<2){
+                    p.setColor(0xffa5bdca);p.setTextSize(20*k);
+                    c.drawText("Sin datos suficientes para dibujar una curva REAL",left,top+(bottom-top)/2,p);
+                    return;
                 }
                 path.reset();
-                for(int i=0;i<realSoc.size();i++) {
-                    float x=45+(w-65)*i/(realSoc.size()-1f);
-                    float y=h-35-(h-70)*(realSoc.get(i).floatValue()/100f);
+                for(int i=0;i<realSoc.size();i++){
+                    float x=left+(right-left)*i/(realSoc.size()-1f);
+                    float y=bottom-(bottom-top)*(realSoc.get(i).floatValue()/100f);
                     if(i==0)path.moveTo(x,y);else path.lineTo(x,y);
                 }
-                p.setColor(0xff00e6bf);p.setStrokeWidth(4);p.setStyle(Paint.Style.STROKE);
-                c.drawPath(path,p);p.setStyle(Paint.Style.FILL);
+                p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(5*k);
+                p.setStrokeJoin(Paint.Join.ROUND);p.setStrokeCap(Paint.Cap.ROUND);
+                p.setColor(0xff22dcc0);c.drawPath(path,p);
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(0xff20e6c6);
+                float xx=right,yy=bottom-(bottom-top)*(realSoc.get(realSoc.size()-1).floatValue()/100f);
+                c.drawCircle(xx,yy,7*k,p);
+                p.setTextSize(20*k);p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+                c.drawText(display(realSoc.get(realSoc.size()-1),"%"),left,bottom+36*k,p);
             }
         }
+
     }
 }
