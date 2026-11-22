@@ -492,6 +492,166 @@ public final class C10NativeHubActivity extends Activity {
                 v.setOnClickListener(w->selectExtra(tab));
             }
         }
+        /**
+         * Inside UNIT's own RADIO / TV body: append only a compact service strip.
+         * Original radio stations and IPTV lists remain mounted underneath.
+         */
+        private void showNativeMediaBar(String section) {
+            clearNativeMediaBar();
+            if(showing || closed || body.getChildCount()==0)return;
+            final boolean radio="radio".equals(section);
+            final String[] names=radio?RADIO_NAMES:TV_NAMES;
+            final String[] urls=radio?RADIO_URLS:TV_URLS;
+            LinearLayout strip=new LinearLayout(activity);
+            strip.setOrientation(LinearLayout.HORIZONTAL);
+            strip.setGravity(Gravity.CENTER_VERTICAL);
+            strip.setPadding(dip(9),dip(4),dip(9),dip(4));
+            strip.setBackgroundColor(0xff0b2838);
+            TextView lbl=label(radio?"RADIO · Spotify":"TV · Streaming",14,0xff00e1bd);
+            lbl.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+            strip.addView(lbl);
+            android.widget.HorizontalScrollView scroll=new android.widget.HorizontalScrollView(activity);
+            scroll.setHorizontalScrollBarEnabled(false);
+            LinearLayout buttons=new LinearLayout(activity);
+            buttons.setOrientation(LinearLayout.HORIZONTAL);
+            for(int i=0;i<names.length;i++) {
+                final int n=i;
+                Button b=button(names[i]);
+                b.setTextSize(13f);
+                b.setPadding(dip(7),0,dip(7),0);
+                b.setMinimumHeight(0);
+                b.setMinHeight(0);
+                b.setOnClickListener(v->askToOpenNativeMedia(section,names[n],urls[n],!radio));
+                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,dip(40));
+                lp.leftMargin=dip(4);
+                buttons.addView(b,lp);
+            }
+            scroll.addView(buttons);
+            strip.addView(scroll,new LinearLayout.LayoutParams(0,dip(44),1f));
+            nativeMediaBar=strip;
+            FrameLayout.LayoutParams params=new FrameLayout.LayoutParams(-1,dip(52),Gravity.BOTTOM);
+            body.addView(strip,params);
+        }
+
+        private void clearNativeMediaBar(){
+            if(nativeMediaBar!=null) {
+                if(nativeMediaBar.getParent() instanceof ViewGroup)
+                    ((ViewGroup)nativeMediaBar.getParent()).removeView(nativeMediaBar);
+                nativeMediaBar=null;
+            }
+        }
+
+        private void askToOpenNativeMedia(String section,String title,String url,boolean video) {
+            readReal();
+            if(video && Double.isFinite(speed) && Math.abs(speed)>1.5d) {
+                Toast.makeText(activity,"No se puede mostrar vídeo en movimiento",Toast.LENGTH_LONG).show();
+                return;
+            }
+            // Streaming sites are embedded; user confirmation is required for video.
+            if(video) {
+                new AlertDialog.Builder(activity)
+                    .setTitle(title+" en TV")
+                    .setMessage("Abre el servicio web dentro de UNIT. Confirma que el coche está estacionado. El proveedor puede bloquear vídeo o acceso por DRM.")
+                    .setPositiveButton("Estoy estacionado",(d,w)->openNativeMedia(section,title,url,true))
+                    .setNegativeButton("Cancelar",null).show();
+            } else openNativeMedia(section,title,url,false);
+        }
+
+        private void openNativeMedia(String section,String title,String url,boolean video) {
+            closeNativeMediaWeb();
+            if(showing || closed)return;
+            LinearLayout content=new LinearLayout(activity);
+            content.setOrientation(LinearLayout.VERTICAL);
+            content.setBackgroundColor(0xff071b2a);
+            LinearLayout header=row();
+            TextView heading=label(("radio".equals(section)?"RADIO":"TV")+"  /  "+title,
+                19,0xff1de1bd);
+            heading.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+            header.addView(heading,new LinearLayout.LayoutParams(0,dip(48),1f));
+            Button back=button("Volver a "+("radio".equals(section)?"Radio":"TV"));
+            back.setOnClickListener(v->closeNativeMediaWeb());
+            header.addView(back,new LinearLayout.LayoutParams(-2,dip(48)));
+            content.addView(header);
+            TextView warning=label("Dentro de UNIT · servicio web · disponibilidad según proveedor",13,0xffa7c2d0);
+            content.addView(warning);
+            WebView browser=new WebView(activity);
+            WebSettings settings=browser.getSettings();
+            settings.setJavaScriptEnabled(true);
+            settings.setDomStorageEnabled(true);
+            settings.setAllowFileAccess(false);
+            settings.setAllowContentAccess(false);
+            settings.setJavaScriptCanOpenWindowsAutomatically(false);
+            settings.setSupportMultipleWindows(false);
+            settings.setMediaPlaybackRequiresUserGesture(true);
+            if(Build.VERSION.SDK_INT>=21)
+                settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+            browser.setWebViewClient(new WebViewClient() {
+                @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest req) {
+                    String scheme=req.getUrl().getScheme();
+                    if("https".equalsIgnoreCase(scheme) || "about".equalsIgnoreCase(scheme))return false;
+                    warning.setText("Enlace externo bloqueado; sigues dentro de UNIT.");
+                    return true;
+                }
+                @Override public boolean shouldOverrideUrlLoading(WebView v,String link) {
+                    return !(link.startsWith("https://")||link.startsWith("about:"));
+                }
+                @Override public void onReceivedError(WebView v,WebResourceRequest req,android.webkit.WebResourceError err) {
+                    if(req.isForMainFrame())
+                        warning.setText("No se pudo cargar el sitio dentro de UNIT. Puede rechazar WebView.");
+                }
+            });
+            browser.setWebChromeClient(new WebChromeClient() {
+                private CustomViewCallback activeCb;
+                @Override public void onShowCustomView(View view,CustomViewCallback cb){
+                    if(nativeVideoFullscreen!=null){cb.onCustomViewHidden();return;}
+                    activeCb=cb;
+                    android.app.Dialog dlg=new android.app.Dialog(activity,
+                        android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                    dlg.setContentView(view);
+                    dlg.setOnDismissListener(d->{
+                        if(activeCb!=null)activeCb.onCustomViewHidden();
+                        activeCb=null;
+                        nativeVideoFullscreen=null;
+                    });
+                    nativeVideoFullscreen=dlg;dlg.show();
+                }
+                @Override public void onHideCustomView() {
+                    if(nativeVideoFullscreen!=null)nativeVideoFullscreen.dismiss();
+                }
+            });
+            content.addView(browser,new LinearLayout.LayoutParams(-1,0,1f));
+            nativeMediaBrowser=browser;
+            nativeMediaOverlay=content;
+            body.addView(content,new FrameLayout.LayoutParams(-1,-1));
+            browser.loadUrl(url);
+            updateHandler.removeCallbacks(nativeMediaSafetyTick);
+            if(video)updateHandler.postDelayed(nativeMediaSafetyTick,1700);
+        }
+
+        private void closeNativeMediaWeb() {
+            updateHandler.removeCallbacks(nativeMediaSafetyTick);
+            if(nativeVideoFullscreen!=null) {
+                try{nativeVideoFullscreen.dismiss();}catch(RuntimeException ignored){}
+                nativeVideoFullscreen=null;
+            }
+            if(nativeMediaBrowser!=null) {
+                try {
+                    nativeMediaBrowser.stopLoading();
+                    nativeMediaBrowser.loadUrl("about:blank");
+                    nativeMediaBrowser.onPause();
+                    if(nativeMediaBrowser.getParent() instanceof ViewGroup)
+                        ((ViewGroup)nativeMediaBrowser.getParent()).removeView(nativeMediaBrowser);
+                    nativeMediaBrowser.destroy();
+                }catch(RuntimeException ignored){}
+                nativeMediaBrowser=null;
+            }
+            if(nativeMediaOverlay!=null) {
+                if(nativeMediaOverlay.getParent() instanceof ViewGroup)
+                    ((ViewGroup)nativeMediaOverlay.getParent()).removeView(nativeMediaOverlay);
+                nativeMediaOverlay=null;
+            }
+        }
+
         private void stopNativeTick() {
             if(nativeHandler instanceof Handler && nativeTick instanceof Runnable)
                 ((Handler)nativeHandler).removeCallbacks((Runnable)nativeTick);
