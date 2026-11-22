@@ -4,6 +4,13 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.provider.Settings;
+import android.widget.ScrollView;
+import android.app.AlertDialog;
+import java.util.List;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Canvas;
@@ -54,6 +61,8 @@ public final class C10NativeHubActivity extends Activity {
     private C10Bridge bridge;
     private TextView status;
     private boolean opening;
+    private boolean initSetup;
+    private static final String SETUP_PREFS = "c10plus_native_onboarding";
     private static final int REQUEST_APK = 7311;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -95,7 +104,149 @@ public final class C10NativeHubActivity extends Activity {
         });
         root.addView(original);
         setContentView(root);
-        handler.postDelayed(this::openNative, 200);
+        // Upgrades from 3.x also see the onboarding once; users may reopen it any time.
+        if (!getSharedPreferences(SETUP_PREFS,MODE_PRIVATE).getBoolean("finished",false)) {
+            handler.postDelayed(() -> showSetup(0), 200);
+        } else {
+            handler.postDelayed(this::openNative, 200);
+        }
+    }
+
+    /**
+     * Onboarding uses the application's existing UNIT vehicle profile store.
+     * Permissions are requested one group at a time, only after a user tap.
+     * It deliberately never requests privileged ECU, CAMERA or SMS permissions.
+     */
+    private LinearLayout wizardColumn() {
+        LinearLayout l=new LinearLayout(this);
+        l.setOrientation(LinearLayout.VERTICAL);
+        l.setPadding(28,20,28,20);
+        l.setBackgroundColor(0xff0c2130);
+        return l;
+    }
+    private TextView wizardText(String text, int size, int color) {
+        TextView v=new TextView(this);
+        v.setText(text);v.setTextColor(color);v.setTextSize(size);
+        v.setPadding(8,12,8,12);
+        return v;
+    }
+    private void showSetup(int step) {
+        if (isFinishing()) return;
+        if (step > 3) {
+            getSharedPreferences(SETUP_PREFS, MODE_PRIVATE).edit()
+                .putBoolean("finished",true).apply();
+            openNative();
+            return;
+        }
+        LinearLayout content=wizardColumn();
+        ScrollView sc=new ScrollView(this);
+        sc.setFillViewport(false);
+        sc.addView(content);
+        final int screen=step;
+        String title;
+        if(screen==0) {
+            title="1/4 · Bienvenido a UNIT C10 Plus";
+            content.addView(wizardText("Tu aplicación original UNIT, con nuestras herramientas integradas.\n\n"
+                +"Selecciona la variante exacta del vehículo. Los datos técnicos de la ficha no son mediciones reales.\n\n"
+                +"Los permisos de Android se pedirán solo para las funciones que los necesiten. "
+                +"Puedes repetir esta configuración desde la pestaña «Modelo».",17,0xfff3faff));
+        } else if (screen==1) {
+            title="2/4 · Modelo y versión del coche";
+            addVehicleSelector(content,true);
+        } else if (screen==2) {
+            title="3/4 · Permisos para conectar y medir";
+            content.addView(wizardText("Sin estos permisos, algunas funciones de GPS, Bluetooth y hotspot pueden no funcionar. "
+                +"Solo se solicitarán permisos normales disponibles para esta aplicación.\n\n"
+                +"GPS = posición del móvil/sistema, no acceso confirmado a las cámaras o centralitas del C10.",16,0xffe2f0f8));
+            setupPermissionButton(content,"Ubicación precisa / GPS",
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION});
+            if(Build.VERSION.SDK_INT>=31) setupPermissionButton(content,"Bluetooth / dispositivos cercanos",
+                new String[]{"android.permission.BLUETOOTH_CONNECT", "android.permission.BLUETOOTH_SCAN"});
+            if(Build.VERSION.SDK_INT>=33){
+                setupPermissionButton(content,"Wi-Fi cercano",new String[]{"android.permission.NEARBY_WIFI_DEVICES"});
+                setupPermissionButton(content,"Notificaciones",new String[]{"android.permission.POST_NOTIFICATIONS"});
+            }
+        } else {
+            title="4/4 · Comprobación";
+            String[] names={"android.permission.ACCESS_FINE_LOCATION",
+                "android.permission.BLUETOOTH_CONNECT","android.permission.NEARBY_WIFI_DEVICES",
+                "android.permission.POST_NOTIFICATIONS"};
+            StringBuilder lines=new StringBuilder("Estado de permisos:\n");
+            for(String name:names) {
+                if (name.equals("android.permission.BLUETOOTH_CONNECT")&&Build.VERSION.SDK_INT<31)continue;
+                if ((name.equals("android.permission.NEARBY_WIFI_DEVICES")||
+                     name.equals("android.permission.POST_NOTIFICATIONS"))&&Build.VERSION.SDK_INT<33)continue;
+                boolean granted=checkSelfPermission(name)==PackageManager.PERMISSION_GRANTED;
+                lines.append(name.substring(name.lastIndexOf('.')+1)).append(": ")
+                    .append(granted?"Concedido":"Pendiente").append("\n");
+            }
+            content.addView(wizardText(lines.toString(),16,0xffd0e5ed));
+            content.addView(wizardText("El perfil se guarda en la configuración original de UNIT. "
+                +"Esto no instala servicios de coche, no activa accesos ECU ni modifica LeapOS.",15,0xffa7c1d1));
+        }
+        final AlertDialog[] current={null};
+        AlertDialog dlg=new AlertDialog.Builder(this)
+            .setTitle(title).setView(sc)
+            .setPositiveButton(step==3?"Terminar":"Siguiente",(d,w)->showSetup(screen+1))
+            .setNegativeButton(step==0?"Omitir":"Atrás",(d,w)->{
+                if(screen==0)showSetup(4);else showSetup(screen-1);
+            })
+            .create();
+        dlg.setCanceledOnTouchOutside(false);
+        dlg.show();
+    }
+    private void setupPermissionButton(LinearLayout col, String title,String[] candidates) {
+        Button b=new Button(this);
+        b.setText(title+" · Solicitar");
+        col.addView(b);
+        b.setOnClickListener(v -> {
+            java.util.ArrayList<String> needed=new java.util.ArrayList<>();
+            for(String perm:candidates){
+                try{
+                    if(getPackageManager().getPermissionInfo(perm,0)==null)continue;
+                    if(checkSelfPermission(perm)!=PackageManager.PERMISSION_GRANTED)needed.add(perm);
+                } catch(Exception ignored){}
+            }
+            if(!needed.isEmpty()) {
+                // Android silently ignores permissions not declared by the installed APK;
+                // the user can still complete setup without them.
+                requestPermissions(needed.toArray(new String[0]), 6811);
+            } else Toast.makeText(this,"No hay permisos pendientes para este apartado",Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void addVehicleSelector(LinearLayout col, boolean wizard) {
+        TextView info=wizardText("Variantes reales del selector original UNIT:",17,0xffb9d9e7);
+        col.addView(info);
+        try {
+            Class<?> profiles=Class.forName("es.c10.unitplus.integrated.VehicleProfiles");
+            String[] names=(String[])profiles.getMethod("labels").invoke(null);
+            int selected=(Integer)profiles.getMethod("index",Context.class).invoke(null,this);
+            if(names==null || names.length==0)throw new IllegalStateException("sin perfiles");
+            Spinner select=new Spinner(this);
+            ArrayAdapter<String> adapter=new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,names);
+            select.setAdapter(adapter);
+            if(selected>=0 && selected<names.length)select.setSelection(selected);
+            col.addView(select);
+            TextView chosen=wizardText("Perfil seleccionado: "+(selected>=0&&selected<names.length?names[selected]:"Sin identificar"),17,0xff00dfbe);
+            col.addView(chosen);
+            Button save=new Button(this);
+            save.setText("Guardar modelo y versión");
+            col.addView(save);
+            save.setOnClickListener(v->{
+                try{
+                    int idx=select.getSelectedItemPosition();
+                    profiles.getMethod("select",Context.class,int.class).invoke(null,this,idx);
+                    chosen.setText("Guardado en UNIT: "+names[idx]);
+                    Toast.makeText(this,"Modelo y versión guardados",Toast.LENGTH_SHORT).show();
+                }catch(Throwable e){
+                    chosen.setText("Error al guardar: "+e.getClass().getSimpleName());
+                }
+            });
+        } catch(Throwable e) {
+            col.addView(wizardText("No se ha podido cargar el selector de versiones de UNIT. "
+                +"La selección anterior no se modificó. Detalle: "+e.getClass().getSimpleName(),15,0xfff0ac94));
+        }
     }
 
     /** Opens the Android document chooser from inside UNIT, without external web links. */
@@ -549,19 +700,11 @@ public final class C10NativeHubActivity extends Activity {
                 layout.addView(label("Elige la nueva APK descargada para actualizar. La confirmación de seguridad es obligatoria.",14,0xffb5ced9));
             }
             void model() {
-                info("Perfil de visualización; no reprograma el coche");
-                String[] profiles={"C10 REEV","C10 BEV","B10","T03"};
-                Spinner s=new Spinner(activity);
-                ArrayAdapter<String> a=new ArrayAdapter<>(activity,android.R.layout.simple_spinner_item,profiles);
-                a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                s.setAdapter(a);s.setSelection(Math.max(0,Math.min(3,prefs.getInt("model",0))));
-                s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-                    @Override public void onItemSelected(android.widget.AdapterView<?> p,View v,int pos,long id) {
-                        prefs.edit().putInt("model",pos).apply();
-                    }
-                    @Override public void onNothingSelected(android.widget.AdapterView<?> p){}
-                });
-                layout.addView(s);
+                info("Modelo y variante configurados en la fuente original de UNIT.");
+                ((C10NativeHubActivity)activity).addVehicleSelector(layout,false);
+                Button again=button("Volver a configuración inicial y permisos");
+                again.setOnClickListener(v->((C10NativeHubActivity)activity).showSetup(0));
+                layout.addView(again);
             }
             void refresh() {
                 if(disposed)return;
