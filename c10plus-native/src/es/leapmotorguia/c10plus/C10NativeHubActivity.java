@@ -505,7 +505,7 @@ public final class C10NativeHubActivity extends Activity {
                 balancePartial=c.getField("gap").getBoolean(session) ||
                     c.getField("energyIncomplete").getBoolean(session) ||
                     c.getField("recoveredIncomplete").getBoolean(session);
-                tripKm=number(session,"km");
+                tripKm=c.getField("hasDistance").getBoolean(session)?number(session,"km"):Double.NaN;
                 measuredSeconds=number(session,"measuredSeconds");
                 if(measured&&!legacy&&hasEnergy&&hasReceived) {
                     consumed=number(session,"kwh");
@@ -936,51 +936,86 @@ public final class C10NativeHubActivity extends Activity {
                     barX,lowerB-10*k,13*k,MUTE,false,w-2*pad-16*k);
             }
         }
+        /**
+         * Visual history + consumption/recharge comparison in one native page.
+         * Empty charts remain empty when no measured samples are available.
+         */
         private final class Graph extends View {
             final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-            final Path path=new Path();
-            final android.graphics.RectF arc=new android.graphics.RectF();
+            final Path curve=new Path();
             Graph(Context c){super(c);}
-            @Override protected void onDraw(Canvas c) {
-                super.onDraw(c);
-                float w=getWidth(),h=getHeight();
-                if(w<220||h<140)return;
-                float k=Math.max(.7f,Math.min(1.5f,Math.min(w/850f,h/440f)));
-                p.setColor(0xff112b3a);p.setStyle(Paint.Style.FILL);
-                c.drawRoundRect(12,12,w-12,h-12,24,24,p);
-                float left=54*k,right=w-28*k,top=79*k,bottom=h-57*k;
+            void print(Canvas c,String txt,float x,float y,float px,int color,float width){
                 p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-                p.setTextSize(23*k);p.setColor(0xffe7f6fc);
-                c.drawText("HISTORIAL DE BATERÍA",left,45*k,p);
-                p.setTextSize(14*k);p.setColor(0xff91b2c1);
-                c.drawText("Lecturas reales recientes",left,65*k,p);
-                p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1.5f*k);
-                p.setColor(0xff34505f);
+                p.setTextSize(px);
+                while(p.measureText(txt)>width&&p.getTextSize()>11)p.setTextSize(p.getTextSize()*.9f);
+                p.setColor(color);p.setStyle(Paint.Style.FILL);c.drawText(txt,x,y,p);
+            }
+            @Override protected void onDraw(Canvas cv){
+                super.onDraw(cv);
+                float w=getWidth(),h=getHeight();
+                if(w<230||h<175)return;
+                float k=Math.max(.62f,Math.min(1.3f,Math.min(w/850f,h/460f)));
+                final int GREEN=0xff2ce6be,BLUE=0xff54c5ff,ORANGE=0xfff5a261,MUTE=0xff97b5c3,WHITE=0xffecf8fc;
+                cv.drawColor(0xff091a28);
+                p.setStyle(Paint.Style.FILL);p.setColor(0xff133044);
+                cv.drawRoundRect(10*k,10*k,w-10*k,h*.64f,18*k,18*k,p);
+                float l=49*k,r=w-29*k,t=76*k,b=h*.64f-25*k;
+                print(cv,"HISTORIAL DE BATERÍA · SoC",l,40*k,23*k,WHITE,r-l);
+                print(cv,"Datos reales recibidos desde UNIT",l,61*k,14*k,MUTE,r-l);
+                p.setColor(0xff314b5a);p.setStrokeWidth(1.5f*k);
                 for(int i=0;i<=4;i++){
-                    float y=top+(bottom-top)*i/4;
-                    c.drawLine(left,y,right,y,p);
+                    float y=t+(b-t)*i/4f;
+                    cv.drawLine(l,y,r,y,p);
+                    print(cv,""+(100-i*25)+"%",8*k,y+4*k,12*k,MUTE,38*k);
                 }
-                p.setStyle(Paint.Style.FILL);
-                if(realSoc.size()<2){
-                    p.setColor(0xffa5bdca);p.setTextSize(20*k);
-                    c.drawText("Sin datos suficientes para dibujar una curva REAL",left,top+(bottom-top)/2,p);
-                    return;
+                if(realSoc.size()>=2){
+                    curve.reset();
+                    for(int i=0;i<realSoc.size();i++){
+                        float x=l+(r-l)*i/(realSoc.size()-1f);
+                        float y=b-(b-t)*(realSoc.get(i).floatValue()/100f);
+                        if(i==0)curve.moveTo(x,y);else curve.lineTo(x,y);
+                    }
+                    p.setColor(BLUE);p.setStrokeWidth(4*k);p.setStyle(Paint.Style.STROKE);
+                    p.setStrokeCap(Paint.Cap.ROUND);p.setStrokeJoin(Paint.Join.ROUND);
+                    cv.drawPath(curve,p);
+                    float yy=b-(b-t)*(realSoc.get(realSoc.size()-1).floatValue()/100f);
+                    p.setStyle(Paint.Style.FILL);cv.drawCircle(r,yy,7*k,p);
+                    print(cv,display(realSoc.get(realSoc.size()-1),"%"),l,b+19*k,15*k,BLUE,150*k);
+                }else{
+                    print(cv,"Sin muestras reales suficientes",l,t+(b-t)*.57f,19*k,MUTE,r-l);
                 }
-                path.reset();
-                for(int i=0;i<realSoc.size();i++){
-                    float x=left+(right-left)*i/(realSoc.size()-1f);
-                    float y=bottom-(bottom-top)*(realSoc.get(i).floatValue()/100f);
-                    if(i==0)path.moveTo(x,y);else path.lineTo(x,y);
+                float cardTop=h*.66f,cardBottom=h-10*k;
+                p.setColor(0xff123040);
+                cv.drawRoundRect(10*k,cardTop,w-10*k,cardBottom,18*k,18*k,p);
+                float labelX=27*k,maxW=Math.max(100,w*.56f);
+                print(cv,"GASTADO vs. ENERGÍA ENTRANTE",labelX,cardTop+28*k,20*k,WHITE,maxW);
+                float barLeft=labelX+91*k,barRight=w*.69f;
+                float max=hasTripTotals?(float)Math.max(consumed,recovered):0;
+                for(int i=0;i<2;i++){
+                    float y=cardTop+44*k+i*(cardBottom-cardTop-65*k)/2;
+                    print(cv,i==0?"Gasto":"Entrada",labelX,y+12*k,14*k,MUTE,85*k);
+                    p.setColor(0xff254b5e);p.setStyle(Paint.Style.FILL);
+                    cv.drawRoundRect(barLeft,y,barRight,y+17*k,7*k,7*k,p);
+                    if(hasTripTotals&&max>0){
+                        float ratio=(float)((i==0?consumed:recovered)/max);
+                        p.setColor(i==0?ORANGE:GREEN);
+                        cv.drawRoundRect(barLeft,y,barLeft+(barRight-barLeft)*ratio,y+17*k,7*k,7*k,p);
+                    }
                 }
-                p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(5*k);
-                p.setStrokeJoin(Paint.Join.ROUND);p.setStrokeCap(Paint.Cap.ROUND);
-                p.setColor(0xff22dcc0);c.drawPath(path,p);
-                p.setStyle(Paint.Style.FILL);
-                p.setColor(0xff20e6c6);
-                float xx=right,yy=bottom-(bottom-top)*(realSoc.get(realSoc.size()-1).floatValue()/100f);
-                c.drawCircle(xx,yy,7*k,p);
-                p.setTextSize(20*k);p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-                c.drawText(display(realSoc.get(realSoc.size()-1),"%"),left,bottom+36*k,p);
+                float right=w*.72f;
+                if(energyBalance.available()){
+                    int col=energyBalance.status==EnergyBalance.Status.GAIN?GREEN:
+                        energyBalance.status==EnergyBalance.Status.EQUAL?BLUE:ORANGE;
+                    print(cv,energyBalance.status==EnergyBalance.Status.GAIN?"GANANCIA":
+                        energyBalance.status==EnergyBalance.Status.EQUAL?"EQUILIBRIO":"PÉRDIDA",
+                        right,cardTop+39*k,21*k,col,w-right-24*k);
+                    print(cv,String.format(Locale.ROOT,"%+.2f kWh",-energyBalance.netKwh),
+                        right,cardTop+81*k,24*k,WHITE,w-right-24*k);
+                    print(cv,energyBalance.partial?"PARCIAL":"REAL",
+                        right,cardTop+109*k,14*k,MUTE,w-right-24*k);
+                }else{
+                    print(cv,"SIN BALANCE",right,cardTop+56*k,19*k,MUTE,w-right-24*k);
+                }
             }
         }
 
