@@ -386,6 +386,55 @@ public final class C10NativeHubActivity extends Activity {
         private final ArrayList<TextView> extraButtons = new ArrayList<>();
         private final ArrayList<Double> realSoc = new ArrayList<>();
         private final Method nativeSelect;
+        private final Field nativeActiveTab;
+        private String observedNativeRole="";
+        private View nativeBodyContent;
+        private WebView savedTvWebView;
+        private ViewGroup savedTvParent;
+        private ViewGroup.LayoutParams savedTvParams;
+        private FrameLayout tvPlayerWrapper;
+        private int savedTvIndex=-1;
+        private final Runnable nativeMediaTabMonitor=new Runnable() {
+            @Override public void run() {
+                if(closed)return;
+                try{
+                    Object active=nativeActiveTab.get(hub);
+                    String tab=active==null?"":String.valueOf(active).toUpperCase(Locale.ROOT);
+                    String role=tab.equals("TV")?"tv":tab.equals("RADIO")?"radio":"";
+                    // UNIT's left-side rail and top tabs both call selectTab().
+                    // Watch its real activeTab, not touch events on one nav bar.
+                    if(!showing && !role.isEmpty() && body.getChildCount()>0) {
+                        View current=firstNativeBodyChild();
+                        boolean changed=!role.equals(observedNativeRole) ||
+                            (nativeMediaBar==null || nativeMediaBar.getParent()!=body);
+                        if(changed) {
+                            if(!role.equals(observedNativeRole))closeNativeMediaWeb();
+                            if(nativeMediaOverlay!=null && nativeMediaOverlay.getParent()==null)
+                                closeNativeMediaWeb();
+                            observedNativeRole=role;
+                            nativeBodyContent=current;
+                            showNativeMediaBar(role);
+                        }
+                    } else if(!role.isEmpty()) {
+                        observedNativeRole=role;
+                    } else if(!observedNativeRole.isEmpty()) {
+                        observedNativeRole="";
+                        closeNativeMediaWeb();
+                        clearNativeMediaBar();
+                    }
+                }catch(Throwable ignored){
+                    // Never break UNIT navigation if a future build changes its state.
+                }
+                updateHandler.postDelayed(this,500);
+            }
+        };
+        private View firstNativeBodyChild(){
+            for(int i=0;i<body.getChildCount();i++){
+                View v=body.getChildAt(i);
+                if(v!=nativeMediaBar && v!=nativeMediaOverlay)return v;
+            }
+            return null;
+        }
         private final Object nativeHandler, nativeTick;
         private final ViewGroup hub;
         private LinearLayout custom;
@@ -440,6 +489,8 @@ public final class C10NativeHubActivity extends Activity {
             nativeRow=(LinearLayout)sample.getParent();
             Class<?> enumType=Class.forName("com.headqlink.unit.extended.ExtendedHubView$Tab");
             nativeSelect=h.getClass().getMethod("selectTab", enumType);
+            nativeActiveTab=h.getClass().getDeclaredField("activeTab");
+            nativeActiveTab.setAccessible(true);
             Object hd=null, tk=null;
             try {Field f=h.getClass().getDeclaredField("uiHandler");f.setAccessible(true);hd=f.get(h);}catch(Throwable ignored){}
             try {Field f=h.getClass().getDeclaredField("tickRunnable");f.setAccessible(true);tk=f.get(h);}catch(Throwable ignored){}
@@ -491,6 +542,7 @@ public final class C10NativeHubActivity extends Activity {
                 extraButtons.add(v);
                 v.setOnClickListener(w->selectExtra(tab));
             }
+            updateHandler.postDelayed(nativeMediaTabMonitor,450);
         }
         /**
          * Inside UNIT's own RADIO / TV body: append only a compact service strip.
@@ -819,6 +871,7 @@ public final class C10NativeHubActivity extends Activity {
             closeNativeMediaWeb();
             clearNativeMediaBar();
             updateHandler.removeCallbacks(nativeMediaSafetyTick);
+            updateHandler.removeCallbacks(nativeMediaTabMonitor);
             for(TextView tab:extraButtons)if(tab.getParent()==nativeRow)nativeRow.removeView(tab);
             extraButtons.clear();
         }
