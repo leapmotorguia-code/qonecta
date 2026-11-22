@@ -54,6 +54,7 @@ public final class C10NativeHubActivity extends Activity {
     private C10Bridge bridge;
     private TextView status;
     private boolean opening;
+    private static final int REQUEST_APK = 7311;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Override public void onCreate(Bundle bundle) {
@@ -95,6 +96,37 @@ public final class C10NativeHubActivity extends Activity {
         root.addView(original);
         setContentView(root);
         handler.postDelayed(this::openNative, 200);
+    }
+
+    /** Opens the Android document chooser from inside UNIT, without external web links. */
+    void chooseUpdateApk() {
+        try {
+            Intent select = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            select.addCategory(Intent.CATEGORY_OPENABLE);
+            select.setType("*/*");
+            select.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivityForResult(select, REQUEST_APK);
+        } catch (Exception e) {
+            Toast.makeText(this, "Selector de actualizaciones no disponible", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override protected void onActivityResult(int request, int result, Intent data) {
+        super.onActivityResult(request, result, data);
+        if (request != REQUEST_APK || result != Activity.RESULT_OK || data == null || data.getData() == null) return;
+        Uri uri = data.getData();
+        // Never assume an arbitrary document is an APK: Android's package installer
+        // verifies the package identity and signing certificate before allowing update.
+        try {
+            Intent install = new Intent(Intent.ACTION_VIEW);
+            install.setDataAndType(uri, "application/vnd.android.package-archive");
+            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(install);
+            Toast.makeText(this, "Comprueba el nombre y acepta la actualización de Android", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "El instalador de Android no admite este archivo: "
+                    + e.getClass().getSimpleName(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void openNative() {
@@ -398,6 +430,7 @@ public final class C10NativeHubActivity extends Activity {
             TextView value;
             WebView web;
             Graph graph;
+            MetricDashboard dashboard;
             boolean disposed;
             Pane(int selected) {
                 kind=selected;layout=new LinearLayout(activity);
@@ -436,11 +469,26 @@ public final class C10NativeHubActivity extends Activity {
                 EditText input=new EditText(activity);input.setTextColor(Color.WHITE);
                 input.setSingleLine(true);input.setHint("Buscar lugar");
                 search.addView(input,new LinearLayout.LayoutParams(0,-2,1));
-                Button go=button("Buscar");search.addView(go);layout.addView(search);
+                Button go=button("Buscar");search.addView(go);
+                Button navigate=button("Ruta");search.addView(navigate);
+                Button clear=button("Borrar");search.addView(clear);
+                layout.addView(search);
                 web();
+                // Searching is not starting a trip. Directions are only requested explicitly.
                 go.setOnClickListener(v->{
-                    String s=input.getText().toString().trim();
-                    if(!s.isEmpty())web.loadUrl("https://www.google.com/maps/search/?api=1&query="+Uri.encode(s));
+                    String q=input.getText().toString().trim();
+                    if(!q.isEmpty())web.loadUrl("https://www.google.com/maps/search/?api=1&query="+Uri.encode(q));
+                });
+                navigate.setOnClickListener(v->{
+                    String q=input.getText().toString().trim();
+                    if(!q.isEmpty())web.loadUrl("https://www.google.com/maps/dir/?api=1&destination="+Uri.encode(q));
+                });
+                clear.setOnClickListener(v->{
+                    input.setText("");
+                    web.stopLoading();
+                    web.loadUrl("https://www.google.com/maps");
+                    web.clearHistory();
+                    if(value!=null)value.setText("Búsqueda limpia. Ninguna nueva ruta iniciada.");
                 });
                 web.loadUrl("https://www.google.com/maps");
             }
@@ -465,13 +513,14 @@ public final class C10NativeHubActivity extends Activity {
                 });
             }
             void consumption() {
-                info("SIN DEMO: solo datos reales del vehículo");
-                layout.addView(label("Consumido / recuperado / combustible",16,Color.WHITE));
+                info("DATOS REALES · Si no hay lectura, se muestra —");
+                dashboard=new MetricDashboard(activity);
+                layout.addView(dashboard,new LinearLayout.LayoutParams(-1,0,1f));
             }
             void graph() {
-                info("SoC real: no se inventan muestras");
+                info("Batería: historial en tiempo real · sin simulaciones");
                 graph=new Graph(activity);
-                layout.addView(graph,new LinearLayout.LayoutParams(-1,0,1));
+                layout.addView(graph,new LinearLayout.LayoutParams(-1,0,1f));
             }
             void access() {
                 info("Permisos Android ≠ acceso a cámaras/ECU del C10");
@@ -482,7 +531,14 @@ public final class C10NativeHubActivity extends Activity {
                     "\nBatería y combustible: ver panel de consumo\nGPS: dispositivo Android",16,Color.WHITE));
             }
             void performance() {info("0–100 y 80–120 requieren GPS/OBD fiable. No hay tiempos inventados.");}
-            void updates() {info("Actualizaciones en la misma app: pendiente de publicar un APK firmada. No modifica firmware.");}
+            void updates() {
+                info("Actualización desde UNIT · sin borrar ajustes");
+                layout.addView(label("1. Descarga el APK nuevo en este dispositivo.\n2. Pulsa «Elegir APK».\n3. Selecciona el archivo y confirma en el instalador Android.\n\nSolo se instalará encima si conserva el paquete y certificado de C10 Plus. No actualiza el software LeapOS.",16,Color.WHITE));
+                Button b=button("Elegir APK e instalar");
+                b.setOnClickListener(v->activity.chooseUpdateApk());
+                layout.addView(b);
+                layout.addView(label("Prueba 3.1 → 3.2: abre aquí el APK 3.2 descargado. La confirmación de seguridad es obligatoria.",14,0xffb5ced9));
+            }
             void model() {
                 info("Perfil de visualización; no reprograma el coche");
                 String[] profiles={"C10 REEV","C10 BEV","B10","T03"};
@@ -500,18 +556,14 @@ public final class C10NativeHubActivity extends Activity {
             }
             void refresh() {
                 if(disposed)return;
-                if(value!=null && kind==2) {
-                    value.setText("Fuente: "+latestSource+"\nBatería: "+display(latestSoc,"%")+
-                        "\nEnergía consumida: "+display(consumed,"kWh")+
-                        "\nEnergía recuperada: "+display(recovered,"kWh")+
-                        "\nGasolina: "+display(gasoline,"L")+
-                        "\nBalance neto: "+(Double.isFinite(consumed)&&Double.isFinite(recovered)?
-                            display(consumed-recovered,"kWh"):"NO DISPONIBLE"));
-                }
+                if(value!=null && kind==2) value.setText(
+                    "Fuente: "+latestSource+"\nConsumo y recuperación: solo si el coche los publica");
+                if(dashboard!=null)dashboard.invalidate();
                 if(value!=null && kind==3)value.setText(
                     Double.isFinite(latestSoc)?"REAL · "+display(latestSoc,"%")+" · "+latestSource:
                     "NO DISPONIBLE: sin lectura de batería");
                 if(graph!=null)graph.invalidate();
+                if(dashboard!=null)dashboard.invalidate();
             }
             void active(boolean visible) {if(web!=null)try{if(visible)web.onResume();else web.onPause();}catch(Throwable ignored){}}
             void close() {
@@ -520,6 +572,40 @@ public final class C10NativeHubActivity extends Activity {
                     try{web.stopLoading();web.loadUrl("about:blank");web.onPause();layout.removeView(web);web.destroy();}
                     catch(Throwable ignored){}
                     web=null;
+                }
+            }
+        }
+        /** Clear no-data cards: deliberate dashes, never synthetic sample values. */
+        private final class MetricDashboard extends View {
+            final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
+            MetricDashboard(Context c) {super(c);}
+            @Override protected void onDraw(Canvas cv) {
+                super.onDraw(cv);
+                float w=getWidth(),h=getHeight();
+                if(w<160||h<100)return;
+                float gap=12f, top=6f, cardW=(w-gap*3)/2f, cardH=(h-gap*3)/2f;
+                String[] names={"BATERÍA","CONSUMIDO","RECUPERADO","GASOLINA"};
+                double[] vals={latestSoc,consumed,recovered,gasoline};
+                String[] units={"%","kWh","kWh","L"};
+                int[] colors={0xff42b6f6,0xfff29e55,0xff30d8a5,0xffe6ca66};
+                for(int i=0;i<4;i++) {
+                    int row=i/2,col=i%2;
+                    float x=gap+col*(cardW+gap),y=top+row*(cardH+gap);
+                    p.setStyle(Paint.Style.FILL);p.setColor(0xff193747);
+                    cv.drawRoundRect(x,y,x+cardW,y+cardH,14,14,p);
+                    p.setColor(colors[i]);
+                    cv.drawRoundRect(x+10,y+12,x+15,y+cardH-12,3,3,p);
+                    p.setTextSize(Math.max(15f,Math.min(22f,cardH*.18f)));
+                    cv.drawText(names[i],x+25,y+Math.max(30,cardH*.33f),p);
+                    p.setColor(0xfff1f9fa);
+                    p.setTextSize(Math.max(18f,Math.min(38f,cardH*.30f)));
+                    String v=Double.isFinite(vals[i])?
+                        String.format(Locale.ROOT,"%.1f %s",vals[i],units[i]):"—";
+                    cv.drawText(v,x+25,y+Math.max(61,cardH*.69f),p);
+                    if(Double.isFinite(vals[i]) && i==0) {
+                        p.setColor(0xff183b4b);cv.drawRoundRect(x+22,y+cardH-15,x+cardW-14,y+cardH-8,4,4,p);
+                        p.setColor(colors[i]);cv.drawRoundRect(x+22,y+cardH-15,x+22+(cardW-36)*Math.max(0,Math.min(1,vals[i]/100d)),y+cardH-8,4,4,p);
+                    }
                 }
             }
         }
