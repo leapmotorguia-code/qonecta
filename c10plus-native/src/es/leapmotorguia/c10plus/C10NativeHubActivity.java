@@ -649,7 +649,7 @@ public final class C10NativeHubActivity extends Activity {
             leftPane=rightPane=null;custom=null;
             // Re-enable UNIT's original live refresh after the user returns to
             // its native Ruta, Viajes, Radio etc. Our custom pages pause it.
-            if(previouslyShowing && nativeHandler instanceof Handler && nativeTick instanceof Runnable) {
+            if(previouslyShowing && !closed && nativeHandler instanceof Handler && nativeTick instanceof Runnable) {
                 Handler h=(Handler)nativeHandler;
                 h.removeCallbacks((Runnable)nativeTick);
                 h.postDelayed((Runnable)nativeTick,550);
@@ -796,7 +796,7 @@ public final class C10NativeHubActivity extends Activity {
                 });
             }
             void consumption() {
-                info("Energía REAL · balance = gastado − entrante · consumo de combustible NO inferido");
+                info("DESDE EL ÚLTIMO REINICIO · Balance = gastado − entrante · combustible consumido no disponible");
                 dashboard=new MetricDashboard(activity);
                 layout.addView(dashboard,new LinearLayout.LayoutParams(-1,0,1f));
                 LinearLayout actions=row();
@@ -990,8 +990,11 @@ public final class C10NativeHubActivity extends Activity {
                         bx,lowerY+39*k,21*k,color,true,bw);
                     words(cv,String.format(Locale.ROOT,"%+.3f kWh",-energyBalance.netKwh),
                         bx,lowerY+80*k,30*k,WHITE,true,bw);
-                    words(cv,energyBalance.partial?"MEDICIÓN PARCIAL":"MEDICIÓN COMPLETA",
+                    words(cv,energyBalance.partial?"INTERVALOS PARCIALES":"DATOS MEDIDOS",
                         bx,lowerY+105*k,14*k,MUTE,false,bw);
+                    if(Double.isFinite(energyBalance.recoveryPct))
+                        words(cv,"Entrada / gasto: "+String.format(Locale.ROOT,"%.0f%%",energyBalance.recoveryPct),
+                            bx,lowerY+126*k,14*k,GREEN,false,bw);
                 } else {
                     words(cv,"SIN DATOS",bx,lowerY+44*k,25*k,MUTE,true,bw);
                     words(cv,"Necesita potencia real",bx,lowerY+71*k,16*k,MUTE,false,bw);
