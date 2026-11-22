@@ -886,6 +886,40 @@ public final class C10NativeHubActivity extends Activity {
                     err.getClass().getSimpleName(),Toast.LENGTH_LONG).show();
             }
         }
+        /** Copy ONLY credible vehicle readings, never VIN, login or position. */
+        private void copyEnergySession() {
+            readReal();
+            StringBuilder b=new StringBuilder("UNIT Leapmotor Plus · resumen eléctrico\n");
+            b.append(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm",Locale.getDefault())
+                .format(new java.util.Date())).append("\n");
+            b.append("Perfil configurado: ").append(
+                CompatibilityTestLog.configuredProfile(activity)).append("\n");
+            b.append("Origen: ").append(latestSource).append("\n");
+            b.append("Potencia: ").append(display(powerKw,"kW")).append("\n");
+            b.append("Batería: ").append(display(latestSoc,"%")).append("\n");
+            b.append("Distancia de sesión: ").append(display(tripKm,"km")).append("\n");
+            b.append("Energía gastada: ").append(display(consumed,"kWh")).append("\n");
+            b.append("Energía entrante: ").append(display(recovered,"kWh")).append("\n");
+            if(energyBalance.available()) {
+                b.append("Balance neto de batería (gastado - entrante): ")
+                    .append(display(energyBalance.netKwh,"kWh")).append("\n");
+                b.append("Estado: ").append(energyBalance.status==EnergyBalance.Status.GAIN?
+                    "GANANCIA DE ENERGÍA EN BATERÍA":
+                    energyBalance.status==EnergyBalance.Status.LOSS?
+                    "PÉRDIDA NETA DE ENERGÍA":"EQUILIBRIO").append("\n");
+                b.append("Cobertura: ").append(energyBalance.partial?
+                    "PARCIAL; intervalo incompleto":"INTERVALOS MEDIDOS").append("\n");
+            } else b.append("Balance: NO DISPONIBLE (datos insuficientes)\n");
+            b.append("Advertencia: energía entrante puede incluir generación REEV o carga, no solo frenada.\n");
+            android.content.ClipboardManager cm=
+                (android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            if(cm!=null) {
+                cm.setPrimaryClip(android.content.ClipData.newPlainText(
+                    "Resumen energético medido",b.toString()));
+                Toast.makeText(activity,"Resumen copiado. Puedes pegarlo en el chat.",
+                    Toast.LENGTH_LONG).show();
+            }
+        }
         private static double number(Object obj,String field) {
             try{Object val=obj.getClass().getField(field).get(obj);
                 double v=((Number)val).doubleValue();return Double.isFinite(v)?v:Double.NaN;
@@ -1086,6 +1120,9 @@ public final class C10NativeHubActivity extends Activity {
                 save.setOnClickListener(v->tripAction(true));
                 actions.addView(save,new LinearLayout.LayoutParams(0,dip(48),1));
                 layout.addView(actions);
+                Button summary=button("Copiar resumen de energía");
+                summary.setOnClickListener(v->copyEnergySession());
+                layout.addView(summary,new LinearLayout.LayoutParams(-1,dip(45)));
             }
             void graph() {
                 info("Batería: historial en tiempo real · sin simulaciones");
@@ -1100,6 +1137,9 @@ public final class C10NativeHubActivity extends Activity {
                 tools.addView(scan,new LinearLayout.LayoutParams(0,dip(48),1f));
                 tools.addView(copy,new LinearLayout.LayoutParams(0,dip(48),1f));
                 layout.addView(tools);
+                Button tests=button("Registrar prueba de Android Auto / CarPlay");
+                tests.setOnClickListener(v->showCompatibilityTests());
+                layout.addView(tests,new LinearLayout.LayoutParams(-1,dip(49)));
                 android.widget.ScrollView scroll=new android.widget.ScrollView(activity);
                 scroll.setFillViewport(false);
                 scroll.setVerticalScrollBarEnabled(true);
@@ -1116,7 +1156,9 @@ public final class C10NativeHubActivity extends Activity {
                         (android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
                     if(clipboard!=null) {
                         clipboard.setPrimaryClip(android.content.ClipData.newPlainText(
-                            "Diagnóstico UNIT C10 Plus",accessReport.asText()));
+                            "Diagnóstico UNIT Leapmotor Plus",
+                                accessReport.asText()+"\n\n"+
+                                CompatibilityTestLog.report(activity)));
                         Toast.makeText(activity,
                             "Informe copiado. Puedes pegarlo en este chat para revisarlo.",
                             Toast.LENGTH_LONG).show();
@@ -1165,6 +1207,59 @@ public final class C10NativeHubActivity extends Activity {
                     accessList.addView(card,lp);
                 }
             }
+            /** These observations are manually entered by the owner, not detected by CAN. */
+            void showCompatibilityTests() {
+                android.widget.ScrollView scroll=new android.widget.ScrollView(activity);
+                LinearLayout holder=new LinearLayout(activity);
+                holder.setPadding(dip(18),dip(10),dip(18),dip(10));
+                holder.setOrientation(LinearLayout.VERTICAL);
+                scroll.addView(holder);
+                holder.addView(label("Registra las pruebas con el vehículo estacionado. "+
+                    "Los resultados son tuyos; la app NO los interpreta como detección automática.",15,0xffd0e8f1));
+                final int[] saved=CompatibilityTestLog.states(activity);
+                final Spinner[] picks=new Spinner[CompatibilityTestLog.TESTS.length];
+                for(int i=0;i<picks.length;i++) {
+                    holder.addView(label(CompatibilityTestLog.TESTS[i],16,Color.WHITE));
+                    Spinner choice=new Spinner(activity);
+                    ArrayAdapter<String> items=new ArrayAdapter<>(activity,
+                        android.R.layout.simple_spinner_item,CompatibilityTestLog.STATES);
+                    items.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    choice.setAdapter(items);
+                    choice.setSelection(saved[i]);
+                    holder.addView(choice);
+                    picks[i]=choice;
+                }
+                holder.addView(label("Observaciones (opcional, hasta 500 caracteres)",14,0xff9ec7d7));
+                EditText notes=new EditText(activity);
+                notes.setText(CompatibilityTestLog.notes(activity));
+                notes.setHint("Ej.: CarPlay se ve, pero no hay sonido; TV y mapa bien...");
+                notes.setMinLines(2);
+                notes.setMaxLines(4);
+                notes.setTextColor(Color.WHITE);
+                notes.setHintTextColor(0xffa5bfca);
+                holder.addView(notes);
+                AlertDialog dialog=new AlertDialog.Builder(activity)
+                    .setTitle("Pruebas de compatibilidad")
+                    .setView(scroll)
+                    .setPositiveButton("Guardar",(d,w)->{
+                        int[] states=new int[picks.length];
+                        for(int i=0;i<picks.length;i++)states[i]=picks[i].getSelectedItemPosition();
+                        CompatibilityTestLog.save(activity,states,
+                            notes.getText().toString(),
+                            CompatibilityTestLog.configuredProfile(activity));
+                        Toast.makeText(activity,
+                            "Pruebas guardadas. Aparecerán al copiar el informe.",
+                            Toast.LENGTH_LONG).show();
+                    })
+                    .setNegativeButton("Cancelar",null)
+                    .create();
+                dialog.show();
+                if(dialog.getWindow()!=null)
+                    dialog.getWindow().setLayout(
+                        Math.min(activity.getResources().getDisplayMetrics().widthPixels-dip(30),dip(680)),
+                        Math.min(activity.getResources().getDisplayMetrics().heightPixels-dip(80),dip(660)));
+            }
+
             void updates() {
                 info("Actualización desde UNIT · sin borrar ajustes");
                 layout.addView(label("1. Descarga el APK nuevo en este dispositivo.\n2. Pulsa «Elegir APK».\n3. Selecciona el archivo y confirma en el instalador Android.\n\nSolo se instalará encima si conserva el paquete y certificado de C10 Plus. No actualiza el software LeapOS.",16,Color.WHITE));
@@ -1174,9 +1269,23 @@ public final class C10NativeHubActivity extends Activity {
                 layout.addView(label("Elige la nueva APK descargada para actualizar. La confirmación de seguridad es obligatoria.",14,0xffb5ced9));
             }
             void model() {
-                info("Modelo y variante configurados en la fuente original de UNIT.");
+                info("Perfil seleccionado en UNIT · no implica identificación automática del vehículo.");
                 ((C10NativeHubActivity)activity).addVehicleSelector(layout,false);
-                Button again=button("Volver a configuración inicial y permisos");
+                TextView hint=label("",15,0xffb8d9e6);
+                layout.addView(hint);
+                Runnable show=()->{
+                    String selected=CompatibilityTestLog.configuredProfile(activity);
+                    VehicleProfileHints.Hint profile=VehicleProfileHints.interpret(selected);
+                    hint.setText("Perfil UNIT: "+selected+
+                        "\nFamilia: "+profile.model+"  ·  Tipo: "+profile.friendlyDrivetrain()+
+                        "\n"+profile.guidance()+
+                        "\nEl acceso real a funciones se confirma en Accesos C10.");
+                };
+                show.run();
+                Button check=button("Actualizar ficha del modelo");
+                check.setOnClickListener(v->show.run());
+                layout.addView(check,new LinearLayout.LayoutParams(-1,dip(45)));
+                Button again=button("Configuración inicial y permisos");
                 again.setOnClickListener(v->((C10NativeHubActivity)activity).showSetup(0));
                 layout.addView(again);
             }
