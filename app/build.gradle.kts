@@ -154,6 +154,8 @@ android {
 
     signingConfigs {
         getByName("debug") {
+            // Isolated user-testing package: never overwrite an installed UNIT or Qonecta.
+            if (project.hasProperty("c10plusTest")) applicationIdSuffix = ".c10plusbeta"
             // storeFile = file("../keystore.jkc")
             // storePassword = property("HEADUNIT_KEYSTORE_PASSWORD") as String
             // keyAlias = property("HEADUNIT_KEYSTORE_ALIAS") as String
