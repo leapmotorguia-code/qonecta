@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "channel": "stable",
+  "published": false,
+  "packageName": "com.tencent.qqmusiccar",
+  "versionCode": 440,
+  "versionName": "4.3-base08-autoupdate",
+  "apkUrl": "",
+  "sha256": "",
+  "signerSha256": "6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6",
+  "notes": "Canal preparado. Cuando se publique una versión posterior firmada, aparecerá en Actualizaciones. La app no instala automáticamente."
+}
