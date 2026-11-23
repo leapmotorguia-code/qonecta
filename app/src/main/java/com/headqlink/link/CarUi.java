@@ -608,7 +608,9 @@ final class CarUi {
      * y se mira de un vistazo) son para ir conduciendo.
      */
     static boolean splitNeedsWarning(String name) {
-        return splitCapable(name) && !"car".equals(name) && !"guide".equals(name);
+        // Sensores es diagnóstico en solo lectura, no una pantalla de ocio.
+        return splitCapable(name) && !"car".equals(name) && !"guide".equals(name)
+                && !"sensors".equals(name);
     }
 
     /**
