@@ -1,0 +1,60 @@
+name: Publicar UNIT C10 Plus 4.4 verificada
+on:
+  push:
+    branches: ["feature/unit-basada-en-08-estable"]
+    paths: [".github/workflows/publicar-unit-c10-plus-44.yml"]
+permissions:
+  contents: write
+jobs:
+  publish_apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the two existing signed APK parts
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 2 --connect-timeout 15 --max-time 360 \
+            "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/70be40a7-6d39-4e8f-892a-1877b62f04a0-unit-c10-44-part1.bin" -o part1.bin
+          curl --fail --location --retry 2 --connect-timeout 15 --max-time 360 \
+            "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/31ff4da9-fc81-415e-8b59-1b512ffa791b-unit-c10-44-part2.bin" -o part2.bin
+          test "$(stat -c%s part1.bin)" = "22100000"
+          test "$(stat -c%s part2.bin)" = "22050968"
+          cat part1.bin part2.bin > UNIT-C10-Plus-4.4-ACTUALIZACION-COMPLETA.apk
+          echo "5854359c94b3e7b36156c24d7c1a92acbdeb6c12865727b79bbcacc28ddc075b  UNIT-C10-Plus-4.4-ACTUALIZACION-COMPLETA.apk" | sha256sum --check --status
+          test "$(stat -c%s UNIT-C10-Plus-4.4-ACTUALIZACION-COMPLETA.apk)" = "44150968"
+          echo "Signed APK exactly verified against local release SHA-256 and size."
+      - name: Publish immutable checked GitHub Release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="unit-c10-plus-4.4-base08"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release tag already exists: refusing to overwrite immutable signed APK"
+            exit 1
+          fi
+          cat > release-notes.txt <<'EOF'
+          UNIT C10 Plus 4.4 · Base original 0.8
+
+          APK completa firmada con certificado SHA-256:
+          6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6
+
+          Apta para actualizar desde la 4.3 del mismo paquete y certificado.
+          NO se puede actualizar encima de la 0.8 original firmada con otra clave.
+
+          Incluye funciones de UNIT, diagnósticos, panel de consumo y acceso a
+          la comprobación de actualizaciones. No verifica Android Auto, CarPlay
+          ni proveedores DRM sobre un vehículo real. Pruebe con coche estacionado.
+
+          SHA-256 APK:
+          5854359c94b3e7b36156c24d7c1a92acbdeb6c12865727b79bbcacc28ddc075b
+          EOF
+          gh release create "$TAG" UNIT-C10-Plus-4.4-ACTUALIZACION-COMPLETA.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "UNIT C10 Plus 4.4 · Base 0.8 · Actualización" \
+            --notes-file release-notes.txt \
+            --target "$GITHUB_SHA" \
+            --latest=false
