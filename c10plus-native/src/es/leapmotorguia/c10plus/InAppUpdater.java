@@ -406,4 +406,8 @@ public final class InAppUpdater {
         preferences.edit().putString("last_install_stage",stage)
             .putString("last_install_outcome",outcome).apply();
     }
+    public void close(){
+        destroyed=true;
+        handler.removeCallbacks(poller);
+    }
 }
