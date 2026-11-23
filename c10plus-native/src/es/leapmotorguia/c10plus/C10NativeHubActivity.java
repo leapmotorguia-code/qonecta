@@ -390,7 +390,7 @@ public final class C10NativeHubActivity extends Activity {
                 new AlertDialog.Builder(this)
                     .setTitle("C10 Plus 4.4 no pudo enlazar con UNIT")
                     .setMessage("La aplicación original sigue disponible. Pulsa «Diagnóstico» para obtener el motivo y corregirlo sin desinstalar.")
-                    .setPositiveButton("Diagnóstico",(d,w)->showStartupDiagnostic())
+                    .setPositiveButton("Diagnóstico",(dialog,which)->showStartupDiagnostic())
                     .setNegativeButton("Continuar con UNIT",null).show();
             }
         } else if (attempt < 12) {
@@ -401,7 +401,7 @@ public final class C10NativeHubActivity extends Activity {
                 .putString("bridge","Vista original ExtendedHubView no encontrada tras 12 intentos").apply();
             new AlertDialog.Builder(this).setTitle("Integración pendiente")
                 .setMessage("UNIT se ha abierto, pero nuestra barra no ha podido conectarse. Puedes copiar un diagnóstico.")
-                .setPositiveButton("Diagnóstico",(d,w)->showStartupDiagnostic())
+                .setPositiveButton("Diagnóstico",(dialog,which)->showStartupDiagnostic())
                 .setNegativeButton("Cerrar",null).show();
         }
     }
