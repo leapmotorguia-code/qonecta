@@ -51,7 +51,7 @@ public final class StartupDiagnostics {
             ctx.getSharedPreferences("c10plus_lifecycle",Context.MODE_PRIVATE);
         java.text.SimpleDateFormat clock=new java.text.SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss",Locale.getDefault());
-        for(String action:new String[]{"last_resume","last_pause","last_stop"}) {
+        for(String action:new String[]{"last_resume","last_pause","last_stop","last_restore"}) {
             long at=lifecycle.getLong(action,0);
             out.append("Actividad UNIT ").append(action).append(": ")
                 .append(at>0?clock.format(new java.util.Date(at)):"Sin registro")
@@ -60,6 +60,12 @@ public final class StartupDiagnostics {
         out.append("Diálogo de UNIT activo durante última pausa: ")
             .append(lifecycle.getBoolean("unit_dialog_showing",false))
             .append('\n');
+        android.content.SharedPreferences updater =
+            ctx.getSharedPreferences("c10plus_inapp_update_v1",Context.MODE_PRIVATE);
+        out.append("Último paso del instalador: ")
+            .append(updater.getString("last_install_stage","Sin intento registrado")).append('\n');
+        out.append("Resultado del instalador: ")
+            .append(updater.getString("last_install_outcome","Sin datos")).append('\n');
         out.append("Un cambio de foco NO prueba que Android Auto/CarPlay se conectaron; "+
             "solo ayuda a encontrar el momento de la sustitución de pantalla.\n");
 
