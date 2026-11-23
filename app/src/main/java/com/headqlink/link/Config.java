@@ -1251,13 +1251,13 @@ final class Config {
 
     /** Botones del panel que se ven, en su orden (entre «Auto», fijo arriba, y «Ajustes», fijo abajo). */
     static final String PANEL_BUTTONS = "panel_buttons";
-    static final String[] PANEL_BUTTONS_ALL = {"car", "photos", "videos", "web", "tv", "radio", "games", "home", "guide", "karaoke",
+    static final String[] PANEL_BUTTONS_ALL = {"car", "photos", "videos", "web", "tv", "radio", "sensors", "home", "guide",
             "companion"};
     /**
      * Los de serie: todos menos la guía del camino, el karaoke y el compañero de voz, que solo salen si el usuario los
      * enciende (Ajustes › Botones del panel).
      */
-    static final String[] PANEL_BUTTONS_DEFAULT = {"car", "photos", "videos", "web", "tv", "radio", "games", "home"};
+    static final String[] PANEL_BUTTONS_DEFAULT = {"car", "photos", "videos", "web", "tv", "radio", "sensors", "home"};
 
     /**
      * Los botones del panel. «Casa» (Home Assistant) solo si está configurada; y la primera vez que lo está aparece sola
@@ -1282,13 +1282,18 @@ final class Config {
         }
         for (String id : csv.split(",")) {
             String t = id.trim();
+            // Migración sin perder la posición que el usuario eligió: Karaoke y
+            // Juegos desaparecen del panel y su hueco pasa a Sensores C10.
+            if ("games".equals(t) || "karaoke".equals(t)) t = "sensors";
             if (!t.isEmpty() && java.util.Arrays.asList(PANEL_BUTTONS_ALL).contains(t) && !out.contains(t)) out.add(t);
         }
         return out;
     }
 
     void setPanelButtons(java.util.List<String> ids) {
-        sp.edit().putString(PANEL_BUTTONS, String.join(",", ids)).putBoolean("panel_home_seen", true).apply();
+        // Nunca guardar nombres de pantallas retiradas en la navegación.
+        sp.edit().putString(PANEL_BUTTONS, String.join(",", panelButtonsFrom(String.join(",", ids))))
+                .putBoolean("panel_home_seen", true).apply();
     }
 
     /** Guía del camino (RoadGuide): contar en voz alta lo que hay por delante (por defecto, sí). */
