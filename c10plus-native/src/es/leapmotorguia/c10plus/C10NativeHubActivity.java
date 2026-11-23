@@ -75,7 +75,7 @@ public final class C10NativeHubActivity extends Activity {
         root.setPadding(24,24,24,24);
         root.setBackgroundColor(0xff07141e);
         TextView heading = new TextView(this);
-        heading.setText("UNIT C10 Plus · Tu aplicación");
+        heading.setText("UNIT C10 Plus 4.2 · Mejoras integradas");
         heading.setTextColor(0xff04e2bd);
         heading.setTextSize(25);
         heading.setGravity(Gravity.CENTER);
@@ -85,7 +85,7 @@ public final class C10NativeHubActivity extends Activity {
         status.setTextSize(16);
         status.setGravity(Gravity.CENTER);
         status.setPadding(12,20,12,20);
-        status.setText("Abriendo la barra original de UNIT...");
+        status.setText("Versión 4.2 · Abriendo el menú mejorado de UNIT...");
         root.addView(status);
         Button retry = new Button(this);
         retry.setText("Abrir UNIT C10 Plus");
@@ -356,7 +356,7 @@ public final class C10NativeHubActivity extends Activity {
         if (view instanceof ViewGroup) {
             try {
                 bridge = C10Bridge.attach(this, (ViewGroup)view);
-                status.setText("C10 Plus integrado en la barra original de UNIT");
+                status.setText("4.2 · Maps, Radio, TV, Consumos, Gráficas, Accesos y Modelo integrados");
             } catch (Throwable e) {
                 status.setText("UNIT funciona, pero el acceso C10 Plus ha fallado: "+e.getClass().getSimpleName());
                 getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE).edit()
