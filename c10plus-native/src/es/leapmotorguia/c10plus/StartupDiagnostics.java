@@ -47,6 +47,22 @@ public final class StartupDiagnostics {
             }
         }catch(Throwable e){out.append("Identidad de APK: ").append(e.getClass().getSimpleName()).append('\n');}
         out.append("Android API: ").append(Build.VERSION.SDK_INT).append('\n');
+        android.content.SharedPreferences lifecycle=
+            ctx.getSharedPreferences("c10plus_lifecycle",Context.MODE_PRIVATE);
+        java.text.SimpleDateFormat clock=new java.text.SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss",Locale.getDefault());
+        for(String action:new String[]{"last_resume","last_pause","last_stop"}) {
+            long at=lifecycle.getLong(action,0);
+            out.append("Actividad UNIT ").append(action).append(": ")
+                .append(at>0?clock.format(new java.util.Date(at)):"Sin registro")
+                .append('\n');
+        }
+        out.append("Diálogo de UNIT activo durante última pausa: ")
+            .append(lifecycle.getBoolean("unit_dialog_showing",false))
+            .append('\n');
+        out.append("Un cambio de foco NO prueba que Android Auto/CarPlay se conectaron; "+
+            "solo ayuda a encontrar el momento de la sustitución de pantalla.\n");
+
         String nativeHub="com.headqlink.unit.extended.ExtendedHubView";
         out.append("Vista original UNIT: ").append(classStatus(nativeHub)).append('\n');
         out.append("Contenedor original: ").append(fieldStatus(nativeHub,"bodyContainer")).append('\n');
