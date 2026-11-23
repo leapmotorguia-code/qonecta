@@ -20,6 +20,7 @@ import android.view.*;
 import org.json.*;
 import java.io.*;
 import java.net.*;
+import javax.net.ssl.HttpsURLConnection;
 import java.security.*;
 import java.util.*;
 import java.util.regex.*;
@@ -439,7 +440,7 @@ public class MainActivity extends Activity {
                     throw new SecurityException("Paquete/versión no válidos");
                 if(file.signingInfo==null||installed.signingInfo==null)
                     throw new SecurityException("No hay certificado verificable");
-                Signature[] a=file.signingInfo.getApkContentsSigners(),b=installed.signingInfo.getApkContentsSigners();
+                android.content.pm.Signature[] a=file.signingInfo.getApkContentsSigners(),b=installed.signingInfo.getApkContentsSigners();
                 if(a.length!=1||b.length!=1||!Arrays.equals(a[0].toByteArray(),b[0].toByteArray()))
                     throw new SecurityException("Firma diferente");
                 ui.post(()->{
