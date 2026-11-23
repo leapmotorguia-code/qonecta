@@ -324,34 +324,86 @@ public final class InAppUpdater {
             });
         },"c10plus-update-verification").start();
     }
+    /**
+     * Use only the official Android install/permission UI. Some LeapOS builds do
+     * not expose ACTION_MANAGE_UNKNOWN_APP_SOURCES at all. Previously that
+     * ActivityNotFoundException blocked installation despite a verified APK.
+     * Neither fallback grants privileges nor performs a silent installation.
+     */
     private void launchInstaller(){
         if(destroyed||!validated||downloadId<=0||destination==null)return;
-        if(Build.VERSION.SDK_INT>=26 && !activity.getPackageManager().canRequestPackageInstalls()) {
-            message("Android exige autorización para instalar APK de esta aplicación.");
+        final Uri fileUri;
+        try{
+            fileUri=downloads.getUriForDownloadedFile(downloadId);
+            if(fileUri==null)throw new IllegalStateException("Android no devolvió la descarga");
+            if(!"content".equalsIgnoreCase(fileUri.getScheme()))
+                throw new SecurityException("La descarga no dispone de URI segura de Android");
+        }catch(Exception e){
+            recordInstall("error-uri",e.getClass().getSimpleName());
+            message("No se ha podido abrir el APK verificado.");
+            details.setText("Vuelve a descargar la actualización desde UNIT.");
+            return;
+        }
+        boolean permissionNeeded=false;
+        try{
+            permissionNeeded=Build.VERSION.SDK_INT>=26 &&
+                !activity.getPackageManager().canRequestPackageInstalls();
+        }catch(RuntimeException e){
+            recordInstall("permiso-no-consultable",e.getClass().getSimpleName());
+            // Still try the official installer: it must enforce device policy.
+        }
+        if(permissionNeeded){
             try{
                 Intent settings=new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                     Uri.parse("package:"+activity.getPackageName()));
                 activity.startActivity(settings);
-                details.setText("Autoriza la instalación para UNIT, vuelve aquí y pulsa Instalar de nuevo.");
-            }catch(Exception e){message("No se puede abrir el permiso del instalador: "+e.getClass().getSimpleName());}
-            return;
+                recordInstall("ajustes-permiso","abiertos");
+                message("Autoriza instalar APK para UNIT en los ajustes de Android.");
+                details.setText("Después vuelve a UNIT y pulsa Instalar otra vez.");
+                return;
+            }catch(android.content.ActivityNotFoundException e){
+                recordInstall("ajustes-permiso-ausentes",e.getClass().getSimpleName());
+                details.setText("LeapOS no ofrece esa pantalla de permisos. "+
+                    "Se intentará abrir el instalador oficial sin omitir sus comprobaciones.");
+            }catch(SecurityException e){
+                recordInstall("ajustes-permiso-bloqueados",e.getClass().getSimpleName());
+                details.setText("LeapOS ha bloqueado el acceso a permisos. "+
+                    "Se intentará el instalador oficial, que decidirá si permite continuar.");
+            }catch(RuntimeException e){
+                recordInstall("ajustes-permiso-error",e.getClass().getSimpleName());
+                details.setText("El menú de permisos no está disponible en este sistema.");
+            }
         }
-        try{
-            Uri fileUri=downloads.getUriForDownloadedFile(downloadId);
-            if(fileUri==null)throw new Exception("Android no facilitó la URI de la descarga");
-            Intent intent=new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(fileUri,"application/vnd.android.package-archive");
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            activity.startActivity(intent);
-            message("Confirma la actualización en el instalador de Android.");
-        }catch(Exception e){
-            message("El instalador del coche no acepta la descarga: "+
-                (e.getMessage()==null?e.getClass().getSimpleName():e.getMessage()));
+        String lastError="no-disponible";
+        for(String action:new String[]{Intent.ACTION_INSTALL_PACKAGE,Intent.ACTION_VIEW}){
+            try{
+                Intent intent=new Intent(action);
+                intent.setDataAndType(fileUri,"application/vnd.android.package-archive");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                activity.startActivity(intent);
+                recordInstall("instalador-abierto",action);
+                message("Instalador Android abierto; confirma la actualización si el coche lo permite.");
+                details.setText("Solo el sistema Android puede autorizar o rechazar la instalación. "+
+                    "No se fuerza ninguna política de LeapOS.");
+                return;
+            }catch(android.content.ActivityNotFoundException e){
+                lastError="No existe actividad para "+action;
+            }catch(SecurityException e){
+                lastError="LeapOS bloquea la instalación ("+e.getClass().getSimpleName()+")";
+            }catch(RuntimeException e){
+                lastError="El instalador rechazó "+action+" ("+e.getClass().getSimpleName()+")";
+            }
         }
+        recordInstall("sin-instalador",lastError);
+        message("No se pudo abrir ningún instalador oficial en LeapOS.");
+        details.setText("La APK descargada sigue verificada y no se ha instalado. "+
+            "Prueba desde el gestor de archivos o Vivaldi, con el coche parado. "+
+            "Si LeapOS también bloquea esa vía, no existe una actualización "+
+            "directa autorizada desde esta APK. Diagnóstico: "+lastError);
     }
-    public void close(){
-        destroyed=true;
-        handler.removeCallbacks(poller);
+
+    private void recordInstall(String stage,String outcome){
+        preferences.edit().putString("last_install_stage",stage)
+            .putString("last_install_outcome",outcome).apply();
     }
 }
