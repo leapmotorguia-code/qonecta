@@ -102,58 +102,78 @@ public final class VehicleAccessAudit {
             hint.guidance()+" La disponibilidad depende de la instalación en el sistema del coche y las señales autorizadas."));
     }
 
+    private static boolean bool(Object d,String field,boolean fallback) {
+        try {return d.getClass().getField(field).getBoolean(d);}
+        catch(Throwable e){return fallback;}
+    }
+    private static long whole(Object d,String field,long fallback) {
+        try {return ((Number)d.getClass().getField(field).get(d)).longValue();}
+        catch(Throwable e){return fallback;}
+    }
+    private static boolean has(Object d,String field){
+        try {d.getClass().getField(field);return true;}
+        catch(Throwable e){return false;}
+    }
     private static void inspectSnapshot(Report r) {
-        boolean good=false;
-        String evidence="No se ha recibido una muestra válida de UNIT.";
+        boolean good=false,legacy=false;
+        String evidence="No hay lectura válida reciente.";
         Object snapshot=null;
         try {
             Class<?> c=Class.forName("es.c10.unitplus.integrated.NativeSnapshot");
             snapshot=c.getMethod("read").invoke(null);
-            good=Boolean.TRUE.equals(snapshot.getClass().getMethod("usable").invoke(snapshot))
-                && snapshot.getClass().getField("authoritative").getBoolean(snapshot);
-            if(good) {
-                Object src=snapshot.getClass().getField("source").get(snapshot);
-                evidence="Última lectura validada por UNIT · fuente: "+String.valueOf(src);
-            } else evidence="El lector existe, pero no informa de una muestra autorizada y reciente.";
-        } catch(Throwable x){
-            evidence="Lectura no accesible desde esta versión de UNIT ("+
-                x.getClass().getSimpleName()+").";
-        }
-        r.vehicle.add(new Item("Enlace de datos del coche",good?LIVE:UNKNOWN,evidence));
-        String[] names={"Batería (SoC)","Potencia eléctrica","Velocidad","Combustible restante"};
+            boolean usable=Boolean.TRUE.equals(snapshot.getClass().getMethod("usable").invoke(snapshot));
+            legacy=!has(snapshot,"authoritative");
+            if(legacy){
+                // No claim of confirmed ECU access: only the 0.8 legacy origin is available.
+                good=usable && bool(snapshot,"connected",false) &&
+                    !bool(snapshot,"demo",true) &&
+                    whole(snapshot,"ageMs",Long.MAX_VALUE)<60000;
+                evidence=good?
+                    "UNIT 0.8 comunica lectura conectada reciente, pero no acredita origen ECU.":
+                    "UNIT 0.8 no confirma un dato conectado reciente.";
+            } else {
+                good=usable&&bool(snapshot,"authoritative",false);
+                evidence=good?"Dato autorizado de UNIT · "+String.valueOf(
+                    snapshot.getClass().getField("source").get(snapshot)):
+                    "No hay fuente autorizada y reciente.";
+            }
+        }catch(Throwable e){evidence="Lectura no accesible: "+e.getClass().getSimpleName();}
+        r.vehicle.add(new Item("Conexión de lecturas de UNIT",
+            good&&!legacy?LIVE:UNKNOWN,evidence));
+        String[] titles={"Batería","Potencia","Velocidad","Combustible restante"};
         String[] fields={"soc","power","speed","fuelLitres"};
         String[] units={"%","kW","km/h","L"};
-        for(int i=0;i<names.length;i++){
-            double n=good?num(snapshot,fields[i]):Double.NaN;
-            if(i==0 && Double.isFinite(n) && (n<0 || n>100))n=Double.NaN;
-            int st=Double.isFinite(n)?LIVE:UNKNOWN;
-            String detail=Double.isFinite(n)?
-                String.format(Locale.getDefault(),"Dato real disponible: %.1f %s.",n,units[i]):
-                "Sin dato real verificado en UNIT.";
-            if(i==3)detail+=" Es combustible restante, NO litros consumidos.";
-            r.vehicle.add(new Item(names[i],st,detail));
+        for(int i=0;i<titles.length;i++){
+            double value=good?num(snapshot,fields[i]):Double.NaN;
+            if(i==0&&(value<0||value>100))value=Double.NaN;
+            if(i==3&&legacy)value=Double.NaN; // Old build exposes fuelPct, not litres.
+            String detail=Double.isFinite(value)?
+                String.format(Locale.getDefault(),"Muestra %.1f %s %s",value,units[i],
+                    legacy?"(UNIT 0.8: origen no verificado).":"(UNIT autorizado)."):
+                "Aún no disponible con origen fiable.";
+            r.vehicle.add(new Item(titles[i],
+                Double.isFinite(value)&&!legacy?LIVE:UNKNOWN,detail));
         }
     }
-
     private static void inspectTrips(Context ctx,Report r) {
         try {
             Class<?> cls=Class.forName("es.c10.unitplus.integrated.TripStore");
             Object store=cls.getMethod("get",Context.class).invoke(null,ctx);
             Object session=cls.getField("current").get(store);
-            Class<?> fields=session.getClass();
-            boolean measured=fields.getField("measured").getBoolean(session);
-            boolean old=fields.getField("legacyEnergy").getBoolean(session);
-            boolean e=fields.getField("hasEnergy").getBoolean(session);
-            boolean regen=fields.getField("hasRecovered").getBoolean(session);
-            boolean valid=measured&&!old&&e&&regen
-                && Double.isFinite(num(session,"kwh"))
-                && Double.isFinite(num(session,"recovered"));
-            r.vehicle.add(new Item("Contadores energía de viaje",valid?LIVE:UNKNOWN,
-                valid?"Gasto y entrada eléctrica disponibles en el acumulador real de UNIT.":
-                "UNIT tiene un registro de viajes, pero falta una medición completa y fiable."));
+            boolean modern=has(session,"measured");
+            boolean e=bool(session,"hasEnergy",false);
+            boolean received=modern?bool(session,"hasRecovered",false):
+                bool(session,"baseline",false);
+            boolean good=e&&received&&Double.isFinite(num(session,"kwh"))&&
+                Double.isFinite(num(session,"recovered"));
+            int status=good&&modern&&bool(session,"measured",false)?LIVE:UNKNOWN;
+            r.vehicle.add(new Item("Contadores de viaje",status,good?
+                (modern?"Acumulados medidos de UNIT.":
+                    "Datos antiguos de UNIT 0.8: cálculo orientativo, origen no verificado."):
+                "No hay suficientes contadores para evaluar el balance."));
         }catch(Throwable x){
-            r.vehicle.add(new Item("Contadores energía de viaje",UNKNOWN,
-                "No se pudo leer la sesión ("+x.getClass().getSimpleName()+")."));
+            r.vehicle.add(new Item("Contadores de viaje",UNKNOWN,
+                "Sin sesión accesible ("+x.getClass().getSimpleName()+")."));
         }
     }
 
