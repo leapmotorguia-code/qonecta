@@ -50,7 +50,10 @@ public final class CompatibilityTestLog {
             Object index=c.getMethod("index",Context.class).invoke(null,context);
             int i=((Number)index).intValue();
             return labels!=null&&i>=0&&i<labels.length?labels[i]:"Sin identificar";
-        }catch(Throwable e){return "Perfil no accesible";}
+        }catch(Throwable e){
+            return context.getSharedPreferences("c10plus_native",Context.MODE_PRIVATE)
+                .getString("legacy_model_label","C10 REEV (predeterminado, sin verificar)");
+        }
     }
     public static String report(Context ctx){
         long timestamp=timestamp(ctx);
