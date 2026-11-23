@@ -307,6 +307,7 @@ public final class VehicleAccessAudit {
         inspectAndroid(c,result);
         inspectConnectivity(result);
         inspectPending(result);
+        DeviceCompatibilityProbe.append(c,result);
         return result;
     }
 }
