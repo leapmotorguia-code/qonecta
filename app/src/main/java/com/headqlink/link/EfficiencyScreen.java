@@ -54,6 +54,7 @@ final class EfficiencyScreen implements CarScreen {
     private CarKit.Card condCard;
     private CarKit.Card useCard;
     private CarKit.Card splitCard;
+    private CarKit.Card energyBalanceCard;
     private CarKit.Card costCard;
     private CarKit.Card co2Card;
     private CarKit.Card tipCard;
@@ -76,6 +77,7 @@ final class EfficiencyScreen implements CarScreen {
         condCard = new CarKit.Card(c, Str.get(R.string.hql_conditions), this::paintConditions);
         useCard = new CarKit.Card(c, Str.get(R.string.hql_consumption), this::paintUse);
         splitCard = new CarKit.Card(c, Str.get(R.string.hql_where_energy_goes), this::paintSplit);
+        energyBalanceCard = new CarKit.Card(c, "Balance: consumida y recuperada", this::paintEnergyBalance);
         costCard = new CarKit.Card(c, Str.get(R.string.hql_trip_cost_title), this::paintCost);
         co2Card = new CarKit.Card(c, Str.get(R.string.hql_co2_avoided), this::paintCo2);
         tipCard = new CarKit.Card(c, Str.get(R.string.hql_tip), this::paintTip);
@@ -89,6 +91,7 @@ final class EfficiencyScreen implements CarScreen {
             // Cada dibujo, a escala desde su tamaño en la pestaña ancha (no se monta nada).
             CarKit.add(c1, powerCard.design(457, 200), 1.1f, 0);
             CarKit.add(c1, useCard.design(457, 110), 0.85f, 0);
+            CarKit.add(c1, energyBalanceCard.design(457, 200), 0.95f, 0);
             CarKit.add(c1, costCard.design(457, 135), 0.8f, 0);
             CarKit.add(c1, co2Card.design(457, 118), 0.75f, 0);
             CarKit.add(c2, splitCard.design(457, 300), 1.4f, 0);
@@ -106,6 +109,7 @@ final class EfficiencyScreen implements CarScreen {
             CarKit.add(c3, CarKit.fit(costCard, 458, 151), 0.8f, 0);
             CarKit.add(c3, CarKit.fit(co2Card, 458, 136), 0.75f, 0);
             CarKit.add(c3, CarKit.fit(tipCard, 458, 166), 0.85f, 0);
+            CarKit.add(c3, CarKit.fit(energyBalanceCard, 458, 200), 1.10f, 0);
         }
         running = true;
         tick();
@@ -126,6 +130,7 @@ final class EfficiencyScreen implements CarScreen {
         condCard.invalidate();
         useCard.invalidate();
         splitCard.invalidate();
+        energyBalanceCard.invalidate();
         costCard.invalidate();
         co2Card.invalidate();
         tipCard.invalidate();
@@ -396,6 +401,56 @@ final class EfficiencyScreen implements CarScreen {
         p.setTextSize(21);
         CarKit.text(cv, CarKit.ellipsize(Str.get(note) + " · " + Str.get(R.string.hql_net_kwh, shown.net()), r.width(), p), r.left, r.bottom, 21,
                 fit == LiveEnergy.Fit.MODEL ? CarKit.FAINT : CarKit.ACCENT, CarKit.MEDIUM, p, Paint.Align.LEFT);
+    }
+
+    /**
+     * Balance bruto, recuperación y neto. Es una estimación del modelo físico,
+     * incluso si LiveEnergy.Fit.CAR ajusta el resultado al dato neto de nube.
+     * Una bajada prolongada puede dar recuperación superior al consumo.
+     */
+    private void paintEnergyBalance(Canvas cv, RectF r, Paint p) {
+        EnergyFlowSummary flow = EnergyFlowSummary.of(
+                shown.consumed(), shown.recovered(), s.tripKmEnergy, fit != LiveEnergy.Fit.MODEL);
+        if (!flow.ready) {
+            small.draw(cv, "Esperando datos del trayecto para calcular el balance",
+                    r.left, r.top + 10, (int) r.width(), false);
+            return;
+        }
+
+        float cell = r.width() / 3f;
+        double[] values = {flow.consumedKwh, flow.recoveredKwh, flow.netKwh};
+        String[] headings = {"CONSUMIDA", "RECUPERADA", "SALDO NETO"};
+        int[] colors = {CarKit.TEXT, CarKit.GREEN, flow.netKwh < 0 ? CarKit.GREEN : CarKit.AMBER};
+        for (int i = 0; i < 3; i++) {
+            float x = r.left + i * cell;
+            CarKit.label(cv, headings[i], x, r.top + 19, CarKit.FAINT, p,
+                    Paint.Align.LEFT, cell - 9);
+            CarKit.text(cv, num(values[i], 2), x, r.top + 62, 39,
+                    colors[i], CarKit.MEDIUM, p, Paint.Align.LEFT);
+            CarKit.text(cv, "kWh", x, r.top + 83, 20, CarKit.FAINT,
+                    CarKit.REGULAR, p, Paint.Align.LEFT);
+        }
+
+        float rowY = r.top + 112;
+        p.setColor(CarKit.OUTLINE);
+        cv.drawRect(r.left, rowY - 14, r.right, rowY - 13, p);
+        String ratio = Double.isNaN(flow.recoveryPercent) ? "—"
+                : num(flow.recoveryPercent, 1) + " %";
+        String avg = Double.isNaN(flow.netPer100) ? "—"
+                : num(flow.netPer100, 1) + " kWh/100 km";
+        CarKit.text(cv, "Recuperado / gastado", r.left, rowY + 4, 20,
+                CarKit.FAINT, CarKit.REGULAR, p, Paint.Align.LEFT);
+        CarKit.text(cv, ratio, r.right, rowY + 4, 25,
+                CarKit.GREEN, CarKit.MEDIUM, p, Paint.Align.RIGHT);
+        CarKit.text(cv, "Promedio neto del viaje", r.left, rowY + 40, 20,
+                CarKit.FAINT, CarKit.REGULAR, p, Paint.Align.LEFT);
+        CarKit.text(cv, avg, r.right, rowY + 40, 23,
+                CarKit.TEXT, CarKit.MEDIUM, p, Paint.Align.RIGHT);
+        CarKit.text(cv, fit == LiveEnergy.Fit.MODEL
+                        ? "Estimación física: NO leída de la batería"
+                        : "Modelo ajustado al neto: no mide regeneración",
+                r.left, rowY + 68, 18,
+                CarKit.AMBER, CarKit.REGULAR, p, Paint.Align.LEFT);
     }
 
     // ------------------------------------------------------------------ coste, CO₂ y consejo
