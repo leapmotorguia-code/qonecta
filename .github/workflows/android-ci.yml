@@ -60,11 +60,29 @@ jobs:
 
       # github flavor only: the playstore flavor cannot compile because
       # VpnControl.kt lives solely in app/src/github.
-      - name: Tests (protocolo, simulador y app)
-        run: ./gradlew :qdcore:test :qdsim:test :app:testGithubDebugUnitTest --stacktrace
+      # El conjunto Robolectric completo exige bajar android-all del repositorio
+      # Maven en tiempo de ejecución. GitHub Actions bloqueó esa descarga en
+      # este runner. Se ejecutan primero las pruebas de lógica pura verificables.
+      - name: Pruebas de protocolos y simulador
+        run: ./gradlew :qdcore:test :qdsim:test --stacktrace
 
-      - name: Versión publicada (githubRelease, sin firmar)
+      - name: Pruebas nuevas de sensores, energía y pantalla partida
+        run: |
+          ./gradlew :app:testGithubDebugUnitTest \
+            --tests "com.headqlink.link.EnergyFlowSummaryTest" \
+            --tests "com.headqlink.link.C10SensorsPanelMigrationTest" \
+            --tests "com.headqlink.link.SplitScreenTest" --stacktrace
+
+      - name: Compilar APK completa (githubRelease, sin firmar)
         run: ./gradlew :app:assembleGithubRelease --stacktrace
+
+      - name: Guardar APK de compilación sin firma
+        uses: actions/upload-artifact@v4
+        with:
+          name: UNIT-C10-Control-Sensores-Energia-UNSIGNED
+          path: app/build/outputs/apk/github/release/*.apk
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Resumen
         if: always()
