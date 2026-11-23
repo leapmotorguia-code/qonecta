@@ -1,5 +1,14 @@
 # UNIT C10 Plus — revisión experimental 4.5.1 (23/11/2026)
 
+## Segundo vídeo del 23/11/2026 — hallazgo del canal publicado
+
+- La pestaña Actualizaciones muestra «APK descargada y VERIFICADA: 4.4-base08-actualizador» y el botón de instalación, pero NO demuestra que esa APK se haya instalado.
+- El manifiesto `updates/unit-c10-plus.json` en `main` sigue publicado con `versionCode: 450`, `versionName: 4.4-base08-actualizador`. El APK 4.5 experimental analizado contiene `versionCode: 460`; por tanto, el 4.4 publicado **no** puede ser una actualización nueva de esa 4.5.
+- El vídeo no muestra una pantalla de información de paquete suficiente para demostrar qué `versionCode` está instalado realmente en el C10. Puede ser una descarga conservada o una versión anterior.
+- Se añade un control antes de intentar la instalación: si el archivo descargado tiene versión menor o igual que la versión instalada, se deshabilita el botón y se elimina la referencia a esa descarga en preferencias. **No** se borra ni se instala a la fuerza ninguna APK del coche.
+- Comprobación CI GitHub Actions: ejecución `45237703604`, compilación y pruebas automáticas correctas.
+- La 4.5.1 continúa sin APK firmada instalable; no se ha actualizado el canal `stable` ni se aconseja instalar la 4.4 sobre 4.5.
+
 ## Evidencia del vídeo del vehículo
 - La descarga del APK se marca como verificada.
 - Al pedir instalar, se muestra `No se puede abrir el permiso del instalador: ActivityNotFoundException`.
