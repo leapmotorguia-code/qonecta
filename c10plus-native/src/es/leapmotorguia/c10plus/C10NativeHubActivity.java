@@ -63,6 +63,7 @@ public final class C10NativeHubActivity extends Activity {
     private TextView status;
     private boolean opening;
     private boolean initSetup;
+    private boolean hadVisibleUnitOnPause;
     private static final String SETUP_PREFS = "c10plus_native_onboarding";
     private static final int REQUEST_APK = 7311;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -89,8 +90,8 @@ public final class C10NativeHubActivity extends Activity {
         status.setText("Versión 4.5 · Iniciando la integración con UNIT...");
         root.addView(status);
         Button retry = new Button(this);
-        retry.setText("Abrir UNIT C10 Plus");
-        retry.setOnClickListener(v -> openNative());
+        retry.setText("Recuperar nuestras pantallas / Abrir UNIT");
+        retry.setOnClickListener(v -> restoreNative());
         root.addView(retry);
         Button original = new Button(this);
         original.setText("UNIT original (rescate)");
@@ -296,16 +297,38 @@ public final class C10NativeHubActivity extends Activity {
         Uri uri = data.getData();
         // Never assume an arbitrary document is an APK: Android's package installer
         // verifies the package identity and signing certificate before allowing update.
-        try {
-            Intent install = new Intent(Intent.ACTION_VIEW);
-            install.setDataAndType(uri, "application/vnd.android.package-archive");
-            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(install);
-            Toast.makeText(this, "Comprueba el nombre y acepta la actualización de Android", Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            Toast.makeText(this, "El instalador de Android no admite este archivo: "
-                    + e.getClass().getSimpleName(), Toast.LENGTH_LONG).show();
+        boolean opened=false;
+        String reason="No hay instalador Android disponible";
+        for(String action:new String[]{Intent.ACTION_INSTALL_PACKAGE,Intent.ACTION_VIEW}) {
+            try {
+                Intent install=new Intent(action);
+                install.setDataAndType(uri,"application/vnd.android.package-archive");
+                install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(install);
+                opened=true;
+                Toast.makeText(this,"Confirma la instalación si LeapOS la autoriza",Toast.LENGTH_LONG).show();
+                break;
+            } catch (Exception e) {
+                reason=e.getClass().getSimpleName()+" en "+action;
+            }
         }
+        if(!opened) Toast.makeText(this,"No se puede abrir el instalador: "+reason,
+            Toast.LENGTH_LONG).show();
+    }
+
+    /** Manual repair when the projection or system has replaced our UNIT dialog.
+     * Does not force itself above Android Auto or CarPlay; runs only after
+     * the user has returned to this Activity and explicitly tapped restore.
+     */
+    private void restoreNative() {
+        try { if (bridge != null) bridge.dispose(); } catch(Throwable ignored){}
+        bridge = null;
+        try { if (nativeDialog != null) nativeDialog.dismiss(); } catch(Throwable ignored){}
+        nativeDialog = null;
+        getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
+            .putLong("last_restore",System.currentTimeMillis()).apply();
+        status.setText("Restableciendo las pestañas originales y C10 Plus...");
+        handler.postDelayed(this::openNative,160);
     }
 
     private void openNative() {
@@ -359,10 +382,10 @@ public final class C10NativeHubActivity extends Activity {
      * switching away from our own Activity. Does not claim which app took focus.
      */
     @Override protected void onPause() {
+        hadVisibleUnitOnPause = nativeDialog!=null && nativeDialog.isShowing();
         getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
             .putLong("last_pause",System.currentTimeMillis())
-            .putBoolean("unit_dialog_showing",
-                nativeDialog!=null && nativeDialog.isShowing()).apply();
+            .putBoolean("unit_dialog_showing", hadVisibleUnitOnPause).apply();
         super.onPause();
     }
     @Override protected void onStop() {
@@ -374,6 +397,16 @@ public final class C10NativeHubActivity extends Activity {
         super.onResume();
         getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
             .putLong("last_resume",System.currentTimeMillis()).apply();
+        // Android may destroy only the floating UNIT dialog when projection
+        // takes over. Restore it after this Activity returns to the foreground.
+        // Never request foreground or draw over the projection itself.
+        if (hadVisibleUnitOnPause && (nativeDialog==null || !nativeDialog.isShowing())) {
+            hadVisibleUnitOnPause=false;
+            handler.postDelayed(()->{
+                if(!isFinishing() && !opening && (nativeDialog==null || !nativeDialog.isShowing()))
+                    restoreNative();
+            },300);
+        }
     }
 
     private void showStartupDiagnostic() {
