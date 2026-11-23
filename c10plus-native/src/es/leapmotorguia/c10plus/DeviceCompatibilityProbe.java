@@ -118,6 +118,19 @@ public final class DeviceCompatibilityProbe {
         add(r.future,"Framework Android Car",carFramework?PRESENT:PENDING,
             carFramework?"La clase Car existe; disponibilidad de servicios/valores por comprobar.":
                 "No se detectó la API android.car.Car. Puede ser un sistema LeapOS no compatible.");
+        // Existing cloud adapters are optional and must not be mistaken for live access.
+        for(String[] item:new String[][]{
+            {"CarCloud (datos por cuenta Leapmotor)","com.headqlink.link.CarCloud"},
+            {"CarCloudSession (sesión cloud)","com.headqlink.link.CarCloudSession"},
+            {"LeapStatus (batería, TPMS y carga)","com.headqlink.link.LeapStatus"}
+        }){
+            boolean exists=false;
+            try{Class.forName(item[1]);exists=true;}catch(Throwable ignored){}
+            add(r.future,item[0],exists?INFO:PENDING,
+                exists?"Módulo de Qonecta presente. Requiere una sesión autorizada y datos "+
+                    "recientes; este diagnóstico NO abre sesión ni descarga información.":
+                "No se ha encontrado este módulo en la APK 0.8 instalada.");
+        }
         add(r.future,"Fuente de datos CAN del vehículo",PENDING,
             "El indicador «CAN C10 EN VIVO» de UNIT debe contrastarse con el diagnóstico "+
             "y sus valores reales. No se ha realizado escaneo de buses CAN ni comandos OBD.");
