@@ -29,7 +29,7 @@ public final class StartupDiagnostics {
         }catch(Throwable x){return "No disponible ("+x.getClass().getSimpleName()+")";}
     }
     public static String report(Context ctx,String lastBridgeError) {
-        StringBuilder out=new StringBuilder("UNIT C10 Plus 4.4 · Diagnóstico de arranque\n");
+        StringBuilder out=new StringBuilder("UNIT C10 Plus 4.5 · Diagnóstico de arranque\n");
         out.append("Solo lectura; sin acceso CAN, cámaras ni controles del coche.\n\n");
         try{
             PackageInfo info=ctx.getPackageManager().getPackageInfo(ctx.getPackageName(),
@@ -68,13 +68,13 @@ public final class StartupDiagnostics {
         out.append("Contenedor original: ").append(fieldStatus(nativeHub,"bodyContainer")).append('\n');
         out.append("Barra de UNIT: ").append(fieldStatus(nativeHub,"tabButtons")).append('\n');
         out.append("Pestaña activa: ").append(fieldStatus(nativeHub,"activeTab")).append('\n');
-        out.append("Módulo visual 4.4: ").append(classStatus(
+        out.append("Módulo visual 4.5: ").append(classStatus(
             "es.leapmotorguia.c10plus.C10NativeHubActivity")).append('\n');
         out.append("Lector energía UNIT: ").append(classStatus(
             "es.c10.unitplus.integrated.NativeSnapshot")).append('\n');
         out.append("Historial de viajes: ").append(classStatus(
             "es.c10.unitplus.integrated.TripStore")).append('\n');
-        out.append("Actualizador 4.4: ").append(classStatus(
+        out.append("Actualizador 4.5: ").append(classStatus(
             "es.leapmotorguia.c10plus.InAppUpdater")).append('\n');
         out.append("Último error de integración: ")
             .append(lastBridgeError==null || lastBridgeError.trim().isEmpty()?
