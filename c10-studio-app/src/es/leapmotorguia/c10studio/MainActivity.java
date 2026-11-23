@@ -239,7 +239,7 @@ public class MainActivity extends Activity {
             {"autokit","com.autokit"},{"zlink","com.zjinnova.zlink"}
         })try{j.put("app_"+p[0],getPackageManager().getLaunchIntentForPackage(p[1])!=null);}
         catch(Exception e){}
-        j.put("pairedBluetooth",pairedObd().length());
+        try{j.put("pairedBluetooth",pairedObd().length());}catch(JSONException ignored){}
         return j;
     }
     private static final UUID SPP=UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
