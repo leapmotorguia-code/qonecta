@@ -58,7 +58,7 @@ function refreshNative(){
   favorites=safeFavs();render();
 }
 const titles={};pages.forEach(p=>titles[p[0]]=p);
-function navigate(next){if(!titles[next])return;page=next;localStorage.setItem('studioPage',next);render();}
+function navigate(next){if(!titles[next])return;page=next;localStorage.setItem('studioPage',next);$('view').scrollTop=0;render();}
 function fmt(x,suffix=''){return typeof x==='number' && Number.isFinite(x)?x.toLocaleString('es-ES',{maximumFractionDigits:1})+suffix:'—';}
 function panel(inside,extra=''){return '<div class="panel '+extra+'">'+inside+'</div>';}
 function label(k,v){return '<div class="kv"><span class="k">'+E(k)+'</span><span class="v">'+E(v)+'</span></div>';}
@@ -195,7 +195,14 @@ label('Persistencia','Local, sin cuenta')+
 '<p>Para una actualización se conserva siempre el mismo nombre de paquete y certificado. El vehículo debe permitir el instalador oficial.</p>')+'</section>';
 }
 const content={home,apps:applications,projection,telemetry,obd,access,updates,settings};
-function render(){menu();top();$('view').innerHTML=(content[page]||home)();}
+function render(){
+  const view=$('view'), scroll=view.scrollTop;
+  const model=$('modelSelect')?.value, obd=$('obdSelect')?.value;
+  menu();top();view.innerHTML=(content[page]||home)();
+  if(model&&$('modelSelect'))$('modelSelect').value=model;
+  if(obd&&$('obdSelect'))$('obdSelect').value=obd;
+  view.scrollTop=scroll;
+}
 function toast(text){const t=$('toast');t.textContent=text;t.style.display='block';clearTimeout(messageTimeout);messageTimeout=setTimeout(()=>t.style.display='none',3500);}
 const actionHandlers={
   page:e=>navigate(e.getAttribute('data-page')),
