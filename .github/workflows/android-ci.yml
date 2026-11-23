@@ -5,7 +5,7 @@ name: Android CI
 on:
   pull_request:
   push:
-    branches: [main, publico]
+    branches: [main, publico, "feature/c10-unit-control-sensores-energia-v1"]
   workflow_dispatch:
 
 # Cancel superseded runs on the same ref (e.g. a new push to an open PR).
