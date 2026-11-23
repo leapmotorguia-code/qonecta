@@ -28,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
+import android.webkit.GeolocationPermissions;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -352,6 +353,27 @@ public final class C10NativeHubActivity extends Activity {
         } finally {
             opening = false;
         }
+    }
+
+    /** Keep a simple, privacy-safe lifecycle trace to identify Android Auto
+     * switching away from our own Activity. Does not claim which app took focus.
+     */
+    @Override protected void onPause() {
+        getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
+            .putLong("last_pause",System.currentTimeMillis())
+            .putBoolean("unit_dialog_showing",
+                nativeDialog!=null && nativeDialog.isShowing()).apply();
+        super.onPause();
+    }
+    @Override protected void onStop() {
+        getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
+            .putLong("last_stop",System.currentTimeMillis()).apply();
+        super.onStop();
+    }
+    @Override protected void onResume() {
+        super.onResume();
+        getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
+            .putLong("last_resume",System.currentTimeMillis()).apply();
     }
 
     private void showStartupDiagnostic() {
@@ -1112,6 +1134,9 @@ public final class C10NativeHubActivity extends Activity {
                 WebSettings ws=web.getSettings();
                 ws.setJavaScriptEnabled(true);
                 ws.setDomStorageEnabled(true);
+                ws.setGeolocationEnabled(true);
+                ws.setUseWideViewPort(true);
+                ws.setLoadWithOverviewMode(true);
                 ws.setAllowFileAccess(false);
                 ws.setAllowContentAccess(false);
                 ws.setAllowFileAccessFromFileURLs(false);
@@ -1121,6 +1146,35 @@ public final class C10NativeHubActivity extends Activity {
                 ws.setMediaPlaybackRequiresUserGesture(true);
                 if(Build.VERSION.SDK_INT>=21)ws.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
                 web.setWebChromeClient(new WebChromeClient() {
+                    @Override public void onGeolocationPermissionsShowPrompt(String origin,
+                        GeolocationPermissions.Callback callback) {
+                        Uri uri=Uri.parse(origin);
+                        String host=uri.getHost()==null?"":uri.getHost().toLowerCase(Locale.ROOT);
+                        boolean trusted="https".equalsIgnoreCase(uri.getScheme()) &&
+                            ("www.google.com".equals(host)||"google.com".equals(host)||
+                             "maps.google.com".equals(host));
+                        if(!trusted) {
+                            callback.invoke(origin,false,false);
+                            if(value!=null)value.setText("Ubicación web denegada para un sitio no autorizado.");
+                            return;
+                        }
+                        boolean permitted=activity.checkSelfPermission(
+                            Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED ||
+                            activity.checkSelfPermission(
+                            Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED;
+                        if(!permitted) {
+                            callback.invoke(origin,false,false);
+                            if(value!=null)value.setText(
+                                "Google Maps necesita permiso de ubicación Android. Entra en Modelo → Configuración inicial y permisos, autorízalo y vuelve a Maps.");
+                            return;
+                        }
+                        new AlertDialog.Builder(activity)
+                            .setTitle("Ubicación para Google Maps")
+                            .setMessage("¿Permites que la página de Google Maps utilice la ubicación del dispositivo Android? No equivale al GPS interno del coche.")
+                            .setPositiveButton("Permitir",(dialog,which)->callback.invoke(origin,true,false))
+                            .setNegativeButton("No permitir",(dialog,which)->callback.invoke(origin,false,false))
+                            .show();
+                    }
                     @Override public void onShowCustomView(View view,CustomViewCallback cb) {
                         if(fullScreenWeb!=null) { cb.onCustomViewHidden();return; }
                         fullScreenCallback=cb;
@@ -1148,13 +1202,23 @@ public final class C10NativeHubActivity extends Activity {
                         return !url.startsWith("https://")&&!url.startsWith("about:");
                     }
                     @Override public void onReceivedError(WebView w,WebResourceRequest r,android.webkit.WebResourceError error) {
-                        if(r.isForMainFrame()&&value!=null)value.setText("El sitio no se pudo cargar dentro de UNIT. Puede no admitir WebView.");
+                        if(r.isForMainFrame()&&value!=null)value.setText(
+                            "Google Maps no se pudo cargar dentro de UNIT: "+
+                            error.getErrorCode()+" · "+error.getDescription()+
+                            ". Comprueba en Accesos C10 el motor WebView.");
+                    }
+                    @Override public void onReceivedHttpError(WebView w,WebResourceRequest r,
+                            android.webkit.WebResourceResponse response) {
+                        if(r.isForMainFrame() && response.getStatusCode()>=400 && value!=null)
+                            value.setText("El servidor rechazó Google Maps web: HTTP "+
+                                response.getStatusCode()+
+                                ". La navegación puede requerir la aplicación Google Maps del móvil.");
                     }
                 });
                 layout.addView(web,new LinearLayout.LayoutParams(-1,0,1));
             }
             void maps() {
-                info("Maps dentro de UNIT (web; navegación y GPS pendientes de verificar)");
+                info("Google Maps WEB dentro de UNIT. El mapa y la navegación pueden requerir un WebView compatible y permisos; Google Maps de Android Auto es otra aplicación.");
                 LinearLayout search=row();
                 EditText input=new EditText(activity);input.setTextColor(Color.WHITE);
                 input.setSingleLine(true);input.setHint("Buscar lugar");
