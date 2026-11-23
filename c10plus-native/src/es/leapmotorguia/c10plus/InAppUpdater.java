@@ -332,6 +332,23 @@ public final class InAppUpdater {
      */
     private void launchInstaller(){
         if(destroyed||!validated||downloadId<=0||destination==null)return;
+        // A cached 4.4 download is NOT a 4.5.1 update. In particular, a
+        // verified APK is not necessarily newer than the installed app.
+        if(candidate==null || !validManifest(candidate,true) ||
+           candidate.optLong("versionCode",0)<=localVersion()){
+            validated=false;
+            install.setVisibility(View.GONE);
+            install.setEnabled(false);
+            fetch.setVisibility(View.GONE);
+            preferences.edit().remove("downloadId").remove("candidate")
+                .remove("filename").apply();
+            recordInstall("versión-obsoleta","Descarga no superior a la versión instalada");
+            message("Esta APK es antigua y NO se instalará sobre UNIT "+versionText());
+            details.setText("La versión descargada es anterior o igual a la instalada. "+
+                "No es la revisión 4.5.1. Espera a una publicación más reciente "+
+                "firmada con el mismo certificado y vuelve a pulsar Comprobar.");
+            return;
+        }
         final Uri fileUri;
         try{
             fileUri=downloads.getUriForDownloadedFile(downloadId);
