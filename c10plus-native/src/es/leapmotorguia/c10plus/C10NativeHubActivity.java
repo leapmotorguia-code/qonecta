@@ -215,37 +215,60 @@ public final class C10NativeHubActivity extends Activity {
         });
     }
 
+    /** The 0.8 build has no VehicleProfiles class. Keep its original internals
+     * unchanged and store an explicit LOCAL display profile in our own settings.
+     */
     private void addVehicleSelector(LinearLayout col, boolean wizard) {
-        TextView info=wizardText("Variantes reales del selector original UNIT:",17,0xffb9d9e7);
-        col.addView(info);
         try {
             Class<?> profiles=Class.forName("es.c10.unitplus.integrated.VehicleProfiles");
             String[] names=(String[])profiles.getMethod("labels").invoke(null);
             int selected=(Integer)profiles.getMethod("index",Context.class).invoke(null,this);
-            if(names==null || names.length==0)throw new IllegalStateException("sin perfiles");
-            Spinner select=new Spinner(this);
+            if(names==null||names.length==0)throw new IllegalStateException("sin perfiles");
+            col.addView(wizardText("Selector nativo de perfiles de UNIT:",17,0xffb9d9e7));
+            Spinner choose=new Spinner(this);
             ArrayAdapter<String> adapter=new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,names);
-            select.setAdapter(adapter);
-            if(selected>=0 && selected<names.length)select.setSelection(selected);
-            col.addView(select);
-            TextView chosen=wizardText("Perfil seleccionado: "+(selected>=0&&selected<names.length?names[selected]:"Sin identificar"),17,0xff00dfbe);
-            col.addView(chosen);
+            choose.setAdapter(adapter);
+            if(selected>=0&&selected<names.length)choose.setSelection(selected);
+            col.addView(choose);
+            TextView result=wizardText("Modelo actual: "+names[Math.max(0,Math.min(selected,names.length-1))],17,0xff00dfbe);
+            col.addView(result);
             Button save=new Button(this);
-            save.setText("Guardar modelo y versión");
+            save.setText("Guardar modelo en UNIT");
             col.addView(save);
             save.setOnClickListener(v->{
                 try{
-                    int idx=select.getSelectedItemPosition();
-                    profiles.getMethod("select",Context.class,int.class).invoke(null,this,idx);
-                    chosen.setText("Guardado en UNIT: "+names[idx]);
-                    Toast.makeText(this,"Modelo y versión guardados",Toast.LENGTH_SHORT).show();
-                }catch(Throwable e){
-                    chosen.setText("Error al guardar: "+e.getClass().getSimpleName());
-                }
+                    int index=choose.getSelectedItemPosition();
+                    profiles.getMethod("select",Context.class,int.class).invoke(null,this,index);
+                    result.setText("Guardado en UNIT: "+names[index]);
+                }catch(Throwable error){result.setText("No se pudo guardar: "+error.getClass().getSimpleName());}
             });
-        } catch(Throwable e) {
-            col.addView(wizardText("No se ha podido cargar el selector de versiones de UNIT. "
-                +"La selección anterior no se modificó. Detalle: "+e.getClass().getSimpleName(),15,0xfff0ac94));
+        }catch(Throwable absent){
+            col.addView(wizardText(
+                "UNIT 0.8 no incluye el selector moderno de variantes. "+
+                "Puedes guardar un perfil local sin alterar ni reprogramar el vehículo.",16,0xffb9d9e7));
+            final String[] models={
+                "C10 REEV","C10 BEV","C10 BEV AWD","B10 BEV","B10 REEV",
+                "T03 BEV","B05 BEV","B03X BEV","B03 BEV","Otro / desconocido"};
+            SharedPreferences prefs=getSharedPreferences("c10plus_native",MODE_PRIVATE);
+            int selected=prefs.getInt("legacy_model_index",0);
+            selected=Math.max(0,Math.min(models.length-1,selected));
+            Spinner choose=new Spinner(this);
+            ArrayAdapter<String> adapter=new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,models);
+            choose.setAdapter(adapter);
+            choose.setSelection(selected);
+            col.addView(choose);
+            TextView result=wizardText("Perfil local: "+models[selected],16,0xff06dab8);
+            col.addView(result);
+            Button save=new Button(this);
+            save.setText("Guardar perfil local");
+            col.addView(save);
+            save.setOnClickListener(v->{
+                int index=choose.getSelectedItemPosition();
+                prefs.edit().putInt("legacy_model_index",index)
+                    .putString("legacy_model_label",models[index]).apply();
+                result.setText("Guardado solo en C10 Plus: "+models[index]);
+                Toast.makeText(this,"Perfil de visualización guardado",Toast.LENGTH_SHORT).show();
+            });
         }
     }
 
@@ -798,68 +821,86 @@ public final class C10NativeHubActivity extends Activity {
             if(nativeHandler instanceof Handler && nativeTick instanceof Runnable)
                 ((Handler)nativeHandler).removeCallbacks((Runnable)nativeTick);
         }
+        private static boolean flag(Object o,String name,boolean fallback) {
+            try {return o.getClass().getField(name).getBoolean(o);}
+            catch(Throwable e){return fallback;}
+        }
+        private static long numberLong(Object o,String name,long fallback){
+            try {return ((Number)o.getClass().getField(name).get(o)).longValue();}
+            catch(Throwable e){return fallback;}
+        }
+        /** 0.8 has no authoritative/source fields. Require fresh, connected,
+         * non-demo data before showing its old vehicle snapshot as a live reading.
+         */
         private void readReal() {
-            latestSoc = gasoline = speed = powerKw = Double.NaN;
+            latestSoc=gasoline=speed=powerKw=Double.NaN;
             try {
                 Class<?> r=Class.forName("es.c10.unitplus.integrated.NativeSnapshot");
                 Object d=r.getMethod("read").invoke(null);
-                if ((Boolean)d.getClass().getMethod("usable").invoke(d)
-                        && (Boolean)d.getClass().getField("authoritative").get(d)) {
-                    latestSource=String.valueOf(d.getClass().getField("source").get(d));
+                boolean usable=Boolean.TRUE.equals(d.getClass().getMethod("usable").invoke(d));
+                boolean fresh=numberLong(d,"ageMs",Long.MAX_VALUE)>=0 &&
+                    numberLong(d,"ageMs",Long.MAX_VALUE)<60000L;
+                boolean connected=flag(d,"connected",false);
+                boolean demo=flag(d,"demo",true);
+                boolean legacy=!hasField(d,"authoritative");
+                boolean trusted=legacy?(usable&&fresh&&connected&&!demo):
+                    (usable&&flag(d,"authoritative",false));
+                if(trusted){
+                    latestSource=legacy?"UNIT 0.8: lectura conectada reciente · origen sin certificación":
+                        String.valueOf(d.getClass().getField("source").get(d));
                     latestSoc=number(d,"soc");
-                    // fuelLitres is tank remaining, NEVER liters consumed.
-                    gasoline=number(d,"fuelLitres");
                     speed=number(d,"speed");
                     powerKw=number(d,"power");
+                    gasoline=number(d,"fuelLitres"); // 0.8 does not expose fuelLitres.
                     if(Double.isFinite(latestSoc)&&latestSoc>=0&&latestSoc<=100
                         &&System.currentTimeMillis()-lastSample>=7000) {
                         realSoc.add(latestSoc);
                         if(realSoc.size()>120)realSoc.remove(0);
                         lastSample=System.currentTimeMillis();
                     }
-                } else latestSource="No disponible: sin lectura real reciente";
-            } catch(Throwable e) {
-                latestSource="Sin lectura: "+e.getClass().getSimpleName();
-            }
-            // Gross consumption and incoming battery energy are integrated by the
-            // existing original C10 TripStore using real signed power samples.
-            // The battery tank level is NOT a gross consumption meter.
+                }else latestSource="Sin muestra reciente conectada y verificable";
+            }catch(Throwable e){latestSource="Lectura no disponible: "+e.getClass().getSimpleName();}
             readTripTotals();
         }
-
+        private static boolean hasField(Object obj,String name){
+            try{obj.getClass().getField(name);return true;}
+            catch(Throwable ignored){return false;}
+        }
         private void readTripTotals() {
             consumed=recovered=tripKm=measuredSeconds=Double.NaN;
             balancePartial=false;hasTripTotals=false;
-            try {
+            try{
                 Class<?> storeClass=Class.forName("es.c10.unitplus.integrated.TripStore");
                 Object store=storeClass.getMethod("get",Context.class).invoke(null,activity);
                 Object session=storeClass.getField("current").get(store);
-                Class<?> c=session.getClass();
-                boolean measured=c.getField("measured").getBoolean(session);
-                boolean legacy=c.getField("legacyEnergy").getBoolean(session);
-                boolean hasEnergy=c.getField("hasEnergy").getBoolean(session);
-                boolean hasReceived=c.getField("hasRecovered").getBoolean(session);
-                balancePartial=c.getField("gap").getBoolean(session) ||
-                    c.getField("energyIncomplete").getBoolean(session) ||
-                    c.getField("recoveredIncomplete").getBoolean(session);
-                tripKm=c.getField("hasDistance").getBoolean(session)?number(session,"km"):Double.NaN;
+                boolean modern=hasField(session,"measured");
+                boolean complete=flag(session,"hasEnergy",false) &&
+                    (modern?flag(session,"hasRecovered",false):flag(session,"baseline",false));
+                boolean recorded=modern?flag(session,"measured",false):true;
+                boolean legacyInvalid=modern?flag(session,"legacyEnergy",true):false;
+                balancePartial=!modern || flag(session,"gap",false) ||
+                    flag(session,"energyIncomplete",false) ||
+                    flag(session,"recoveredIncomplete",false);
+                tripKm=modern&&!flag(session,"hasDistance",false)?
+                    Double.NaN:number(session,"km");
                 measuredSeconds=number(session,"measuredSeconds");
-                if(measured&&!legacy&&hasEnergy&&hasReceived) {
-                    consumed=number(session,"kwh");
-                    recovered=number(session,"recovered");
-                    energyBalance=EnergyBalance.calculate(consumed,recovered,balancePartial);
+                if(complete&&recorded&&!legacyInvalid){
+                    double spent=number(session,"kwh");
+                    double incoming=number(session,"recovered");
+                    energyBalance=EnergyBalance.calculate(spent,incoming,balancePartial);
                     hasTripTotals=energyBalance.available();
-                    balanceSource=hasTripTotals?
-                        "Potencia REAL integrada · "+(balancePartial?"cobertura parcial":"intervalos medidos") :
-                        "Los acumulados no son válidos";
-                } else {
+                    if(hasTripTotals){
+                        consumed=spent;recovered=incoming;
+                        balanceSource=modern?"Lecturas del acumulador UNIT":
+                            "UNIT 0.8 · balance legado ORIENTATIVO; origen sin confirmar";
+                    }else balanceSource="Contadores disponibles, pero sin lectura numérica fiable";
+                }else{
                     energyBalance=EnergyBalance.calculate(Double.NaN,Double.NaN,balancePartial);
-                    balanceSource=legacy?"Registro anterior sin origen verificable":
-                        "Esperando muestras de potencia real";
+                    balanceSource=modern?"Esperando muestras medidas":"UNIT 0.8: falta acumulado fiable";
                 }
-            } catch(Throwable e) {
+            }catch(Throwable error){
                 energyBalance=EnergyBalance.calculate(Double.NaN,Double.NaN,true);
-                balanceSource="Datos de sesión no disponibles: "+e.getClass().getSimpleName();
+                balanceSource="Registro no accesible: "+error.getClass().getSimpleName();
             }
         }
         private void tripAction(boolean save) {
@@ -1105,7 +1146,7 @@ public final class C10NativeHubActivity extends Activity {
                 web.loadUrl("https://www.google.com/maps");
             }
             void consumption() {
-                info("DESDE EL ÚLTIMO REINICIO · Balance = gastado − entrante · combustible consumido no disponible");
+                info("UNIT 0.8 · Balance orientativo si hay contadores; no confundir con regeneración exclusiva");
                 dashboard=new MetricDashboard(activity);
                 layout.addView(dashboard,new LinearLayout.LayoutParams(-1,0,1f));
                 LinearLayout actions=row();
