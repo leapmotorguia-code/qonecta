@@ -18,9 +18,10 @@ class SplitScreenTest {
         // La guía del camino, igual: junto a AA y sin aviso.
         assertTrue(CarUi.splitCapable("guide"))
         assertFalse(CarUi.splitNeedsWarning("guide"))
-        // El karaoke también, pero con el aviso del ocio.
-        assertTrue(CarUi.splitCapable("karaoke"))
-        assertTrue(CarUi.splitNeedsWarning("karaoke"))
+        // Sensores sustituye Karaoke y es información de solo lectura junto a AA.
+        assertTrue(CarUi.splitCapable("sensors"))
+        assertFalse(CarUi.splitNeedsWarning("sensors"))
+        assertFalse(CarUi.splitCapable("karaoke"))
         assertTrue(CarUi.splitNeedsWarning("web"))
         assertFalse(CarUi.splitCapable("aa"))
         assertFalse(CarUi.splitCapable("photos"))
