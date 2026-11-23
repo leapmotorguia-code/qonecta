@@ -592,7 +592,7 @@ final class CarUi {
      */
     static boolean splitCapable(String name) {
         return splitRoom && ("car".equals(name) || "guide".equals(name) || "web".equals(name) || "videos".equals(name)
-                || "tv".equals(name) || "karaoke".equals(name) || "companion".equals(name));
+                || "tv".equals(name) || "sensors".equals(name) || "companion".equals(name));
     }
 
     /**
@@ -2470,7 +2470,7 @@ final class CarUi {
             case "games": return Str.get(R.string.hql_games);
             case "home": return Str.get(R.string.hql_ha_title);
             case "guide": return Str.get(R.string.hql_guide);
-            case "karaoke": return Str.get(R.string.hql_karaoke);
+            case "sensors": return "Sensores C10";
             case "companion": return Str.get(R.string.hql_companion);
             default: return id;
         }
@@ -2487,7 +2487,7 @@ final class CarUi {
             case "games": return R.drawable.hql_ic_games;
             case "home": return R.drawable.hql_ic_home_assistant;
             case "guide": return R.drawable.hql_ic_guide;
-            case "karaoke": return R.drawable.hql_ic_karaoke;
+            case "sensors": return R.drawable.hql_ic_gauges;
             case "companion": return R.drawable.ic_mic;
             default: return R.drawable.hql_ic_settings;
         }
@@ -2882,6 +2882,8 @@ final class CarUi {
     private String lastSplitScreen = "car";
 
     private void open(String name) {
+        // Si el estado guardado conserva una pantalla antigua, abrir Sensores.
+        if ("karaoke".equals(name) || "games".equals(name)) name = "sensors";
         String before = screenName;
         // Pantalla partida: «Auto» quita la pantalla partida y enseña AA entero, como con su botón (21-10: antes no hacía
         // nada y parecía que la app no respondía). Si la pantalla partida está pedida pero no se ve (se está en AA), AA se
@@ -3012,8 +3014,8 @@ final class CarUi {
                 return EfficiencyScreen::new;
             case "guide":
                 return GuideScreen::new;
-            case "karaoke":
-                return KaraokeScreen::new;
+            case "sensors":
+                return SensorsAccessScreen::new;
             case "companion":
                 return CompanionScreen::new;
             default:
