@@ -75,7 +75,7 @@ public final class C10NativeHubActivity extends Activity {
         root.setPadding(24,24,24,24);
         root.setBackgroundColor(0xff07141e);
         TextView heading = new TextView(this);
-        heading.setText("UNIT C10 Plus 4.3 · Mejoras y actualizaciones");
+        heading.setText("UNIT C10 Plus 4.4 · Integración y actualizaciones");
         heading.setTextColor(0xff04e2bd);
         heading.setTextSize(25);
         heading.setGravity(Gravity.CENTER);
@@ -85,7 +85,7 @@ public final class C10NativeHubActivity extends Activity {
         status.setTextSize(16);
         status.setGravity(Gravity.CENTER);
         status.setPadding(12,20,12,20);
-        status.setText("Versión 4.3 · Abriendo el menú de UNIT...");
+        status.setText("Versión 4.4 · Iniciando la integración con UNIT...");
         root.addView(status);
         Button retry = new Button(this);
         retry.setText("Abrir UNIT C10 Plus");
@@ -103,6 +103,10 @@ public final class C10NativeHubActivity extends Activity {
             }
         });
         root.addView(original);
+        Button diagnostic=new Button(this);
+        diagnostic.setText("Diagnóstico de integración 4.4");
+        diagnostic.setOnClickListener(v->showStartupDiagnostic());
+        root.addView(diagnostic);
         setContentView(root);
         // Upgrades from 3.x also see the onboarding once; users may reopen it any time.
         if (!getSharedPreferences(SETUP_PREFS,MODE_PRIVATE).getBoolean("finished",false)) {
@@ -350,23 +354,55 @@ public final class C10NativeHubActivity extends Activity {
         }
     }
 
+    private void showStartupDiagnostic() {
+        String error=getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE)
+            .getString("bridge","");
+        String report=StartupDiagnostics.report(this,error);
+        android.widget.ScrollView scroll=new android.widget.ScrollView(this);
+        TextView text=new TextView(this);
+        text.setText(report);text.setTextSize(15);text.setTextColor(Color.WHITE);
+        text.setPadding(24,16,24,16);
+        scroll.addView(text);
+        new AlertDialog.Builder(this).setTitle("C10 Plus 4.4 · Comprobación")
+            .setView(scroll)
+            .setPositiveButton("Copiar informe",(dialog,which)->{
+                android.content.ClipboardManager cb=(android.content.ClipboardManager)
+                    getSystemService(Context.CLIPBOARD_SERVICE);
+                if(cb!=null) cb.setPrimaryClip(android.content.ClipData.newPlainText(
+                    "Diagnóstico de inicio 4.4",report));
+                Toast.makeText(this,"Informe copiado",Toast.LENGTH_SHORT).show();
+            })
+            .setNegativeButton("Cerrar",null).show();
+    }
+
     private void attachNative(Dialog d, int attempt) {
         if (isFinishing() || !d.isShowing() || d.getWindow() == null) return;
         View view = findHub(d.getWindow().getDecorView());
         if (view instanceof ViewGroup) {
             try {
                 bridge = C10Bridge.attach(this, (ViewGroup)view);
-                status.setText("4.3 · UNIT original y mejoras integradas");
+                status.setText("4.4 · Mejoras integradas en UNIT");
+                Toast.makeText(this,"UNIT C10 Plus 4.4 conectado",Toast.LENGTH_LONG).show();
             } catch (Throwable e) {
                 status.setText("UNIT funciona, pero el acceso C10 Plus ha fallado: "+e.getClass().getSimpleName());
                 getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE).edit()
                     .putString("bridge",String.valueOf(e)).apply();
-                Toast.makeText(this, "UNIT activo; error de integración: "+e.getClass().getSimpleName(), Toast.LENGTH_LONG).show();
+                new AlertDialog.Builder(this)
+                    .setTitle("C10 Plus 4.4 no pudo enlazar con UNIT")
+                    .setMessage("La aplicación original sigue disponible. Pulsa «Diagnóstico» para obtener el motivo y corregirlo sin desinstalar.")
+                    .setPositiveButton("Diagnóstico",(d,w)->showStartupDiagnostic())
+                    .setNegativeButton("Continuar con UNIT",null).show();
             }
         } else if (attempt < 12) {
             handler.postDelayed(() -> attachNative(d, attempt+1), 300);
         } else {
-            status.setText("UNIT abierto, pero no encontré su barra de pestañas");
+            status.setText("No se localizó el menú de UNIT para integrar nuestras funciones.");
+            getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE).edit()
+                .putString("bridge","Vista original ExtendedHubView no encontrada tras 12 intentos").apply();
+            new AlertDialog.Builder(this).setTitle("Integración pendiente")
+                .setMessage("UNIT se ha abierto, pero nuestra barra no ha podido conectarse. Puedes copiar un diagnóstico.")
+                .setPositiveButton("Diagnóstico",(d,w)->showStartupDiagnostic())
+                .setNegativeButton("Cerrar",null).show();
         }
     }
 
@@ -1179,6 +1215,9 @@ public final class C10NativeHubActivity extends Activity {
                 tools.addView(scan,new LinearLayout.LayoutParams(0,dip(48),1f));
                 tools.addView(copy,new LinearLayout.LayoutParams(0,dip(48),1f));
                 layout.addView(tools);
+                Button diag=button("Diagnóstico del inicio y firma 4.4");
+                diag.setOnClickListener(v->((C10NativeHubActivity)activity).showStartupDiagnostic());
+                layout.addView(diag,new LinearLayout.LayoutParams(-1,dip(46)));
                 Button tests=button("Registrar prueba de Android Auto / CarPlay");
                 tests.setOnClickListener(v->showCompatibilityTests());
                 layout.addView(tests,new LinearLayout.LayoutParams(-1,dip(49)));
