@@ -75,7 +75,7 @@ public final class C10NativeHubActivity extends Activity {
         root.setPadding(24,24,24,24);
         root.setBackgroundColor(0xff07141e);
         TextView heading = new TextView(this);
-        heading.setText("UNIT C10 Plus 4.2 · Mejoras integradas");
+        heading.setText("UNIT C10 Plus 4.3 · Mejoras y actualizaciones");
         heading.setTextColor(0xff04e2bd);
         heading.setTextSize(25);
         heading.setGravity(Gravity.CENTER);
@@ -85,7 +85,7 @@ public final class C10NativeHubActivity extends Activity {
         status.setTextSize(16);
         status.setGravity(Gravity.CENTER);
         status.setPadding(12,20,12,20);
-        status.setText("Versión 4.2 · Abriendo el menú mejorado de UNIT...");
+        status.setText("Versión 4.3 · Abriendo el menú de UNIT...");
         root.addView(status);
         Button retry = new Button(this);
         retry.setText("Abrir UNIT C10 Plus");
@@ -356,7 +356,7 @@ public final class C10NativeHubActivity extends Activity {
         if (view instanceof ViewGroup) {
             try {
                 bridge = C10Bridge.attach(this, (ViewGroup)view);
-                status.setText("4.2 · Maps, Radio, TV, Consumos, Gráficas, Accesos y Modelo integrados");
+                status.setText("4.3 · UNIT original y mejoras integradas");
             } catch (Throwable e) {
                 status.setText("UNIT funciona, pero el acceso C10 Plus ha fallado: "+e.getClass().getSimpleName());
                 getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE).edit()
@@ -1051,6 +1051,7 @@ public final class C10NativeHubActivity extends Activity {
             boolean stoppedForMotion;
             Graph graph;
             MetricDashboard dashboard;
+            InAppUpdater updater;
             VehicleAccessAudit.Report accessReport;
             LinearLayout accessList;
             boolean disposed;
@@ -1302,12 +1303,15 @@ public final class C10NativeHubActivity extends Activity {
             }
 
             void updates() {
-                info("Actualización desde UNIT · sin borrar ajustes");
-                layout.addView(label("1. Descarga el APK nuevo en este dispositivo.\n2. Pulsa «Elegir APK».\n3. Selecciona el archivo y confirma en el instalador Android.\n\nSolo se instalará encima si conserva el paquete y certificado de C10 Plus. No actualiza el software LeapOS.",16,Color.WHITE));
-                Button b=button("Elegir APK e instalar");
-                b.setOnClickListener(v->((C10NativeHubActivity)activity).chooseUpdateApk());
-                layout.addView(b);
-                layout.addView(label("Elige la nueva APK descargada para actualizar. La confirmación de seguridad es obligatoria.",14,0xffb5ced9));
+                info("NOVEDAD · Actualizar directamente desde UNIT sin abrir el navegador.");
+                updater=new InAppUpdater(activity,layout);
+                Button local=button("Instalar un APK descargado manualmente");
+                local.setOnClickListener(v->((C10NativeHubActivity)activity).chooseUpdateApk());
+                layout.addView(local,new LinearLayout.LayoutParams(-1,dip(46)));
+                layout.addView(label("La descarga automática solo utiliza versiones publicadas en "+
+                    "nuestro canal GitHub, firmadas con este mismo certificado. "+
+                    "Android siempre pedirá autorización para instalarlas. "+
+                    "Si el coche bloquea la instalación, no se fuerza ningún permiso.",14,0xffacced9));
             }
             void model() {
                 info("Perfil seleccionado en UNIT · no implica identificación automática del vehículo.");
@@ -1344,6 +1348,7 @@ public final class C10NativeHubActivity extends Activity {
             void active(boolean visible) {if(web!=null)try{if(visible)web.onResume();else web.onPause();}catch(Throwable ignored){}}
             void close() {
                 disposed=true;
+                if(updater!=null){updater.close();updater=null;}
                 if(fullScreenWeb!=null) {
                     try{fullScreenWeb.dismiss();}catch(Throwable ignored){}
                     fullScreenWeb=null;
