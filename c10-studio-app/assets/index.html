@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>C10 Studio</title><style>
+:root{--bg:#07131d;--card:#102432;--card2:#122b3b;--line:#254250;--soft:#7897a5;--text:#e9f6fa;--teal:#15dbbc;--cyan:#58bced;--warn:#f6c977;--red:#f28f86}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Roboto,Arial,sans-serif;overflow:hidden}
+button,input,select{font:inherit}button{cursor:pointer}a{color:var(--teal)}
+.shell{display:flex;height:100vh;overflow:hidden}.rail{width:211px;flex:none;background:linear-gradient(165deg,#0a2232,#071722);border-right:1px solid #25414c;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin}
+.brand{padding:22px 17px 21px;display:flex;align-items:center;gap:11px;border-bottom:1px solid #1d3642}.mark{display:grid;place-items:center;color:#042026;width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,#4affd4,#12aeb1);font-weight:900;font-size:18px;box-shadow:0 0 23px #1af2bb25}.brand strong{font-size:19px;letter-spacing:-.6px}.brand small{display:block;color:#89afb7;font-size:10px;letter-spacing:2px}.nav{padding:17px 10px;display:flex;flex-direction:column;gap:5px}.nav button{width:100%;border:0;background:transparent;text-align:left;color:#a6bbc7;display:flex;align-items:center;gap:11px;padding:12px 12px;border-radius:11px;font-size:14px;font-weight:600}.nav button.active{background:#15404c;color:var(--teal);box-shadow:inset 3px 0 var(--teal)}.nav button:hover{background:#183442}.nav .ico{width:21px;text-align:center;font-size:18px}.rail-bottom{margin-top:auto;padding:16px;border-top:1px solid #1d3642;color:var(--soft);font-size:11px}.signal{display:inline-block;width:7px;height:7px;border-radius:50%;background:#f3c77b;margin-right:7px}
+.main{min-width:0;flex:1;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(circle at 70% -25%,#123a44 0,transparent 51%),var(--bg)}
+.topbar{padding:16px 28px;min-height:74px;display:flex;gap:15px;align-items:center;border-bottom:1px solid #203744}.topbar h1{margin:0;font-size:21px;font-weight:700;letter-spacing:-.4px}.topbar .sub{color:var(--soft);font-size:11px;margin-top:1px}.grow{flex:1}.time{text-align:right;color:#dff6f9;font-size:20px;font-weight:600;line-height:1}.time small{display:block;color:var(--soft);font-size:10px;font-weight:400;margin-top:8px}.chip{display:inline-flex;gap:6px;align-items:center;border:1px solid #2a5660;background:#163b42;border-radius:100px;padding:6px 11px;color:#a6e3de;font-weight:600;font-size:11px;white-space:nowrap}.chip.muted{color:#b4c8d1;border-color:#36505b;background:#172c37}.view{overflow-y:auto;padding:22px 28px 35px;height:100%;scrollbar-color:#365965 transparent}
+.section{margin-bottom:22px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}.section-head h2{font-size:17px;margin:0;font-weight:700;letter-spacing:-.2px}.section-head small,.subtitle{color:var(--soft);font-size:12px}.grid{display:grid;gap:13px}.grid.metrics{grid-template-columns:1.38fr repeat(2,minmax(0,1fr))}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.panel{border-radius:16px;padding:19px;background:linear-gradient(155deg,var(--card),#0b1d2a);border:1px solid #284553;min-width:0}.panel.moss{background:linear-gradient(140deg,#153e42,#0e2c39)}.eyebrow{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#92b6c1;font-weight:700}.big{font-size:35px;font-weight:650;line-height:1.15;margin:12px 0 7px;letter-spacing:-1.5px}.big span{font-size:15px;color:#7fa5b1;letter-spacing:0}.panel p{margin:6px 0;color:#8ca6b3;font-size:12px}.smallline{font-size:12px;color:#a2bac5;margin-top:10px}.footnote{font-size:11px;color:#829ca8;margin-top:12px}.meter{height:4px;border-radius:3px;background:#25414b;margin-top:17px;overflow:hidden}.meter div{height:100%;width:0;background:var(--teal);transition:width .3s}.hero-num{display:flex;gap:13px;align-items:center}.dial{width:78px;height:78px;border-radius:50%;border:5px solid #244a55;display:grid;place-items:center;color:var(--teal);font-size:22px;font-weight:700;box-shadow:inset 0 0 0 4px #102e39}.pill{font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px;background:#244551;color:#afd4db}.pill.green{color:#74f0d0;background:#15423f}.pill.amber{color:#f5cf8c;background:#47382b}.pill.red{color:#ffb4a8;background:#4a2b31}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.btn{border:1px solid #37606b;background:#204050;color:#e7f9fc;border-radius:10px;padding:10px 14px;font-weight:650;font-size:13px;white-space:nowrap}.btn.primary{border-color:#1dd1b3;background:linear-gradient(110deg,#1dd5b0,#2ab3bf);color:#05202a}.btn.ghost{background:#102936;color:#9fd0d4}.btn:focus-visible,.nav button:focus-visible{outline:2px solid var(--teal)}.btn:disabled{opacity:.45}.btn.large{padding:14px 17px}.apps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px}.app{min-height:120px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:11px;background:linear-gradient(160deg,#133040,#0d2230);border:1px solid #2e4955;border-radius:15px;color:#e5f4f8;font-weight:650;font-size:12px;padding:12px 5px}.app:hover{border-color:#32b6aa}.app .logo{display:grid;place-items:center;width:51px;height:51px;border-radius:15px;font-size:25px;font-weight:800;background:var(--color,#22566c);color:white}.app .mode{font-size:10px;color:#789ca9;font-weight:500}.kv{display:flex;gap:9px;justify-content:space-between;padding:11px 0;border-bottom:1px solid #24414d;font-size:13px}.kv:last-child{border:0}.kv .k{color:#96adbb}.kv .v{text-align:right;font-weight:650;color:#e5f2f5;max-width:70%;word-break:break-word}.warn-text{color:#f8d390}.good-text{color:#5be9c8}.info{background:#16323e;border:1px solid #31515c;border-radius:12px;padding:12px 15px;color:#b8d2dd;font-size:12px}.info strong{color:#d9fbf1}.line{height:1px;background:#264551;margin:17px 0}.seg{display:flex;gap:7px;flex-wrap:wrap}.seg .btn{padding:7px 11px}.select{width:100%;background:#0a2230;color:#e9f7fa;border:1px solid #36606b;border-radius:10px;padding:12px}.raw{white-space:pre-wrap;background:#071b26;border:1px solid #294a55;border-radius:12px;padding:14px;color:#a2e8dd;word-break:break-word;font:12px/1.5 ui-monospace,monospace;max-height:420px;overflow:auto}.mini{font-size:10px;color:#8aa5b1}.statusdot{width:8px;height:8px;display:inline-block;border-radius:50%;background:#f5c777;margin-right:6px}.statusdot.ok{background:#20dcb5}.statusdot.off{background:#ed8a85}.banner{padding:17px 19px;background:linear-gradient(110deg,#12414b,#102c41);border:1px solid #295867;border-radius:14px;display:flex;align-items:center;gap:15px;justify-content:space-between}.banner h3{font-size:16px;margin:0 0 4px}.banner p{font-size:12px;color:#aac8d0;margin:0}.empty{padding:17px;border:1px dashed #345260;border-radius:12px;color:#88adb7;font-size:12px}.chart{display:flex;align-items:end;gap:4px;height:80px;padding:8px 4px;border-bottom:1px solid #24515a}.chart span{display:block;flex:1;max-width:11px;background:#1ebaa7;border-radius:3px 3px 0 0;min-height:2px}.taggrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.tag{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#102c39;border:1px solid #284955;border-radius:11px;padding:13px;font-size:12px}.tag em{font-size:10px;font-style:normal;color:#ecb980;text-align:right}.tag em.y{color:#66e9c1}.boxlabel{font-size:12px;color:#b6cdd6;margin:0 0 6px}.toast{position:fixed;bottom:21px;left:50%;transform:translateX(-50%);background:#1b4c50;border:1px solid #41abac;color:#ecfffc;padding:12px 18px;border-radius:12px;font-size:13px;z-index:99;box-shadow:0 12px 30px #0008;display:none;max-width:90vw}.hide{display:none!important}
+@media(max-width:990px){.rail{width:158px}.brand{padding:16px 10px}.brand strong{font-size:16px}.nav button{font-size:12px;padding:10px 8px}.topbar{padding:12px 16px}.view{padding:14px 15px 24px}.apps{grid-template-columns:repeat(4,minmax(0,1fr))}.grid.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.dial{width:60px;height:60px}.big{font-size:29px}}
+@media(max-width:720px){.rail{width:61px}.brand{justify-content:center;padding:12px 5px}.brand .word,.rail-bottom{display:none}.nav{padding:7px}.nav button{justify-content:center;padding:10px 5px}.nav button span:not(.ico){display:none}.nav .ico{font-size:21px}.grid.metrics,.grid.two,.grid.three{grid-template-columns:1fr 1fr}.apps{grid-template-columns:repeat(3,minmax(0,1fr))}.topbar h1{font-size:16px}.topbar .chip{display:none}.taggrid{grid-template-columns:1fr}}
+@media(max-width:480px){.grid.metrics,.grid.two,.grid.three{grid-template-columns:1fr}.apps{grid-template-columns:repeat(2,minmax(0,1fr))}.time{font-size:14px}.topbar{min-height:55px}.panel{padding:15px}}
+</style></head>
+<body><div class="shell"><aside class="rail">
+  <div class="brand"><div class="mark">C10</div><div class="word"><strong>STUDIO</strong><small>LEAPMOTOR GUÍA</small></div></div>
+  <div class="nav" id="nav"></div>
+  <div class="rail-bottom"><div><span class="signal"></span> Solo lectura · Sin cambios en ECU</div><div style="margin-top:8px">STUDIO 1.0.0</div></div>
+</aside><main class="main"><header class="topbar">
+  <div><h1 id="pageTitle">Panel de control</h1><div class="sub" id="pageHint">Tu centro multimedia y de diagnóstico</div></div>
+  <div class="grow"></div><span class="chip" id="vehicleChip">C10 REEV</span><span class="chip muted" id="connectionChip">● OBD desconectado</span>
+  <div class="time"><span id="clock">--:--</span><small id="date">--</small></div>
+</header><div class="view" id="view"></div></main></div>
+<div id="toast" class="toast" role="status"></div>
+<script>
+(function(){
+'use strict';
+const N=window.C10Native;
+const pages=[
+  ['home','◈','Inicio','Panel de control','Tu centro multimedia y de diagnóstico'],
+  ['apps','▦','Aplicaciones','Tus aplicaciones','Abre apps instaladas y accesos web'],
+  ['projection','▣','Android Auto / CarPlay','Conexión del móvil','Proyección mediante receptor compatible'],
+  ['telemetry','⌁','Telemetría','Datos y trayectos','Valores con origen identificado'],
+  ['obd','⚙','OBD2 externo','Lectura de centralita','Adaptador ELM327 por Bluetooth'],
+  ['access','◎','Accesos C10','Auditoría del vehículo','Qué información permite ver Android'],
+  ['updates','↻','Actualizaciones','Mantén la aplicación al día','Instalación oficial con verificación'],
+  ['settings','☷','Configuración','Personalización','Perfiles, aplicaciones y preferencias']
+];
+const catalog=[
+  {id:'maps',name:'Google Maps',pkg:'com.google.android.apps.maps',url:'https://www.google.com/maps',color:'#228ae0',sign:'⌖'},
+  {id:'spotify',name:'Spotify',pkg:'com.spotify.music',url:'https://open.spotify.com',color:'#158b59',sign:'♫'},
+  {id:'netflix',name:'Netflix',pkg:'com.netflix.mediaclient',url:'https://www.netflix.com',color:'#9f2026',sign:'N'},
+  {id:'prime',name:'Prime Video',pkg:'com.amazon.avod.thirdpartyclient',url:'https://www.primevideo.com',color:'#124d96',sign:'▶'},
+  {id:'max',name:'Max / HBO',pkg:'com.wbd.stream',url:'https://www.max.com',color:'#5532a2',sign:'M'},
+  {id:'youtube',name:'YouTube',pkg:'com.google.android.youtube',url:'https://www.youtube.com',color:'#bf2727',sign:'▶'},
+  {id:'pluto',name:'Pluto TV',pkg:'tv.pluto.android',url:'https://pluto.tv',color:'#6a53ab',sign:'P'},
+  {id:'unit',name:'UNIT original',pkg:'com.tencent.qqmusiccar',url:'',color:'#207f85',sign:'U'}
+];
+let page=localStorage.getItem('studioPage')||'home', state={},report={},apps=[],paired=[],update={status:'unknown'},history=[],favorites=[];
+let obdMac='', messageTimeout;
+const $=id=>document.getElementById(id);
+const E=x=>String(x==null?'':x).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+function nativeJson(method,def){try{return JSON.parse(N[method]());}catch(e){return def;}}
+function safeFavs(){try{const a=JSON.parse(state.favoriteApps||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+function refreshNative(){
+  state=nativeJson('status',{});report=nativeJson('report',{});apps=nativeJson('apps',[]);paired=nativeJson('bluetoothDevices',[]);
+  favorites=safeFavs();render();
+}
+const titles={};pages.forEach(p=>titles[p[0]]=p);
+function navigate(next){if(!titles[next])return;page=next;localStorage.setItem('studioPage',next);render();}
+function fmt(x,suffix=''){return typeof x==='number' && Number.isFinite(x)?x.toLocaleString('es-ES',{maximumFractionDigits:1})+suffix:'—';}
+function panel(inside,extra=''){return '<div class="panel '+extra+'">'+inside+'</div>';}
+function label(k,v){return '<div class="kv"><span class="k">'+E(k)+'</span><span class="v">'+E(v)+'</span></div>';}
+function button(text,action,extra='',attrs=''){return '<button class="btn '+extra+'" data-action="'+E(action)+'" '+attrs+'>'+E(text)+'</button>';}
+function statusBadge(value){return value?'<span class="pill green">Disponible en Android</span>':'<span class="pill amber">No confirmado</span>';}
+function appButton(a){
+const installed=apps.some(v=>v.pkg===a.pkg);
+return '<button class="app" data-action="openApp" data-pkg="'+E(a.pkg)+'" data-url="'+E(a.url||'')+'"><span class="logo" style="--color:'+E(a.color||'#286273')+'">'+E(a.sign||'▦')+'</span><span>'+E(a.name)+'</span><span class="mode">'+(installed?'App detectada':'Acceso web / externo')+'</span></button>';
+}
+function menu(){
+  $('nav').innerHTML=pages.map(([id,ico,name])=>'<button class="'+(id===page?'active':'')+'" data-action="page" data-page="'+id+'"><span class="ico">'+ico+'</span><span>'+E(name)+'</span></button>').join('');
+}
+function top(){
+  const p=titles[page];$('pageTitle').textContent=p[3];$('pageHint').textContent=p[4];
+  $('vehicleChip').textContent=state.model||'C10 REEV';
+  $('connectionChip').textContent='● '+(state.obdState||'OBD desconectado');
+}
+function home(){
+const gps=fmt(state.gpsSpeed),km=fmt(state.tripKm);
+return '<section class="section"><div class="banner"><div><h3>Bienvenido a C10 Studio</h3><p>Interfaz independiente de UNIT · Funciones locales y aplicaciones compatibles</p></div><span class="pill green">APP INSTALADA</span></div></section>'+
+'<section class="section"><div class="section-head"><h2>Estado y trayecto</h2><small>Valores no disponibles no se inventan</small></div><div class="grid metrics">'+
+panel('<div class="eyebrow">Velocidad · GPS de Android</div><div class="hero-num"><div class="dial">'+E(gps)+'</div><div><div class="big">km/h</div><p>Precisión '+fmt(state.gpsAccuracy,' m')+'</p></div></div><div class="smallline">No es una lectura ECU</div>','moss')+
+panel('<div class="eyebrow">Batería de tracción · SOC</div><div class="big">— <span>%</span></div><p>No conectado a datos BMS del C10</p><div class="meter"><div style="width:0"></div></div>')+
+panel('<div class="eyebrow">Combustible · REEV</div><div class="big">— <span>L</span></div><p>Falta lectura autorizada del vehículo</p><div class="meter"><div style="width:0"></div></div>')+
+'</div></section>'+
+'<section class="section"><div class="section-head"><h2>Acceso rápido</h2><small>Las aplicaciones externas deben estar instaladas o ser compatibles</small></div><div class="apps">'+catalog.slice(0,5).map(appButton).join('')+'</div></section>'+
+'<section class="section"><div class="grid two">'+
+panel('<div class="eyebrow">Trayecto GPS</div><div class="big">'+E(km)+' <span>km</span></div><p>Distancia registrada con la app abierta</p><div class="actions">'+button(state.tracking?'Detener trayecto':'Iniciar trayecto',state.tracking?'stopTrip':'startTrip','primary')+button('Reiniciar','resetTrip','ghost')+'</div>')+
+panel('<div class="eyebrow">Conexiones y permisos</div>'+
+label('OBD2',state.obdState||'Desconectado')+
+label('Ubicación',report.gpsPermission?'Permiso concedido':'Sin permiso')+
+label('Dispositivos USB',fmt(report.usbVisible))+
+'<div class="actions">'+button('Auditar accesos','goAccess','ghost')+button('Conectar OBD2','goObd','ghost')+'</div>')+
+'</div></section>';
+}
+function applications(){
+return '<section class="section"><div class="info"><strong>Modo tablet:</strong> C10 Studio abre aplicaciones que el Android de tu pantalla permita ejecutar. Netflix, Prime Video y Max pueden exigir DRM y certificación; un acceso web no equivale a la aplicación nativa. Vídeo solo estacionado.</div></section>'+
+'<section class="section"><div class="section-head"><h2>Aplicaciones principales</h2><small>Pulsa para iniciar o abrir el sitio compatible</small></div><div class="apps">'+catalog.map(appButton).join('')+'</div></section>'+
+'<section class="section"><div class="section-head"><h2>Aplicaciones Android detectadas</h2><small>Selecciona una para abrirla</small></div>'+
+(apps.length?'<div class="taggrid">'+apps.slice(0,80).map(a=>'<button class="tag" data-action="launch" data-pkg="'+E(a.pkg)+'"><span>'+E(a.name)+'</span><em>Abrir ↗</em></button>').join('')+'</div>':
+'<div class="empty">No se han detectado aplicaciones accesibles o LeapOS no permite consultarlas.</div>')+
+'</section>';
+}
+function projection(){
+return '<section class="section"><div class="grid two">'+
+panel('<div class="eyebrow">Android Auto</div><div class="big">AA <span>PROYECCIÓN</span></div><p>Para recibir la interfaz del móvil se requiere un receptor compatible. C10 Studio no reemplaza el protocolo ni la electrónica del coche.</p><div class="actions">'+button('Abrir UNIT original','unit','primary')+button('Buscar receptores','appsPage','ghost')+'</div>','moss')+
+panel('<div class="eyebrow">Apple CarPlay</div><div class="big">CP <span>iPHONE</span></div><p>CarPlay necesita un receptor, adaptador o integración autorizada. Se puede abrir un receptor instalado, pero no fingir compatibilidad.</p><div class="actions">'+button('Abrir AutoKit','autokit','primary')+button('Abrir Zlink','zlink','ghost')+'</div>')+
+'</div></section><section class="section">'+panel('<h2 style="margin:0 0 12px;font-size:17px">Diagnóstico de conexión</h2>'+
+label('USB Android visibles',fmt(report.usbVisible))+
+label('UNIT instalado',report.app_unit?'Sí':'No detectado')+
+label('AutoKit instalado',report.app_autokit?'Sí':'No detectado')+
+label('Zlink instalado',report.app_zlink?'Sí':'No detectado')+
+'<div class="info">Al conectar el móvil, Android puede cambiar de actividad y ocultar este lanzador. Al volver, C10 Studio conserva la última pantalla abierta. No puede imponerse sobre el sistema de proyección.</div>')+'</section>';
+}
+function telemetry(){
+let speedHistory=history.slice(-36);
+let chart=speedHistory.length>=3?'<div class="chart">'+speedHistory.map(n=>'<span style="height:'+Math.max(3,Math.min(100,n/140*100))+'%"></span>').join('')+'</div>':'<div class="empty">El gráfico comenzará a registrar muestras reales de velocidad GPS al obtener ubicación.</div>';
+return '<section class="section"><div class="grid three">'+
+panel('<div class="eyebrow">Velocidad · GPS</div><div class="big">'+fmt(state.gpsSpeed)+' <span>km/h</span></div><p>Android / fuente GPS</p>')+
+panel('<div class="eyebrow">Distancia medida</div><div class="big">'+fmt(state.tripKm)+' <span>km</span></div><p>Solo con trayecto activado</p>')+
+panel('<div class="eyebrow">Recuperación · batería</div><div class="big">— <span>kWh</span></div><p>Sin telemetría de regeneración real</p>')+
+'</div></section><section class="section"><div class="grid two">'+
+panel('<div class="section-head"><h2>Histórico GPS reciente</h2><small>Últimas muestras de la sesión</small></div>'+chart+
+'<div class="actions">'+button('Permitir ubicación','gps','ghost')+'</div>')+
+panel('<div class="eyebrow">Balance energético real</div>'+label('Energía consumida','No disponible')+label('Energía recuperada','No disponible')+label('Combustible consumido','No disponible')+label('Estado de carga','No disponible')+
+'<div class="footnote">No se estiman kWh ni litros a partir de velocidad para evitar resultados falsos.</div>')+
+'</div></section><section class="section">'+panel('<div class="section-head"><h2>Control del trayecto</h2><small>Registro local</small></div><div class="actions">'+button(state.tracking?'Detener':'Iniciar',state.tracking?'stopTrip':'startTrip','primary large')+button('Reiniciar distancia','resetTrip','ghost large')+'</div>')+'</section>';
+}
+function obd(){
+const obd=state.obd||{},connected=String(state.obdState||'').startsWith('Conectado');
+return '<section class="section"><div class="banner"><div><h3>OBD2 de lectura</h3><p>Funciona con adaptador Bluetooth ELM327 emparejado. No programa centralitas ni modifica el coche.</p></div><span class="pill '+(connected?'green':'amber')+'">'+E(state.obdState||'Desconectado')+'</span></div></section>'+
+'<section class="section"><div class="grid two">'+
+panel('<div class="section-head"><h2>Conectar adaptador</h2><small>Bluetooth SPP</small></div>'+
+'<p class="boxlabel">Dispositivos ya emparejados en Android</p>'+
+'<select class="select" id="obdSelect">'+(paired.length?paired.map(d=>'<option value="'+E(d.address)+'">'+E(d.name)+' · '+E(d.address)+'</option>').join(''):'<option value="">Ningún dispositivo emparejado</option>')+'</select>'+
+'<div class="actions">'+button('Solicitar Bluetooth','bluetooth','ghost')+button('Actualizar lista','refresh','ghost')+button('Conectar','connectObd','primary')+button('Desconectar','disconnectObd','ghost')+'</div>'+
+'<div class="footnote">Si la pantalla del C10 impide emparejar dispositivos, utiliza un Android compatible como puente. Los datos dependen de los PID que admita la ECU.</div>')+
+panel('<div class="section-head"><h2>Lecturas del ELM327</h2><small>Solo PID OBD estándar</small></div>'+
+label('Velocidad ECU',fmt(obd.speed,' km/h'))+label('Revoluciones motor',fmt(obd.rpm,' rpm'))+
+label('Temperatura refrigerante',fmt(obd.coolantC,' °C'))+
+label('Nivel de combustible',fmt(obd.fuelPct,' %'))+
+label('Caudal combustible',fmt(obd.fuelLph,' L/h'))+
+'<div class="footnote">'+E(obd.source||'Sin datos OBD recibidos')+'</div>')+
+'</div></section><section class="section"><div class="info"><strong>REEV:</strong> este método no garantiza batería de tracción, potencia eléctrica, regeneración, TPMS, puertas o cámaras. Esos datos requieren PID específicos documentados, autorización y pruebas reales.</div></section>';
+}
+function access(){
+const item=(title,val,real)=>'<div class="tag"><span>'+E(title)+'</span><em class="'+(real?'y':'')+'">'+E(val)+'</em></div>';
+return '<section class="section"><div class="section-head"><h2>Mapa de capacidades detectadas</h2><small>Lectura local de permisos, servicios y apps</small></div><div class="taggrid">'+
+item('API de Android','API '+(report.api||'—'),true)+
+item('Conectividad internet',report.online?'Conectado':'No confirmada',!!report.online)+
+item('GPS Android',report.gpsPermission?'Permiso concedido':'Permiso pendiente',report.gpsPermission)+
+item('Bluetooth',report.bluetoothPermission?'Permiso disponible':'Pendiente',report.bluetoothPermission)+
+item('USB visibles',fmt(report.usbVisible),typeof report.usbVisible==='number')+
+item('Cámaras expuestas por Android',fmt(report.androidCameraCount),typeof report.androidCameraCount==='number'&&report.androidCameraCount>0)+
+item('Sensores Android',fmt(report.androidSensors),typeof report.androidSensors==='number')+
+item('Widevine DRM',report.widevine||'Sin comprobar',!!report.widevine && report.widevine!=='No detectado')+
+item('Bus CAN interno',report.canBus||'No confirmado',false)+
+item('Batería de tracción', 'Sin acceso ECU',false)+
+item('Combustible REEV', 'Sin acceso ECU',false)+
+item('TPMS / neumáticos',report.tpms||'No confirmado',false)+
+item('Puertas y ventanas',report.doors||'No confirmado',false)+
+item('Cámaras 360° del C10',report.vehicleCameras||'No confirmado',false)+
+item('Radares / ADAS','Sin acceso confirmado',false)+
+item('OBD2 externo',state.obdState||'Desconectado',String(state.obdState||'').startsWith('Conectado'))+
+'</div></section><section class="section"><div class="grid two">'+
+panel('<div class="section-head"><h2>Informe técnico</h2></div><p>Para estudiar qué acceso tiene realmente esta APK al sistema, copia este informe. No incluye credenciales ni localización.</p><div class="actions">'+button('Actualizar diagnóstico','refresh','primary')+button('Mostrar informe','showReport','ghost')+'</div>')+
+panel('<div class="section-head"><h2>Procedencia de los datos</h2></div>'+label('GPS','Android')+label('OBD2','ELM327 externo')+label('Batería / BMS','No disponible')+label('Cámaras del vehículo','No disponible')+
+'<div class="footnote">Detectar una cámara Android no demuestra acceso a la cámara de aparcamiento.</div>')+
+'</div></section><section class="section hide" id="reportContainer"><div class="raw" id="reportRaw"></div></section>';
+}
+function updates(){
+const desc=update.status==='available'?'Nueva versión: '+E(update.version||''):
+update.status==='current'?'Versión actual confirmada':E(update.message||'Consulta el canal oficial');
+return '<section class="section"><div class="grid two">'+
+panel('<div class="eyebrow">Versión instalada</div><div class="big">'+E(state.version||'1.0.0')+'</div><p>Paquete propio: es.leapmotorguia.c10studio</p>'+
+'<div class="actions">'+button('Buscar actualización','checkUpdates','primary')+'</div>','moss')+
+panel('<div class="eyebrow">Estado del servidor</div><div class="big" style="font-size:23px">'+E(update.status==='available'?'Nueva versión':update.status==='current'?'Actualizada':'Por comprobar')+'</div><p>'+desc+'</p>'+
+'<div class="actions">'+button('Descargar e instalar','downloadUpdate','primary',''+(update.status==='available'?'':'disabled'))+'</div>')+
+'</div></section><section class="section">'+panel('<div class="section-head"><h2>Instalar actualización descargada</h2><small>Instalador Android oficial</small></div><p>Si ya tienes un APK firmado con el mismo certificado, puedes seleccionarlo. No hace falta desinstalar C10 Studio cuando Android autorice la actualización.</p>'+
+'<div class="actions">'+button('Elegir APK del dispositivo','chooseApk','ghost')+'</div>'+
+'<div class="info" style="margin-top:14px">El sistema LeapOS puede bloquear instaladores de terceros. C10 Studio nunca realiza instalaciones silenciosas ni elude esa protección.</div>')+'</section>';
+}
+function settings(){
+const models=['C10 REEV','C10 BEV','C10 BEV AWD','B10 BEV','B10 REEV','B05 BEV','T03 BEV','Otro modelo'];
+return '<section class="section"><div class="grid two">'+
+panel('<div class="section-head"><h2>Mi coche</h2></div><p class="boxlabel">Perfil visual (no cambia la configuración del vehículo)</p><select class="select" id="modelSelect">'+models.map(m=>'<option '+((state.model||'C10 REEV')===m?'selected':'')+'>'+E(m)+'</option>').join('')+'</select>'+
+'<div class="actions">'+button('Guardar modelo','saveModel','primary')+'</div>')+
+panel('<div class="section-head"><h2>Estado de la aplicación</h2></div>'+label('Versión',state.version||'1.0.0')+
+label('Sistema',state.device||'Android')+label('Versión Android','API '+(state.sdk||'—'))+
+label('Persistencia','Local, sin cuenta')+
+'<div class="actions">'+button('Comprobar accesos','goAccess','ghost')+'</div>')+
+'</div></section><section class="section">'+panel('<h2 style="margin:0 0 7px;font-size:16px">Funcionamiento</h2>'+
+'<p>Interfaz a pantalla completa compatible con Android que permita instalarla. Las aplicaciones de terceros se ejecutan fuera de esta pantalla y vuelves aquí al regresar.</p>'+
+'<p>Para una actualización se conserva siempre el mismo nombre de paquete y certificado. El vehículo debe permitir el instalador oficial.</p>')+'</section>';
+}
+const content={home,apps:applications,projection,telemetry,obd,access,updates,settings};
+function render(){menu();top();$('view').innerHTML=(content[page]||home)();}
+function toast(text){const t=$('toast');t.textContent=text;t.style.display='block';clearTimeout(messageTimeout);messageTimeout=setTimeout(()=>t.style.display='none',3500);}
+const actionHandlers={
+  page:e=>navigate(e.getAttribute('data-page')),
+  goAccess:()=>navigate('access'),goObd:()=>navigate('obd'),appsPage:()=>navigate('apps'),
+  refresh:refreshNative,showReport:()=>{const area=$('reportContainer'),raw=$('reportRaw');if(area&&raw){area.classList.remove('hide');raw.textContent=JSON.stringify(report,null,2);}},
+  gps:()=>N.permissionGps(),bluetooth:()=>N.permissionBluetooth(),
+  unit:()=>N.launchApp('com.tencent.qqmusiccar'),
+  autokit:()=>N.launchApp('com.autokit'),zlink:()=>N.launchApp('com.zjinnova.zlink'),
+  launch:e=>N.launchApp(e.getAttribute('data-pkg')),
+  openApp:e=>{const pkg=e.getAttribute('data-pkg'),url=e.getAttribute('data-url');
+    if(apps.some(a=>a.pkg===pkg)){N.launchApp(pkg);}
+    else if(url)N.openUrl(url);else toast('Aplicación no disponible en este Android');
+  },
+  connectObd:()=>{const val=$('obdSelect')?.value;if(val){N.connectObd(val);toast('Conectando al adaptador Bluetooth...');}else toast('Primero empareja tu adaptador OBD2');},
+  disconnectObd:()=>{N.disconnectObd();toast('Desconectando...');},
+  startTrip:()=>N.track('start'),stopTrip:()=>N.track('stop'),resetTrip:()=>N.track('reset'),
+  checkUpdates:()=>{update={status:'checking',message:'Consultando canal...'};render();N.checkUpdates();},
+  downloadUpdate:()=>N.installUpdate(),chooseApk:()=>N.chooseApk(),
+  saveModel:()=>{const model=$('modelSelect')?.value;if(model){N.setModel(model);state.model=model;render();toast('Perfil de visualización guardado');}}
+};
+document.addEventListener('click',e=>{
+const el=e.target.closest('[data-action]');if(!el)return;
+const act=el.getAttribute('data-action');if(actionHandlers[act])actionHandlers[act](el);
+});
+window.C10={receive(event,payload){
+if(event==='tick'){state=payload||{};favorites=safeFavs();if(typeof state.gpsSpeed==='number'){
+  history.push(state.gpsSpeed);if(history.length>72)history.shift();
+}render();}
+if(event==='toast'){toast(payload?.text||'Información');}
+if(event==='obd'){state.obd=payload||{};render();}
+if(event==='obdError'){toast('OBD: '+(payload?.text||'Error de conexión'));}
+if(event==='update'){update=payload||{};render();if(update.status==='error')toast(update.message);}
+}};
+function clock(){const d=new Date();$('clock').textContent=d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});$('date').textContent=d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});}
+clock();setInterval(clock,15000);refreshNative();
+})();
+</script></body></html>
