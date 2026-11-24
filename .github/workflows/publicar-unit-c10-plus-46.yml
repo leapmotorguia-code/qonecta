@@ -1,0 +1,64 @@
+name: Publicar UNIT C10 Plus 4.6 compatibilidad
+on:
+  push:
+    branches: ["feature/unit-45-cockpit-merge"]
+    paths: [".github/workflows/publicar-unit-c10-plus-46.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Recuperar exactamente la APK ya firmada
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 2 --connect-timeout 15 --max-time 300 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/b3450308-a542-4226-a895-89541056016f-unit-c10-46-part1.bin" -o p1.bin
+          curl -fL --retry 2 --connect-timeout 15 --max-time 300 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/c138ed79-8280-4e02-86f8-73763b85e833-unit-c10-46-part2.bin" -o p2.bin
+          echo "7703ff17a66f4a6dc95c188dc740f828b47bfa4b4103c62bdf50def230525bcf  p1.bin" | sha256sum -c
+          echo "1350572aa66158513148242467d5af5cd00f1b66b374463681c6d7b2ee6f5bd7  p2.bin" | sha256sum -c
+          cat p1.bin p2.bin > UNIT-C10-Plus-4.6-COMPATIBILIDAD.apk
+          test "$(stat -c%s UNIT-C10-Plus-4.6-COMPATIBILIDAD.apk)" = 44253330
+          echo "3125da5d7f3a54998872a239569aff99f86cb60f5a9b38f24e12b84d4084ee3e  UNIT-C10-Plus-4.6-COMPATIBILIDAD.apk" | sha256sum -c
+          unzip -tq UNIT-C10-Plus-4.6-COMPATIBILIDAD.apk
+      - name: Publicar archivo inmutable y verificar descarga
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG=unit-c10-plus-4.6-compatibilidad
+          APK=UNIT-C10-Plus-4.6-COMPATIBILIDAD.apk
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" "$APK" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "UNIT C10 Plus 4.6 · Prueba de compatibilidad" --notes "Base 4.5 sin cambios de código, versión interna 470, firmas v1 y v2 con el certificado de 4.3. Prueba de instalación, no confirmada en LeapOS. Código de mejoras previo en feature/unit-basada-en-08-estable y feature/unit-c10-4-5-1-installer-resume. Licencia AGPL/GPL, créditos originales conservados. Uso estacionado." --latest=false
+          fi
+          mkdir -p checked
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$APK" --dir checked
+          echo "3125da5d7f3a54998872a239569aff99f86cb60f5a9b38f24e12b84d4084ee3e  checked/$APK" | sha256sum -c
+      - name: Activar actualización solo tras verificar el archivo publicado
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          API="repos/$GITHUB_REPOSITORY/contents/updates/unit-c10-plus.json"
+          gh api "$API?ref=main" > old.json
+          jq -r '.content' old.json | base64 -d > previous.json
+          jq -e '.packageName=="com.tencent.qqmusiccar" and .signerSha256=="6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6" and .versionCode<=470' previous.json
+          cat > manifest.json <<'EOF'
+          {
+            "schema": 1,
+            "channel": "stable",
+            "published": true,
+            "packageName": "com.tencent.qqmusiccar",
+            "versionCode": 470,
+            "versionName": "4.6-base08-compatibilidad",
+            "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-4.6-compatibilidad/UNIT-C10-Plus-4.6-COMPATIBILIDAD.apk",
+            "sha256": "3125da5d7f3a54998872a239569aff99f86cb60f5a9b38f24e12b84d4084ee3e",
+            "signerSha256": "6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6",
+            "notes": "Prueba de instalación: código de 4.5 conservado, firma original v1 y v2, bibliotecas alineadas. No confirma compatibilidad de LeapOS; instalar estacionado."
+          }
+          EOF
+          gh api --method PUT "$API" -f branch=main -f message="Publicar actualización 4.6 verificada" -f sha="$(jq -r .sha old.json)" -f content="$(base64 -w0 manifest.json)" --jq '.commit.sha'
