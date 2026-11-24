@@ -2,7 +2,7 @@ name: C10 Plus - módulo para APK original UNIT
 
 on:
   push:
-    branches: [feature/c10plus-tu-apk-unit-nativa, feature/unit-basada-en-08-estable, feature/unit-c10-4-5-1-installer-resume]
+    branches: [feature/c10plus-tu-apk-unit-nativa, feature/unit-basada-en-08-estable, feature/unit-c10-4-5-1-installer-resume, feature/unit-45-cockpit-merge]
   workflow_dispatch:
 
 permissions:
