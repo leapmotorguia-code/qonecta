@@ -299,11 +299,11 @@ public final class C10NativeHubActivity extends Activity {
         // verifies the package identity and signing certificate before allowing update.
         boolean opened=false;
         String reason="No hay instalador Android disponible";
-        for(String action:new String[]{Intent.ACTION_INSTALL_PACKAGE,Intent.ACTION_VIEW}) {
+        for(String action:new String[]{Intent.ACTION_VIEW}) {
             try {
                 Intent install=new Intent(action);
                 install.setDataAndType(uri,"application/vnd.android.package-archive");
-                install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(install);
                 opened=true;
                 Toast.makeText(this,"Confirma la instalación si LeapOS la autoriza",Toast.LENGTH_LONG).show();
