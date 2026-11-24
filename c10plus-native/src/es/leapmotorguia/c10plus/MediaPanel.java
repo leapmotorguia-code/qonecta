@@ -29,14 +29,15 @@ final class MediaPanel {
    Entry(String k,String[] f){kind=k;country=f[0];category=f[1];name=f[2];url=f[3];web=f[4];note=f[5];key=k+"|"+country+"|"+category+"|"+name;}
    public String toString(){return name+"  ·  "+country+"  ·  "+category;}
  }
- final Activity a; final LinearLayout root; final String mode; final Stationary stationary;
+ final Activity a; final LinearLayout root; final String mode; final Stationary stationary; final boolean tablet;
  final SharedPreferences prefs; final Set<String> favorites; final ArrayList<Entry> all=new ArrayList<>(), visible=new ArrayList<>();
  final RadioAudio radio; final Handler handler=new Handler(Looper.getMainLooper());
  final TextView status,count; final EditText search; final Spinner country; final CheckBox onlyFavorites;
  final ListView list; final ArrayAdapter<String> adapter; final FrameLayout playerSlot;
  VideoView video; WebView browser; Runnable timeout; boolean closed,videoActive;
- MediaPanel(Activity a,LinearLayout root,String mode,Stationary stationary){
-   this.a=a;this.root=root;this.mode=mode;this.stationary=stationary;
+ MediaPanel(Activity a,LinearLayout root,String mode,Stationary stationary){this(a,root,mode,stationary,false);}
+ MediaPanel(Activity a,LinearLayout root,String mode,Stationary stationary,boolean tablet){
+   this.a=a;this.root=root;this.mode=mode;this.stationary=stationary;this.tablet=tablet;
    prefs=a.getSharedPreferences("c10plus_media_favorites",Context.MODE_PRIVATE);
    favorites=new HashSet<>(prefs.getStringSet("saved",Collections.emptySet()));
    radio=new RadioAudio(a);
@@ -73,7 +74,8 @@ final class MediaPanel {
  void select(Entry e){
    stop();
    if(e.kind.equals("radio")){if(https(e.url)){radio.play(e.name,e.url);status.setText(radio.status());}else status.setText("Esta emisora no tiene un enlace de audio HTTPS compatible.");return;}
-   if(!stationary.allowed()){status.setText("TV: se necesita una lectura UNIT de vehículo detenido. Si no está disponible, no se inicia vídeo.");return;}
+   if(!stationary.allowed()){status.setText(tablet?"Multimedia tablet no disponible en este momento.":"TV: se necesita una lectura UNIT de vehículo detenido. Si no está disponible, no se inicia vídeo.");return;}
+   if(tablet){playVideo(e);return;}
    new AlertDialog.Builder(a).setTitle(e.name).setMessage("Confirma que el coche está estacionado. Algunos canales requieren su web oficial o están limitados por país.").setPositiveButton("Estacionado",(d,w)->{if(!closed&&stationary.allowed())playVideo(e);}).setNegativeButton("Cancelar",null).show();
  }
  void playVideo(Entry e){
@@ -86,7 +88,7 @@ final class MediaPanel {
  void offerWeb(Entry e){if(!closed&&https(e.web)&&stationary.allowed())new AlertDialog.Builder(a).setMessage("¿Abrir la web oficial de "+e.name+"?").setPositiveButton("Abrir",(d,w)->{if(!closed&&stationary.allowed()){stop();videoActive=true;playerSlot.setVisibility(View.VISIBLE);openWeb(e);}}).setNegativeButton("Cancelar",null).show();}
  void openWeb(Entry e){try{browser=new WebView(a);browser.getSettings().setJavaScriptEnabled(true);browser.getSettings().setDomStorageEnabled(true);browser.getSettings().setAllowFileAccess(false);browser.getSettings().setAllowContentAccess(false);browser.getSettings().setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW);browser.setWebViewClient(new WebViewClient(){@Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){return !https(r.getUrl().toString());}});playerSlot.addView(browser,new FrameLayout.LayoutParams(-1,-1));browser.loadUrl(e.web);status.setText("Web oficial: "+e.name+" · DRM según proveedor");}catch(Exception ex){stop();status.setText("Web no disponible: "+e.name);}}
  void cancelTimeout(){if(timeout!=null){handler.removeCallbacks(timeout);timeout=null;}}
- void refresh(){if(closed)return;if(videoActive){if(!stationary.allowed()){stop();status.setText("TV detenida: movimiento o lectura de velocidad no disponible.");}}else if(!radio.status().equals("Radio detenida"))status.setText(radio.status());}
+ void refresh(){if(closed)return;if(videoActive){if(!stationary.allowed()){stop();status.setText(tablet?"TV detenida: dispositivo fuera del modo tablet.":"TV detenida: movimiento o lectura de velocidad no disponible.");}}else if(!radio.status().equals("Radio detenida"))status.setText(radio.status());}
  void stop(){cancelTimeout();radio.stop();videoActive=false;if(video!=null){VideoView v=video;video=null;try{v.stopPlayback();}catch(Exception ignored){}}if(browser!=null){WebView w=browser;browser=null;try{w.stopLoading();w.loadUrl("about:blank");playerSlot.removeView(w);w.destroy();}catch(Exception ignored){}}playerSlot.removeAllViews();playerSlot.setVisibility(View.GONE);status.setText("Reproducción detenida");}
  void close(){closed=true;stop();}
 }
