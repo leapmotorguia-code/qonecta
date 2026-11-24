@@ -1,0 +1,2 @@
+import com.leapmotorguia.c10control.TripMeter;
+public class TripMeterTest { public static void main(String[] args){TripMeter t=new TripMeter();t.start();t.sample(0,36);t.sample(1000,36);if(!t.summary().contains("0.01 km"))throw new AssertionError(t.summary());t.sample(20000,36);if(!t.summary().contains("0.01 km"))throw new AssertionError(t.summary());t.pause();t.sample(21000,100);if(t.summary().contains("100.0 km/h"))throw new AssertionError();System.out.println("3 pruebas viaje GPS correctas");}}
