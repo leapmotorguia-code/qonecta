@@ -1,0 +1,64 @@
+name: Publicar UNIT C10 Plus 4.8 multimedia
+on:
+  push:
+    branches: ["feature/unit-45-cockpit-merge"]
+    paths: [".github/workflows/publicar-unit-c10-plus-48.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Recuperar APK firmada y comprobar integridad
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 2 --connect-timeout 15 --max-time 300 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/4afeb7ac-a677-4629-b424-f2afcabce1ba-unit-c10-48-part1.bin" -o p1.bin
+          curl -fL --retry 2 --connect-timeout 15 --max-time 300 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/3571a720-7cf0-4906-b436-82aeb3e78fc9-unit-c10-48-part2.bin" -o p2.bin
+          echo "4328446098cf45b5f2df71f7b4b6730a90cfebf3493f5ca2836bdd93a63b1ecd  p1.bin" | sha256sum -c
+          echo "43b1c0a0057a1a84179be00d027a0bb0ee1d770e4eda39950729f95837109ff5  p2.bin" | sha256sum -c
+          cat p1.bin p2.bin > UNIT-C10-Plus-4.8-MULTIMEDIA.apk
+          test "$(stat -c%s UNIT-C10-Plus-4.8-MULTIMEDIA.apk)" = 44315313
+          echo "0da5c8b6b9600a4933e6921ca72acacbe4c429aaaa4d520af29a62de030c30b7  UNIT-C10-Plus-4.8-MULTIMEDIA.apk" | sha256sum -c
+          unzip -tq UNIT-C10-Plus-4.8-MULTIMEDIA.apk
+      - name: Publicar y verificar descarga
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG=unit-c10-plus-4.8-multimedia
+          APK=UNIT-C10-Plus-4.8-MULTIMEDIA.apk
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" "$APK" --repo "$GITHUB_REPOSITORY" --target 5b50a4eb35a152d3589186444aa8286f33d19c0f --title "UNIT C10 Plus 4.8 · Radio, TDT y favoritos" --notes "Prueba sobre la base 4.7 confirmada por el usuario. Código fuente del módulo: commit 5b50a4eb35a152d3589186444aa8286f33d19c0f. 949 entradas de radio, 766 de TV, búsqueda y favoritos. Catálogos TDTChannels Apache 2.0; avisos incluidos. Reproducción y actualización directa pendientes de prueba en el coche. Algunas emisiones requieren web, cuenta o ubicación. TV solo estacionado con lectura reciente de velocidad. Mantiene firma original y motor UNIT." --prerelease --latest=false
+          fi
+          mkdir -p checked
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$APK" --dir checked
+          echo "0da5c8b6b9600a4933e6921ca72acacbe4c429aaaa4d520af29a62de030c30b7  checked/$APK" | sha256sum -c
+      - name: Activar actualización después de verificar publicación
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          API="repos/$GITHUB_REPOSITORY/contents/updates/unit-c10-plus.json"
+          gh api "$API?ref=main" > old.json
+          jq -r '.content' old.json | base64 -d > previous.json
+          jq -e '.packageName=="com.tencent.qqmusiccar" and .signerSha256=="6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6" and .versionCode<=490' previous.json
+          cat > manifest.json <<'EOF'
+          {
+            "schema": 1,
+            "channel": "stable",
+            "published": true,
+            "packageName": "com.tencent.qqmusiccar",
+            "versionCode": 490,
+            "versionName": "4.8-base08-actualizador",
+            "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-4.8-multimedia/UNIT-C10-Plus-4.8-MULTIMEDIA.apk",
+            "sha256": "0da5c8b6b9600a4933e6921ca72acacbe4c429aaaa4d520af29a62de030c30b7",
+            "signerSha256": "6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6",
+            "notes": "4.8 prueba: Radio+ 949 emisoras, TDT+ 766 canales, búsqueda, filtro por país y favoritos. Conserva 4.7 y su actualizador corregido. Emisiones y actualización directa pendientes de validar en LeapOS. Instalar estacionado."
+          }
+          EOF
+          gh api --method PUT "$API" -f branch=main -f message="Publicar actualización 4.8 multimedia verificada" -f sha="$(jq -r .sha old.json)" -f content="$(base64 -w0 manifest.json)" --jq '.commit.sha'
