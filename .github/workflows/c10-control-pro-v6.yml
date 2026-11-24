@@ -1,4 +1,4 @@
-name: C10 Control Pro 6.0 - APK
+name: C10 Control Pro 6.1 - APK
 on:
   push:
     branches: ['feature/c10-control-pro-v6-propio']
@@ -29,14 +29,14 @@ jobs:
           gradle --no-daemon --console=plain assembleCoche
       - name: Verify signed APK
         run: |
-          cp c10-control-pro-2.0/app/build/outputs/apk/coche/app-coche.apk C10-Control-Pro-6.0-PRUEBA.apk
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs C10-Control-Pro-6.0-PRUEBA.apk
-          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging C10-Control-Pro-6.0-PRUEBA.apk
-          sha256sum C10-Control-Pro-6.0-PRUEBA.apk
+          cp c10-control-pro-2.0/app/build/outputs/apk/coche/app-coche.apk C10-Control-Pro-6.1-PRUEBA.apk
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs C10-Control-Pro-6.1-PRUEBA.apk
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging C10-Control-Pro-6.1-PRUEBA.apk
+          sha256sum C10-Control-Pro-6.1-PRUEBA.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: C10-Control-Pro-6.0-PRUEBA
-          path: C10-Control-Pro-6.0-PRUEBA.apk
+          name: C10-Control-Pro-6.1-PRUEBA
+          path: C10-Control-Pro-6.1-PRUEBA.apk
           if-no-files-found: error
           retention-days: 14
       - name: Lint
