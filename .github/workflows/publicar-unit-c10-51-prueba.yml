@@ -1,0 +1,44 @@
+name: Publicar UNIT C10 Plus 5.1 prueba
+on:
+  push:
+    branches: ["fix/unit-c10-installer-action-view"]
+    paths: [".github/workflows/publicar-unit-c10-51-prueba.yml"]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Reconstruir APK exacta y verificar
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release download unit-c10-plus-5.0-prueba --repo "$GITHUB_REPOSITORY" --pattern UNIT-C10-Plus-5.0-PRUEBA.apk
+          curl -fL --retry 2 --max-time 60 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/49968983-7a07-4e8f-9052-8b475facc0c3-unit-c10-51-delta.json.gz" -o patch.json.gz
+          echo "d084694b35b6e50f8683e7d6096202040dd62dbb2f270385051eff704afc12e9  patch.json.gz" | sha256sum -c
+          python3 - <<'PY'
+          import pathlib,gzip,json,hashlib,base64
+          b=pathlib.Path("UNIT-C10-Plus-5.0-PRUEBA.apk").read_bytes()
+          r=json.loads(gzip.decompress(pathlib.Path("patch.json.gz").read_bytes()))
+          assert hashlib.sha256(b).hexdigest()==r["base_sha256"]=="b7c972a361983f8041d1a539cf40fcc25dc77e980f8df7a671a4fc1a1963c60e"
+          out=b"".join(base64.b64decode(p["literal"],validate=True) if "literal" in p else b[p["offset"]:p["offset"]+p["length"]] for p in r["pieces"])
+          assert len(out)==44318994 and hashlib.sha256(out).hexdigest()=="966bdf3a360b0c258a1691db192aa2ba010dc48ddcf98a1fc89c8f560101b497"
+          pathlib.Path("UNIT-C10-Plus-5.1-PRUEBA.apk").write_bytes(out)
+          PY
+          unzip -tq UNIT-C10-Plus-5.1-PRUEBA.apk
+          SIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)"
+          "$SIGNER" verify --verbose --print-certs UNIT-C10-Plus-5.1-PRUEBA.apk | tee sig.txt
+          grep -q 'Verified using v2 scheme.*true' sig.txt
+          grep -qi '6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6' sig.txt
+          "$(dirname "$SIGNER")/zipalign" -c -P 16 4 UNIT-C10-Plus-5.1-PRUEBA.apk
+      - name: Publicar prueba
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create unit-c10-plus-5.1-prueba UNIT-C10-Plus-5.1-PRUEBA.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "UNIT C10 Plus 5.1 · Catálogo TDT" --notes "Clasificación aproximada por país y género, filtros combinados. Conserva 766 canales, 949 radios, favoritos y protección de vídeo en vehículo. Compilado y firmado; pendiente prueba física. Canal estable sin cambios." --prerelease --latest=false
+          mkdir checked
+          gh release download unit-c10-plus-5.1-prueba --repo "$GITHUB_REPOSITORY" --pattern UNIT-C10-Plus-5.1-PRUEBA.apk --dir checked
+          echo "966bdf3a360b0c258a1691db192aa2ba010dc48ddcf98a1fc89c8f560101b497  checked/UNIT-C10-Plus-5.1-PRUEBA.apk" | sha256sum -c
