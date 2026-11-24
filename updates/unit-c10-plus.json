@@ -3,10 +3,10 @@
   "channel": "stable",
   "published": true,
   "packageName": "com.tencent.qqmusiccar",
-  "versionCode": 450,
-  "versionName": "4.4-base08-actualizador",
-  "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-4.4-base08/UNIT-C10-Plus-4.4-ACTUALIZACION-COMPLETA.apk",
-  "sha256": "5854359c94b3e7b36156c24d7c1a92acbdeb6c12865727b79bbcacc28ddc075b",
+  "versionCode": 470,
+  "versionName": "4.6-base08-compatibilidad",
+  "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-4.6-compatibilidad/UNIT-C10-Plus-4.6-COMPATIBILIDAD.apk",
+  "sha256": "3125da5d7f3a54998872a239569aff99f86cb60f5a9b38f24e12b84d4084ee3e",
   "signerSha256": "6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6",
-  "notes": "UNIT C10 Plus 4.4: diagnóstico de inicio, alertas si falla la integración, Radio/TV y mejoras previas. Actualizable sobre la 4.3 firmada con el mismo certificado. Sin verificación física de Android Auto/CarPlay."
+  "notes": "Prueba de instalación: código de 4.5 conservado, firma original v1 y v2, bibliotecas alineadas. No confirma compatibilidad de LeapOS; instalar estacionado."
 }
