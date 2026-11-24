@@ -64,6 +64,11 @@ public final class C10NativeHubActivity extends Activity {
     private boolean opening;
     private boolean initSetup;
     private boolean hadVisibleUnitOnPause;
+    private boolean foreground;
+    private MediaPanel tabletMedia;
+    private boolean tabletShowing;
+    private LinearLayout homeRoot;
+    private final Runnable restoreCheck = () -> checkIntegration();
     private static final String SETUP_PREFS = "c10plus_native_onboarding";
     private static final int REQUEST_APK = 7311;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -77,7 +82,7 @@ public final class C10NativeHubActivity extends Activity {
         root.setPadding(24,24,24,24);
         root.setBackgroundColor(0xff07141e);
         TextView heading = new TextView(this);
-        heading.setText("UNIT C10 Plus 4.5 · Integración y actualizaciones");
+        heading.setText("UNIT C10 Plus 5.0 · Integración y actualizaciones");
         heading.setTextColor(0xff04e2bd);
         heading.setTextSize(25);
         heading.setGravity(Gravity.CENTER);
@@ -87,7 +92,7 @@ public final class C10NativeHubActivity extends Activity {
         status.setTextSize(16);
         status.setGravity(Gravity.CENTER);
         status.setPadding(12,20,12,20);
-        status.setText("Versión 4.5 · Iniciando la integración con UNIT...");
+        status.setText("Versión 5.0 · Iniciando la integración con UNIT...");
         root.addView(status);
         Button retry = new Button(this);
         retry.setText("Recuperar nuestras pantallas / Abrir UNIT");
@@ -106,10 +111,18 @@ public final class C10NativeHubActivity extends Activity {
         });
         root.addView(original);
         Button diagnostic=new Button(this);
-        diagnostic.setText("Diagnóstico de integración 4.5");
+        diagnostic.setText("Diagnóstico de integración 5.0");
         diagnostic.setOnClickListener(v->showStartupDiagnostic());
         root.addView(diagnostic);
+        homeRoot=root;
+        if (isStandaloneTablet()) {
+            Button tablet=new Button(this);
+            tablet.setText("Multimedia tablet · TDT / Radio / Favoritos");
+            tablet.setOnClickListener(v->openTabletMedia("tv"));
+            root.addView(tablet);
+        }
         setContentView(root);
+        if(isStandaloneTablet()) { status.setText("Tablet Android identificada · multimedia independiente"); return; }
         // Upgrades from 3.x also see the onboarding once; users may reopen it any time.
         if (!getSharedPreferences(SETUP_PREFS,MODE_PRIVATE).getBoolean("finished",false)) {
             handler.postDelayed(() -> showSetup(0), 200);
@@ -320,6 +333,39 @@ public final class C10NativeHubActivity extends Activity {
      * Does not force itself above Android Auto or CarPlay; runs only after
      * the user has returned to this Activity and explicitly tapped restore.
      */
+    /** Only positively identified consumer tablets; unknown devices and vehicle units are never treated as tablets. */
+    private boolean isStandaloneTablet() {
+        android.content.pm.PackageManager pm=getPackageManager();
+        android.app.UiModeManager ui=(android.app.UiModeManager)getSystemService(Context.UI_MODE_SERVICE);
+        if(pm.hasSystemFeature("android.hardware.type.automotive") || ui==null || ui.getCurrentModeType()==android.content.res.Configuration.UI_MODE_TYPE_CAR || pm.hasSystemFeature("android.software.leanback")) return false;
+        if(getResources().getConfiguration().smallestScreenWidthDp<600 || !pm.hasSystemFeature("android.hardware.touchscreen")) return false;
+        String brand=android.os.Build.MANUFACTURER.toLowerCase(Locale.ROOT),model=android.os.Build.MODEL.toUpperCase(Locale.ROOT);
+        return (brand.equals("samsung")&&(model.startsWith("SM-X")||model.startsWith("SM-T"))) || (brand.equals("lenovo")&&(model.startsWith("TB-")||model.startsWith("LENOVO TB"))) || (brand.equals("google")&&model.equals("PIXEL TABLET")) || (brand.equals("xiaomi")&&(model.contains("PAD")||model.startsWith("23043RP34")||model.startsWith("24018RPAC"))) || (brand.equals("huawei")&&(model.startsWith("BAH")||model.startsWith("DBY")||model.startsWith("AGS")));
+    }
+    private void openTabletMedia(String mode) {
+        if(!isStandaloneTablet() || !foreground || isFinishing())return;
+        if(tabletMedia!=null)tabletMedia.close();
+        if(bridge!=null){bridge.dispose();bridge=null;}
+        if(nativeDialog!=null){nativeDialog.dismiss();nativeDialog=null;}
+        tabletShowing=true;
+        LinearLayout page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(0xff07141e);
+        LinearLayout tabs=new LinearLayout(this);
+        String[] modes={"tv","radio","favorites","home"};String[] names={"TDT+","Radio+","Favoritos","Volver"};
+        for(int i=0;i<modes.length;i++){final String m=modes[i];Button b=new Button(this);b.setText(names[i]);b.setOnClickListener(v->{if(m.equals("home")){if(tabletMedia!=null)tabletMedia.close();tabletMedia=null;tabletShowing=false;setContentView(homeRoot);}else openTabletMedia(m);});tabs.addView(b,new LinearLayout.LayoutParams(0,-2,1));}
+        page.addView(tabs);setContentView(page);
+        tabletMedia=new MediaPanel(this,page,mode,()->foreground&&tabletShowing&&!isFinishing()&&isStandaloneTablet(),true);
+    }
+    private void checkIntegration(){
+        if(!foreground||isFinishing()||isDestroyed()||opening||tabletShowing||initSetup)return;
+        if(nativeDialog==null||!nativeDialog.isShowing()) {if(hadVisibleUnitOnPause){hadVisibleUnitOnPause=false;restoreNative();}return;}
+        if(nativeDialog.getWindow()==null)return;
+        View hub=findHub(nativeDialog.getWindow().getDecorView());
+        if(hub instanceof ViewGroup && (bridge==null||!bridge.isAttachedTo((ViewGroup)hub))){
+            if(bridge!=null){bridge.dispose();bridge=null;}
+            attachNative(nativeDialog,0);
+        }
+        handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,1500);
+    }
     private void restoreNative() {
         try { if (bridge != null) bridge.dispose(); } catch(Throwable ignored){}
         bridge = null;
@@ -332,7 +378,7 @@ public final class C10NativeHubActivity extends Activity {
     }
 
     private void openNative() {
-        if (opening || (nativeDialog != null && nativeDialog.isShowing())) return;
+        if (!foreground || isFinishing() || tabletShowing || opening || (nativeDialog != null && nativeDialog.isShowing())) return;
         opening = true;
         try {
             Class<?> cls = Class.forName("com.headqlink.unit.extended.ExtendedHubView");
@@ -382,11 +428,13 @@ public final class C10NativeHubActivity extends Activity {
      * switching away from our own Activity. Does not claim which app took focus.
      */
     @Override protected void onPause() {
-        hadVisibleUnitOnPause = nativeDialog!=null && nativeDialog.isShowing();
+        foreground=false;handler.removeCallbacks(restoreCheck);
+        if(tabletMedia!=null)tabletMedia.stop();
+        hadVisibleUnitOnPause = hadVisibleUnitOnPause || (nativeDialog!=null && nativeDialog.isShowing());
         getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
             .putLong("last_pause",System.currentTimeMillis())
             .putBoolean("unit_dialog_showing", hadVisibleUnitOnPause).apply();
-        if(bridge!=null)bridge.pauseCatalog();
+        if(bridge!=null){bridge.pauseCatalog();bridge.closeNativeMediaWeb();}
         super.onPause();
     }
     @Override protected void onStop() {
@@ -396,6 +444,8 @@ public final class C10NativeHubActivity extends Activity {
     }
     @Override protected void onResume() {
         super.onResume();
+        foreground=true;
+        handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,650);
         getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
             .putLong("last_resume",System.currentTimeMillis()).apply();
         // Android may destroy only the floating UNIT dialog when projection
@@ -404,7 +454,7 @@ public final class C10NativeHubActivity extends Activity {
         if (hadVisibleUnitOnPause && (nativeDialog==null || !nativeDialog.isShowing())) {
             hadVisibleUnitOnPause=false;
             handler.postDelayed(()->{
-                if(!isFinishing() && !opening && (nativeDialog==null || !nativeDialog.isShowing()))
+                if(foreground && !isFinishing() && !opening && (nativeDialog==null || !nativeDialog.isShowing()))
                     restoreNative();
             },300);
         }
@@ -419,32 +469,35 @@ public final class C10NativeHubActivity extends Activity {
         text.setText(report);text.setTextSize(15);text.setTextColor(Color.WHITE);
         text.setPadding(24,16,24,16);
         scroll.addView(text);
-        new AlertDialog.Builder(this).setTitle("C10 Plus 4.5 · Comprobación")
+        new AlertDialog.Builder(this).setTitle("C10 Plus 5.0 · Comprobación")
             .setView(scroll)
             .setPositiveButton("Copiar informe",(dialog,which)->{
                 android.content.ClipboardManager cb=(android.content.ClipboardManager)
                     getSystemService(Context.CLIPBOARD_SERVICE);
                 if(cb!=null) cb.setPrimaryClip(android.content.ClipData.newPlainText(
-                    "Diagnóstico de inicio 4.5",report));
+                    "Diagnóstico de inicio 5.0",report));
                 Toast.makeText(this,"Informe copiado",Toast.LENGTH_SHORT).show();
             })
             .setNegativeButton("Cerrar",null).show();
     }
 
     private void attachNative(Dialog d, int attempt) {
-        if (isFinishing() || !d.isShowing() || d.getWindow() == null) return;
+        if (!foreground || isFinishing() || isDestroyed() || d!=nativeDialog || !d.isShowing() || d.getWindow() == null) return;
         View view = findHub(d.getWindow().getDecorView());
         if (view instanceof ViewGroup) {
             try {
+                if(bridge!=null && bridge.isAttachedTo((ViewGroup)view))return;
+                if(bridge!=null){bridge.dispose();bridge=null;}
                 bridge = C10Bridge.attach(this, (ViewGroup)view);
-                status.setText("4.5 · Mejoras integradas en UNIT");
-                Toast.makeText(this,"UNIT C10 Plus 4.5 conectado",Toast.LENGTH_LONG).show();
+                handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,1500);
+                status.setText("5.0 · Mejoras integradas en UNIT");
+                Toast.makeText(this,"UNIT C10 Plus 5.0 conectado",Toast.LENGTH_LONG).show();
             } catch (Throwable e) {
                 status.setText("UNIT funciona, pero el acceso C10 Plus ha fallado: "+e.getClass().getSimpleName());
                 getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE).edit()
                     .putString("bridge",String.valueOf(e)).apply();
                 new AlertDialog.Builder(this)
-                    .setTitle("C10 Plus 4.5 no pudo enlazar con UNIT")
+                    .setTitle("C10 Plus 5.0 no pudo enlazar con UNIT")
                     .setMessage("La aplicación original sigue disponible. Pulsa «Diagnóstico» para obtener el motivo y corregirlo sin desinstalar.")
                     .setPositiveButton("Diagnóstico",(dialog,which)->showStartupDiagnostic())
                     .setNegativeButton("Continuar con UNIT",null).show();
@@ -476,7 +529,8 @@ public final class C10NativeHubActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
-        handler.removeCallbacksAndMessages(null);
+        foreground=false;handler.removeCallbacksAndMessages(null);
+        if(tabletMedia!=null){tabletMedia.close();tabletMedia=null;}
         if (bridge != null) bridge.dispose();
         if (nativeDialog != null && nativeDialog.isShowing()) nativeDialog.dismiss();
         super.onDestroy();
@@ -1145,6 +1199,7 @@ public final class C10NativeHubActivity extends Activity {
                 h.postDelayed((Runnable)nativeTick,550);
             }
         }
+        boolean isAttachedTo(ViewGroup current){if(closed||current!=hub||!nativeRow.isAttachedToWindow()||extraButtons.size()!=TABS.length)return false;for(TextView t:extraButtons)if(t.getParent()!=nativeRow)return false;return true;}
         void dispose() {
             closed=true;stopCustom();
             if(cockpitRadio!=null){cockpitRadio.stop();cockpitRadio=null;}
@@ -1366,7 +1421,7 @@ public final class C10NativeHubActivity extends Activity {
                 tools.addView(scan,new LinearLayout.LayoutParams(0,dip(48),1f));
                 tools.addView(copy,new LinearLayout.LayoutParams(0,dip(48),1f));
                 layout.addView(tools);
-                Button diag=button("Diagnóstico del inicio y firma 4.5");
+                Button diag=button("Diagnóstico del inicio y firma 5.0");
                 diag.setOnClickListener(v->((C10NativeHubActivity)activity).showStartupDiagnostic());
                 layout.addView(diag,new LinearLayout.LayoutParams(-1,dip(46)));
                 Button tests=button("Registrar prueba de Android Auto / CarPlay");
