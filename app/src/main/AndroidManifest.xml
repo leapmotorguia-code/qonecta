@@ -51,6 +51,14 @@
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
+        <!-- C10 Lab: visibilidad de apps de navegación y ocio instaladas -->
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.spotify.music" />
+        <package android:name="com.google.android.apps.youtube.music" />
+        <package android:name="com.netflix.mediaclient" />
+        <package android:name="com.wbd.stream" />
+        <package android:name="com.amazon.avod.thirdpartyclient" />
+        <package android:name="tv.pluto.android" />
     </queries>
 
     <uses-feature
@@ -161,7 +169,7 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/hql_launcher"
         android:roundIcon="@mipmap/hql_launcher_round"
-        android:label="Qonecta+"
+        android:label="UNIT C10 Lab"
         android:localeConfig="@xml/hql_locales_config"
         android:largeHeap="true"
         android:usesCleartextTraffic="true"
@@ -553,7 +561,7 @@
         <activity
             android:name="com.headqlink.link.HomeActivity"
             android:exported="true"
-            android:label="Qonecta+"
+            android:label="UNIT C10 Lab"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.HeadQLink">
@@ -576,7 +584,7 @@
             android:name="com.headqlink.link.LinkWidget"
             android:enabled="@bool/hql_widget_enabled"
             android:exported="false"
-            android:label="Qonecta+">
+            android:label="UNIT C10 Lab">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -637,7 +645,7 @@
             android:enabled="@bool/hql_widget_enabled"
             android:exported="true"
             android:icon="@drawable/hql_ic_notif"
-            android:label="Qonecta+"
+            android:label="UNIT C10 Lab"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
@@ -650,7 +658,7 @@
         <activity
             android:name="com.headqlink.link.SetupActivity"
             android:exported="false"
-            android:label="Qonecta+"
+            android:label="UNIT C10 Lab"
             android:theme="@style/Theme.HeadQLink" />
 
         <activity
