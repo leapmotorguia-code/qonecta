@@ -10,6 +10,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.hardware.SensorManager;
 import android.hardware.camera2.CameraManager;
 import android.hardware.usb.UsbManager;
+import android.hardware.usb.UsbDevice;
 import android.media.MediaDrm;
 import android.os.Build;
 import android.os.Handler;
@@ -102,6 +103,8 @@ final class SensorsAccessScreen implements CarScreen {
         warning.setBackground(round(0xFF3D3328, 18));
         content.addView(warning);
 
+        addVehicleSelector(content);
+
         LinearLayout actions = new LinearLayout(context);
         actions.setOrientation(LinearLayout.HORIZONTAL);
         actions.setPadding(0, 15, 0, 15);
@@ -122,6 +125,53 @@ final class SensorsAccessScreen implements CarScreen {
         refresh();
         handler.postDelayed(refreshJob, TICK_MS);
         return scroll;
+    }
+
+    /** Perfil de cálculo: NO modifica la configuración ni centralitas del coche. */
+    private void addVehicleSelector(LinearLayout root) {
+        TextView title = text("MODELO PARA ESTIMACIONES Y CONSUMOS", 24, COLOR_TEXT, true);
+        title.setPadding(0, 18, 0, 5);
+        root.addView(title);
+        final TextView chosen = text("", 21, COLOR_GREEN, true);
+        root.addView(chosen);
+        final String[] names = {"C10 REEV", "C10 Life", "C10 Pro Max", "T03"};
+        final String[] ids = {CarCloudStore.PROFILE_C10_REEV, CarCloudStore.PROFILE_C10_LIFE,
+                CarCloudStore.PROFILE_C10_PROMAX, CarCloudStore.PROFILE_T03};
+        final CarCloudStore prefs = new CarCloudStore(context);
+        updateChosenProfile(chosen, prefs.profile());
+
+        LinearLayout row = new LinearLayout(context);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(0, 12, 0, 10);
+        for (int i = 0; i < names.length; i++) {
+            final String id = ids[i];
+            final String label = names[i];
+            TextView button = pill(label);
+            button.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 19);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, 66, 1f);
+            if (i != 0) lp.leftMargin = 7;
+            row.addView(button, lp);
+            button.setOnClickListener(v -> {
+                prefs.setProfile(id, 0);
+                updateChosenProfile(chosen, id);
+                Toast.makeText(context, "Perfil " + label + " guardado", Toast.LENGTH_SHORT).show();
+                refresh();
+            });
+        }
+        root.addView(row);
+        TextView note = text("El perfil cambia la capacidad de batería y el modelo físico de los cálculos. " +
+                "No cambia la configuración del coche ni verifica que los datos de fábrica sean correctos.",
+                18, COLOR_MISSING, false);
+        root.addView(note);
+    }
+
+    private void updateChosenProfile(TextView label, String profile) {
+        String n = CarCloudStore.PROFILE_C10_REEV.equals(profile) ? "C10 REEV" :
+                CarCloudStore.PROFILE_C10_PROMAX.equals(profile) ? "C10 Pro Max" :
+                CarCloudStore.PROFILE_T03.equals(profile) ? "T03" :
+                CarCloudStore.PROFILE_C10_LIFE.equals(profile) ? "C10 Life" :
+                "Sin seleccionar (C10 Life por defecto)";
+        label.setText("Perfil actual: " + n);
     }
 
     private TextView text(String value, int size, int color, boolean bold) {
@@ -255,6 +305,12 @@ final class SensorsAccessScreen implements CarScreen {
             int count = manager == null ? 0 : manager.getDeviceList().size();
             put("SISTEMA ANDROID", "USB", count + " dispositivos visibles",
                     "UsbManager; no indica si Android Auto puede proyectarse", count > 0);
+            if (manager != null) for (UsbDevice device : manager.getDeviceList().values()) {
+                put("SISTEMA ANDROID", "USB · " + device.getDeviceName(),
+                        String.format(Locale.US, "VID %04X / PID %04X", device.getVendorId(),
+                                device.getProductId()),
+                        "Inventario Android USB; sin abrir dispositivo", true);
+            }
         } catch (Exception ignored) {
             put("SISTEMA ANDROID", "USB", "No accesible", "UsbManager", false);
         }
@@ -267,6 +323,19 @@ final class SensorsAccessScreen implements CarScreen {
             put("SISTEMA ANDROID", "Cámaras Camera2", "Sin inventario", "CameraManager", false);
         }
 
+        if (Build.VERSION.SDK_INT >= 31) {
+            boolean bt = c.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)
+                    == PackageManager.PERMISSION_GRANTED;
+            put("SISTEMA ANDROID", "Permiso Bluetooth / dispositivos próximos",
+                    bt ? "Concedido" : "Sin conceder", "BLUETOOTH_CONNECT", bt);
+        }
+        if (Build.VERSION.SDK_INT >= 33) {
+            boolean wifi = c.checkSelfPermission(Manifest.permission.NEARBY_WIFI_DEVICES)
+                    == PackageManager.PERMISSION_GRANTED;
+            put("SISTEMA ANDROID", "Permiso Wi-Fi próximo",
+                    wifi ? "Concedido" : "Sin conceder",
+                    "NEARBY_WIFI_DEVICES; no garantiza hotspot local", wifi);
+        }
         boolean gps = c.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
         put("SISTEMA ANDROID", "Permiso ubicación precisa", gps ? "Concedido" : "Sin conceder",
