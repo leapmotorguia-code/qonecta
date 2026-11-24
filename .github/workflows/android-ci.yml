@@ -5,7 +5,7 @@ name: Android CI
 on:
   pull_request:
   push:
-    branches: [main, publico, "feature/c10-unit-control-sensores-energia-v1"]
+    branches: [main, publico, "feature/c10-unit-control-sensores-energia-v1", "feature/c10-headqlink-lab-2026-11"]
   workflow_dispatch:
 
 # Cancel superseded runs on the same ref (e.g. a new push to an open PR).
@@ -72,7 +72,7 @@ jobs:
       - name: Guardar APK de compilación sin firma
         uses: actions/upload-artifact@v4
         with:
-          name: UNIT-C10-Control-Sensores-Energia-UNSIGNED
+          name: UNIT-C10-Lab-4.6.0-UNSIGNED
           path: app/build/outputs/apk/github/release/*.apk
           if-no-files-found: warn
           retention-days: 14
