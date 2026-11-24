@@ -381,22 +381,26 @@ public final class InAppUpdater {
             }catch(android.content.ActivityNotFoundException e){
                 recordInstall("ajustes-permiso-ausentes",e.getClass().getSimpleName());
                 details.setText("LeapOS no ofrece esa pantalla de permisos. "+
-                    "Se intentará abrir el instalador oficial sin omitir sus comprobaciones.");
+                    "Usa el método de instalación autorizado del coche.");
             }catch(SecurityException e){
                 recordInstall("ajustes-permiso-bloqueados",e.getClass().getSimpleName());
                 details.setText("LeapOS ha bloqueado el acceso a permisos. "+
-                    "Se intentará el instalador oficial, que decidirá si permite continuar.");
+                    "Usa el método de instalación autorizado del coche.");
             }catch(RuntimeException e){
                 recordInstall("ajustes-permiso-error",e.getClass().getSimpleName());
                 details.setText("El menú de permisos no está disponible en este sistema.");
             }
+            recordInstall("permiso-no-concedido","LeapOS no ofrece una pantalla de autorización utilizable");
+            message("Permiso de instalación no concedido. No se forzará la instalación.");
+            details.setText("La APK sigue verificada. Usa Vivaldi o el gestor de archivos autorizado por el coche si lo permite. No borres UNIT ni cambies la seguridad del vehículo.");
+            return;
         }
         String lastError="no-disponible";
-        for(String action:new String[]{Intent.ACTION_INSTALL_PACKAGE,Intent.ACTION_VIEW}){
+        for(String action:new String[]{Intent.ACTION_VIEW}){
             try{
                 Intent intent=new Intent(action);
                 intent.setDataAndType(fileUri,"application/vnd.android.package-archive");
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
                 activity.startActivity(intent);
                 recordInstall("instalador-abierto",action);
                 message("Instalador Android abierto; confirma la actualización si el coche lo permite.");
@@ -412,7 +416,7 @@ public final class InAppUpdater {
             }
         }
         recordInstall("sin-instalador",lastError);
-        message("No se pudo abrir ningún instalador oficial en LeapOS.");
+        message("No se pudo abrir el instalador oficial de Android.");
         details.setText("La APK descargada sigue verificada y no se ha instalado. "+
             "Prueba desde el gestor de archivos o Vivaldi, con el coche parado. "+
             "Si LeapOS también bloquea esa vía, no existe una actualización "+
