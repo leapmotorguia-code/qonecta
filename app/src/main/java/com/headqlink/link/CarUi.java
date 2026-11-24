@@ -592,7 +592,7 @@ final class CarUi {
      */
     static boolean splitCapable(String name) {
         return splitRoom && ("car".equals(name) || "guide".equals(name) || "web".equals(name) || "videos".equals(name)
-                || "tv".equals(name) || "sensors".equals(name) || "companion".equals(name));
+                || "tv".equals(name) || "apps".equals(name) || "sensors".equals(name) || "companion".equals(name));
     }
 
     /**
@@ -1452,8 +1452,7 @@ final class CarUi {
                 RadioPlayer.previewOnly(st);
                 open("radio");
             } else if (name.startsWith("game-")) {
-                GamesScreen.previewGame = Integer.parseInt(name.substring(5));
-                open("games");
+                open("sensors");
             } else if (name.startsWith("car-")) {
                 // "car-N" o "car-N-detalle" (Viajes con un viaje abierto) o "car-N-buscar" (Ruta con el buscador).
                 String[] parts = name.split("-", 3);
@@ -2469,7 +2468,7 @@ final class CarUi {
             case "web": return "Web";
             case "tv": return "TV";
             case "radio": return Str.get(R.string.hql_radio);
-            case "games": return Str.get(R.string.hql_games);
+            case "apps": return "Aplicaciones";
             case "home": return Str.get(R.string.hql_ha_title);
             case "guide": return Str.get(R.string.hql_guide);
             case "sensors": return "Sensores C10";
@@ -2486,7 +2485,7 @@ final class CarUi {
             case "web": return R.drawable.hql_ic_web;
             case "tv": return R.drawable.hql_ic_tv;
             case "radio": return R.drawable.hql_ic_radio;
-            case "games": return R.drawable.hql_ic_games;
+            case "apps": return R.drawable.hql_ic_web;
             case "home": return R.drawable.hql_ic_home_assistant;
             case "guide": return R.drawable.hql_ic_guide;
             case "sensors": return R.drawable.hql_ic_gauges;
@@ -3000,8 +2999,8 @@ final class CarUi {
                 return WebScreen::new;
             case "tv":
                 return IptvScreen::new;
-            case "games":
-                return GamesScreen::new;
+            case "apps":
+                return C10AppsScreen::new;
             case "radio":
                 return RadioScreen::new;
             case "home":
