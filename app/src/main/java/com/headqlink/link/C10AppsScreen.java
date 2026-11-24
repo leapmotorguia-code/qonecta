@@ -1,6 +1,5 @@
 package com.headqlink.link;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ActivityNotFoundException;
@@ -48,6 +47,8 @@ final class C10AppsScreen implements CarScreen {
 
     private Context context;
     private LinearLayout list;
+    private String pendingVideo = "";
+    private long pendingVideoUntilMs;
 
     @Override public View create(Host host) {
         context = host.context();
@@ -141,14 +142,21 @@ final class C10AppsScreen implements CarScreen {
                         Toast.LENGTH_LONG).show();
                 return;
             }
-            new AlertDialog.Builder(context)
-                    .setTitle("Solo con el coche estacionado")
-                    .setMessage("No utilices vídeo mientras conduces. " +
-                            "La aplicación no siempre recibe una velocidad del C10 en tiempo real. " +
-                            "¿Confirmas que estás estacionado?")
-                    .setNegativeButton("Cancelar", (d,w) -> {})
-                    .setPositiveButton("Estoy estacionado", (d,w) -> launch(app))
-                    .show();
+            // La UI puede vivir dentro de un Display/Presentation de LeapOS:
+            // un AlertDialog normal no siempre recibe un Window token válido.
+            // Doble pulsación deliberada, sin ventanas externas y sin impedir
+            // que la proyección de Android Auto continúe.
+            long now = android.os.SystemClock.elapsedRealtime();
+            if (!app.pkg.equals(pendingVideo) || now > pendingVideoUntilMs) {
+                pendingVideo = app.pkg;
+                pendingVideoUntilMs = now + 9_000L;
+                Toast.makeText(context,
+                        "Vídeo solo estacionado. Pulsa una segunda vez para confirmar",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+            pendingVideo = "";
+            launch(app);
         } else {
             launch(app);
         }
