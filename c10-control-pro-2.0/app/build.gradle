@@ -2,7 +2,8 @@ plugins { id 'com.android.application' }
 android {
  namespace 'com.leapmotorguia.c10control'
  compileSdk 34
- defaultConfig { applicationId 'com.leapmotorguia.c10control.lab3'; minSdk 28; targetSdk 34; versionCode 30; versionName '3.0-laboratorio' }
+ defaultConfig { applicationId 'com.leapmotorguia.c10control.lab3'; minSdk 28; targetSdk 30; versionCode 60; versionName '6.0-propio-prueba' }
+ buildTypes { coche { initWith debug; debuggable false; jniDebuggable false; signingConfig signingConfigs.debug } }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }

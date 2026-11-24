@@ -1,0 +1,5 @@
+# C10 Control Pro 6 — estudio y prueba propia
+
+Código propio a partir de nuestra v3, sin incorporar fuente de Charly. Referencia auditada: https://github.com/CharlysEV/qonecta-unit-core/tree/41ff582ec204b17a7c8bcd16095a40203ad0f3dd (README, AppPermissions, UsbAttachedActivity, MainActivity, manifiesto). CORE separa conexión, proyección, audio, USB y pantallas; Qonecta+ es otro proyecto con panel extendido. No se ha implementado el protocolo AA ni CarPlay, ni se ha certificado un receptor. No se cambia a identificadores ajenos.
+
+Esta prueba conserva la base que se instaló en Samsung, mantiene su ID, cambia target a 30, usa un build no depurable y añade gráfico GPS y diagnóstico de solo lectura de USB, Wi-Fi, pantalla y WebView. Firma de CI de prueba; no garantiza actualización sobre v3. La instalación en LeapOS no está demostrada. No desinstalar UNIT. No modificar seguridad del coche. La detección de un paquete OEM no demuestra permiso de acceso. Los datos del coche siguen sin verificar; se preserva el observador pasivo y las entradas manuales de v3. Vídeo solo estacionado. Pruebas de aceleración solo en circuito cerrado.
