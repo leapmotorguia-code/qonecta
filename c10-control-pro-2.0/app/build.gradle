@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
  namespace 'com.leapmotorguia.c10control'
  compileSdk 36
- defaultConfig { applicationId 'com.leapmotorguia.c10control.lab3'; minSdk 28; targetSdk 36; versionCode 63; versionName '6.3-multimedia' }
+ defaultConfig { applicationId 'com.leapmotorguia.c10control.lab3'; minSdk 28; targetSdk 36; versionCode 64; versionName '6.4-multimedia' }
  buildTypes { coche { initWith debug; debuggable false; jniDebuggable false; signingConfig signingConfigs.debug } }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
