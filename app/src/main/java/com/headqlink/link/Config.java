@@ -1251,13 +1251,13 @@ final class Config {
 
     /** Botones del panel que se ven, en su orden (entre «Auto», fijo arriba, y «Ajustes», fijo abajo). */
     static final String PANEL_BUTTONS = "panel_buttons";
-    static final String[] PANEL_BUTTONS_ALL = {"car", "sensors", "apps", "photos", "videos", "web", "tv", "radio", "home", "guide",
+    static final String[] PANEL_BUTTONS_ALL = {"car", "energy", "sensors", "apps", "photos", "videos", "web", "tv", "radio", "home", "guide",
             "companion"};
     /**
      * Los de serie: todos menos la guía del camino, el karaoke y el compañero de voz, que solo salen si el usuario los
      * enciende (Ajustes › Botones del panel).
      */
-    static final String[] PANEL_BUTTONS_DEFAULT = {"car", "sensors", "apps", "photos", "videos", "web", "tv", "radio", "home"};
+    static final String[] PANEL_BUTTONS_DEFAULT = {"car", "energy", "sensors", "apps", "photos", "videos", "web", "tv", "radio", "home"};
 
     /**
      * Los botones del panel. «Casa» (Home Assistant) solo si está configurada; y la primera vez que lo está aparece sola
@@ -1274,6 +1274,7 @@ final class Config {
         // había guardado su lista anterior, sin reintroducir juegos y karaoke.
         if (v != null && !sp.getBoolean("c10_lab_apps_seen", false)) {
             if (!out.contains("apps")) out.add(Math.min(1, out.size()), "apps");
+            if (!out.contains("energy")) out.add(Math.min(1, out.size()), "energy");
             sp.edit().putBoolean("c10_lab_apps_seen", true).apply();
         }
         return out;
