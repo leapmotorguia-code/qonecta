@@ -77,7 +77,7 @@ final class EfficiencyScreen implements CarScreen {
         condCard = new CarKit.Card(c, Str.get(R.string.hql_conditions), this::paintConditions);
         useCard = new CarKit.Card(c, Str.get(R.string.hql_consumption), this::paintUse);
         splitCard = new CarKit.Card(c, Str.get(R.string.hql_where_energy_goes), this::paintSplit);
-        energyBalanceCard = new CarKit.Card(c, "Balance: consumida y recuperada", this::paintEnergyBalance);
+        energyBalanceCard = new CarKit.Card(c, "Balance rápido · estimación", this::paintEnergyBalance);
         costCard = new CarKit.Card(c, Str.get(R.string.hql_trip_cost_title), this::paintCost);
         co2Card = new CarKit.Card(c, Str.get(R.string.hql_co2_avoided), this::paintCo2);
         tipCard = new CarKit.Card(c, Str.get(R.string.hql_tip), this::paintTip);
@@ -412,45 +412,43 @@ final class EfficiencyScreen implements CarScreen {
         EnergyFlowSummary flow = EnergyFlowSummary.of(
                 shown.consumed(), shown.recovered(), s.tripKmEnergy, fit != LiveEnergy.Fit.MODEL);
         if (!flow.ready) {
-            small.draw(cv, "Esperando datos del trayecto para calcular el balance",
-                    r.left, r.top + 10, (int) r.width(), false);
+            small.draw(cv, "Esperando datos del trayecto", r.left, r.top + 10,
+                    (int) r.width(), false);
             return;
         }
-
+        float height = r.height();
         float cell = r.width() / 3f;
         double[] values = {flow.consumedKwh, flow.recoveredKwh, flow.netKwh};
-        String[] headings = {"CONSUMIDA", "RECUPERADA", "SALDO NETO"};
-        int[] colors = {CarKit.TEXT, CarKit.GREEN, flow.netKwh < 0 ? CarKit.GREEN : CarKit.AMBER};
-        for (int i = 0; i < 3; i++) {
-            float x = r.left + i * cell;
-            CarKit.label(cv, headings[i], x, r.top + 19, CarKit.FAINT, p,
-                    Paint.Align.LEFT, cell - 9);
-            CarKit.text(cv, num(values[i], 2), x, r.top + 62, 39,
-                    colors[i], CarKit.MEDIUM, p, Paint.Align.LEFT);
-            CarKit.text(cv, "kWh", x, r.top + 83, 20, CarKit.FAINT,
+        String[] headings = {"GASTADA", "RECUPERADA", "NETO"};
+        int[] colors = {CarKit.TEXT, CarKit.GREEN,
+                flow.netKwh < 0 ? CarKit.GREEN : CarKit.AMBER};
+        float numberY = r.top + Math.min(51, height * 0.44f);
+        for (int n = 0; n < 3; n++) {
+            float x = r.left + n * cell;
+            CarKit.label(cv, headings[n], x, r.top + 16, CarKit.FAINT, p,
+                    Paint.Align.LEFT, cell - 5);
+            CarKit.text(cv, num(values[n], 2), x, numberY, 31,
+                    colors[n], CarKit.MEDIUM, p, Paint.Align.LEFT);
+            CarKit.text(cv, "kWh", x, numberY + 21, 18, CarKit.FAINT,
                     CarKit.REGULAR, p, Paint.Align.LEFT);
         }
-
-        float rowY = r.top + 112;
-        p.setColor(CarKit.OUTLINE);
-        cv.drawRect(r.left, rowY - 14, r.right, rowY - 13, p);
-        String ratio = Double.isNaN(flow.recoveryPercent) ? "—"
-                : num(flow.recoveryPercent, 1) + " %";
-        String avg = Double.isNaN(flow.netPer100) ? "—"
-                : num(flow.netPer100, 1) + " kWh/100 km";
-        CarKit.text(cv, "Recuperado / gastado", r.left, rowY + 4, 20,
-                CarKit.FAINT, CarKit.REGULAR, p, Paint.Align.LEFT);
-        CarKit.text(cv, ratio, r.right, rowY + 4, 25,
-                CarKit.GREEN, CarKit.MEDIUM, p, Paint.Align.RIGHT);
-        CarKit.text(cv, "Promedio neto del viaje", r.left, rowY + 40, 20,
-                CarKit.FAINT, CarKit.REGULAR, p, Paint.Align.LEFT);
-        CarKit.text(cv, avg, r.right, rowY + 40, 23,
-                CarKit.TEXT, CarKit.MEDIUM, p, Paint.Align.RIGHT);
-        CarKit.text(cv, fit == LiveEnergy.Fit.MODEL
-                        ? "Estimación física: NO leída de la batería"
-                        : "Modelo ajustado al neto: no mide regeneración",
-                r.left, rowY + 68, 18,
-                CarKit.AMBER, CarKit.REGULAR, p, Paint.Align.LEFT);
+        float ratioY = numberY + 47;
+        if (ratioY <= r.bottom) {
+            String ratio = Double.isNaN(flow.recoveryPercent) ? "—"
+                    : num(flow.recoveryPercent, 1) + " %";
+            CarKit.text(cv, "Recuperado / gastado", r.left, ratioY, 18,
+                    CarKit.FAINT, CarKit.REGULAR, p, Paint.Align.LEFT);
+            CarKit.text(cv, ratio, r.right, ratioY, 20,
+                    CarKit.GREEN, CarKit.MEDIUM, p, Paint.Align.RIGHT);
+        }
+        float avgY = ratioY + 29;
+        if (avgY <= r.bottom) {
+            CarKit.text(cv, "Promedio neto", r.left, avgY, 18,
+                    CarKit.FAINT, CarKit.REGULAR, p, Paint.Align.LEFT);
+            CarKit.text(cv, Double.isNaN(flow.netPer100) ? "—" :
+                    num(flow.netPer100, 1) + " kWh/100 km", r.right, avgY,
+                    20, CarKit.TEXT, CarKit.MEDIUM, p, Paint.Align.RIGHT);
+        }
     }
 
     // ------------------------------------------------------------------ coste, CO₂ y consejo
