@@ -1,4 +1,4 @@
-name: C10 Control Pro 6.1 - APK
+name: C10 Control Pro 6.2 - APK
 on:
   push:
     branches: ['feature/c10-control-pro-v6-propio']
@@ -19,9 +19,9 @@ jobs:
       - uses: android-actions/setup-android@v4
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: '8.13'
       - name: SDK
-        run: sdkmanager 'platforms;android-34' 'build-tools;34.0.0'
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - name: Tests and build
         working-directory: c10-control-pro-2.0
         run: |
@@ -29,17 +29,21 @@ jobs:
           gradle --no-daemon --console=plain assembleCoche
       - name: Verify signed APK
         run: |
-          cp c10-control-pro-2.0/app/build/outputs/apk/coche/app-coche.apk C10-Control-Pro-6.1-PRUEBA.apk
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs C10-Control-Pro-6.1-PRUEBA.apk
-          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging C10-Control-Pro-6.1-PRUEBA.apk
-          sha256sum C10-Control-Pro-6.1-PRUEBA.apk
+          cp c10-control-pro-2.0/app/build/outputs/apk/coche/app-coche.apk C10-Control-Pro-6.2-CORREGIDA.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs C10-Control-Pro-6.2-CORREGIDA.apk
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging C10-Control-Pro-6.2-CORREGIDA.apk
+          sha256sum C10-Control-Pro-6.2-CORREGIDA.apk
+          cp "$ANDROID_HOME/build-tools/36.0.0/lib/apksigner.jar" apksigner.jar
+          cp "$ANDROID_HOME/build-tools/36.0.0/zipalign" zipalign
       - uses: actions/upload-artifact@v4
         with:
-          name: C10-Control-Pro-6.1-PRUEBA
-          path: C10-Control-Pro-6.1-PRUEBA.apk
+          name: C10-Control-Pro-6.2-CORREGIDA
+          path: |
+            C10-Control-Pro-6.2-CORREGIDA.apk
+            apksigner.jar
+            zipalign
           if-no-files-found: error
           retention-days: 14
       - name: Lint
         working-directory: c10-control-pro-2.0
-        continue-on-error: true
         run: gradle --no-daemon --console=plain lintCoche

@@ -1,0 +1,2 @@
+# Compatibilidad 6.2
+SDK de compilación y objetivo 36; mínimo 28. AGP 8.13.2 y Gradle 8.13 como referencia del CORE. Mantiene el identificador original de nuestra app, sin usar paquetes de terceros. Firma CI provisional; la entrega se vuelve a firmar localmente con clave privada de proyecto. No se publica esa clave. No se alteran protecciones de LeapOS ni vídeo durante la marcha. Sin garantía de instalación ni proyección propia. 
