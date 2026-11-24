@@ -592,7 +592,7 @@ final class CarUi {
      */
     static boolean splitCapable(String name) {
         return splitRoom && ("car".equals(name) || "guide".equals(name) || "web".equals(name) || "videos".equals(name)
-                || "tv".equals(name) || "apps".equals(name) || "sensors".equals(name) || "companion".equals(name));
+                || "tv".equals(name) || "apps".equals(name) || "energy".equals(name) || "sensors".equals(name) || "companion".equals(name));
     }
 
     /**
@@ -2472,6 +2472,7 @@ final class CarUi {
             case "home": return Str.get(R.string.hql_ha_title);
             case "guide": return Str.get(R.string.hql_guide);
             case "sensors": return "Sensores C10";
+            case "energy": return "Energía";
             case "companion": return Str.get(R.string.hql_companion);
             default: return id;
         }
@@ -2489,6 +2490,7 @@ final class CarUi {
             case "home": return R.drawable.hql_ic_home_assistant;
             case "guide": return R.drawable.hql_ic_guide;
             case "sensors": return R.drawable.hql_ic_gauges;
+            case "energy": return R.drawable.hql_ic_gauges;
             case "companion": return R.drawable.ic_mic;
             default: return R.drawable.hql_ic_settings;
         }
@@ -3017,6 +3019,8 @@ final class CarUi {
                 return GuideScreen::new;
             case "sensors":
                 return SensorsAccessScreen::new;
+            case "energy":
+                return C10EnergyScreen::new;
             case "companion":
                 return CompanionScreen::new;
             default:
