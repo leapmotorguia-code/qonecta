@@ -32,7 +32,7 @@ final class MediaPanel {
  final Activity a; final LinearLayout root; final String mode; final Stationary stationary; final boolean tablet;
  final SharedPreferences prefs; final Set<String> favorites; final ArrayList<Entry> all=new ArrayList<>(), visible=new ArrayList<>();
  final RadioAudio radio; final Handler handler=new Handler(Looper.getMainLooper());
- final TextView status,count; final EditText search; final Spinner country; final CheckBox onlyFavorites;
+ final TextView status,count; final EditText search; final Spinner country, genre; final CheckBox onlyFavorites;
  final ListView list; final ArrayAdapter<String> adapter; final FrameLayout playerSlot;
  VideoView video; WebView browser; Runnable timeout; boolean closed,videoActive;
  MediaPanel(Activity a,LinearLayout root,String mode,Stationary stationary){this(a,root,mode,stationary,false);}
@@ -43,6 +43,7 @@ final class MediaPanel {
    radio=new RadioAudio(a);
    if(!mode.equals("tv"))load("radio");
    if(!mode.equals("radio"))load("tv");
+   all.sort(Comparator.comparing((Entry e)->e.country,String.CASE_INSENSITIVE_ORDER).thenComparing(e->e.name,String.CASE_INSENSITIVE_ORDER));
    status=label("Selecciona una emisora o canal. Mantén pulsado para guardar o quitar favorito.");
    root.addView(status); LinearLayout controls=new LinearLayout(a);
    search=new EditText(a);search.setSingleLine(true);search.setHint("Buscar nombre o categoría");search.setTextColor(0xffe9f6fa);search.setHintTextColor(0xffb8d9e6);
@@ -51,6 +52,8 @@ final class MediaPanel {
    ArrayList<String> choices=new ArrayList<>();choices.add("Todos los países");choices.addAll(countries);
    ArrayAdapter<String> cs=new ArrayAdapter<>(a,android.R.layout.simple_spinner_item,choices);cs.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);country.setAdapter(cs);controls.addView(country,new LinearLayout.LayoutParams(0,-2,1));
    onlyFavorites=new CheckBox(a);onlyFavorites.setText("★ Favoritos");onlyFavorites.setTextColor(0xffe9f6fa);onlyFavorites.setChecked(mode.equals("favorites"));controls.addView(onlyFavorites);root.addView(controls);
+   genre=new Spinner(a);String[] genres={"Todas las categorías","Deportes","Cine","Series","Documentales","Noticias","Infantiles","Música","Generalistas","Otros"};
+   ArrayAdapter<String> gs=new ArrayAdapter<>(a,android.R.layout.simple_spinner_item,genres);gs.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);genre.setAdapter(gs);if(!mode.equals("radio"))root.addView(genre);
    count=label("");root.addView(count);
    LinearLayout area=new LinearLayout(a);list=new ListView(a);
    adapter=new ArrayAdapter<String>(a,android.R.layout.simple_list_item_1,new ArrayList<String>()){
@@ -64,12 +67,14 @@ final class MediaPanel {
    list.setOnItemLongClickListener((par,v,i,id)->{if(i>=visible.size())return true;Entry e=visible.get(i);boolean add=!favorites.contains(e.key);if(add)favorites.add(e.key);else favorites.remove(e.key);prefs.edit().putStringSet("saved",new HashSet<>(favorites)).apply();filter();Toast.makeText(a,add?"Favorito guardado":"Favorito eliminado",Toast.LENGTH_SHORT).show();return true;});
    onlyFavorites.setOnCheckedChangeListener((b,c)->filter());
    country.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onItemSelected(AdapterView<?> p,View v,int i,long id){filter();}public void onNothingSelected(AdapterView<?> p){}});
+   genre.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onItemSelected(AdapterView<?> p,View v,int i,long id){filter();}public void onNothingSelected(AdapterView<?> p){}});
    search.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int c,int af){}public void onTextChanged(CharSequence s,int st,int b,int c){filter();}public void afterTextChanged(Editable e){}});
    filter();
  }
  TextView label(String s){TextView t=new TextView(a);t.setText(s);t.setTextColor(0xffe9f6fa);t.setPadding(8,5,8,5);t.setTextSize(14);return t;}
  void load(String kind){try(BufferedReader r=new BufferedReader(new InputStreamReader(a.getAssets().open(kind+"-catalog.tsv"),"UTF-8"))){String l;while((l=r.readLine())!=null){String[] f=l.split("\\t",-1);if(f.length==6&&!f[2].isEmpty())all.add(new Entry(kind,f));}}catch(Exception e){Toast.makeText(a,"Catálogo "+kind+" no disponible",Toast.LENGTH_LONG).show();}}
- void filter(){if(closed)return;String q=search.getText().toString().trim().toLowerCase(Locale.ROOT);String c=String.valueOf(country.getSelectedItem());visible.clear();adapter.clear();for(Entry e:all){if(onlyFavorites.isChecked()&&!favorites.contains(e.key))continue;if(country.getSelectedItemPosition()>0&&!e.country.equals(c))continue;if(!(e.name+" "+e.category+" "+e.country).toLowerCase(Locale.ROOT).contains(q))continue;visible.add(e);adapter.add((favorites.contains(e.key)?"★ ":"☆ ")+(mode.equals("favorites")?(e.kind.equals("tv")?"TV · ":"Radio · "):"")+e.toString());}count.setText(visible.size()+" de "+all.size()+" · "+favorites.size()+" favoritos guardados");}
+ String genreOf(Entry e){String c=e.category.toLowerCase(Locale.ROOT),n=e.name.toLowerCase(Locale.ROOT);if(c.contains("deport")||n.matches(".*\\b(sport|sports|futbol|fútbol|motor sport)\\b.*"))return "Deportes";if(n.matches(".*\\b(documental|documentales|documentary|discovery|nature|historia|history|national geographic)\\b.*"))return "Documentales";if(n.matches(".*\\b(cine|cinema|movies|movie|películas|film|films)\\b.*"))return "Cine";if(n.matches(".*\\b(series|serie|sitcom)\\b.*"))return "Series";if(c.contains("informativ")||n.matches(".*\\b(news|noticias)\\b.*"))return "Noticias";if(c.contains("infantil")||n.matches(".*\\b(kids|junior|cartoon)\\b.*"))return "Infantiles";if(c.contains("musical")||n.matches(".*\\b(music|música|mtv)\\b.*"))return "Música";if(c.contains("nacional")||c.contains("autonóm"))return "Generalistas";return "Otros";}
+ void filter(){if(closed)return;String q=search.getText().toString().trim().toLowerCase(Locale.ROOT);String c=String.valueOf(country.getSelectedItem());visible.clear();adapter.clear();for(Entry e:all){if(onlyFavorites.isChecked()&&!favorites.contains(e.key))continue;if(country.getSelectedItemPosition()>0&&!e.country.equals(c))continue;if(!mode.equals("radio")&&genre.getSelectedItemPosition()>0&&(!e.kind.equals("tv")||!genreOf(e).equals(String.valueOf(genre.getSelectedItem()))))continue;if(!(e.name+" "+e.category+" "+e.country+" "+genreOf(e)).toLowerCase(Locale.ROOT).contains(q))continue;visible.add(e);adapter.add((favorites.contains(e.key)?"★ ":"☆ ")+(mode.equals("favorites")?(e.kind.equals("tv")?"TV · ":"Radio · "):"")+e.toString());}count.setText(visible.size()+" de "+all.size()+" · "+favorites.size()+" favoritos guardados");}
  boolean https(String u){try{return "https".equalsIgnoreCase(Uri.parse(u).getScheme())&&Uri.parse(u).getHost()!=null;}catch(Exception e){return false;}}
  void select(Entry e){
    stop();
