@@ -35,7 +35,7 @@ public class MainActivity extends Activity implements LocationListener {
  String model(){return prefs.getString("model",models[0]);}
  @Override public void onCreate(Bundle b){super.onCreate(b);prefs=getSharedPreferences("c10",MODE_PRIVATE);lm=(LocationManager)getSystemService(LOCATION_SERVICE);split=prefs.getBoolean("split",false);ratio=prefs.getInt("ratio",50);primary=prefs.getString("primary","Inicio");secondary=prefs.getString("secondary","Instrumentos"); signals=new VehicleSignals(this);radio=new RadioAudio(this);render();}
  @Override protected void onResume(){super.onResume();active=true;signals.start();startGPS();handler.removeCallbacks(tick);handler.post(tick);}
- @Override protected void onPause(){active=false;parked=false;stopTv();radio.stop();signals.stop();trip.gap();stopGPS();handler.removeCallbacks(tick);if(!browsers.isEmpty())render();super.onPause();}
+ @Override protected void onPause(){boolean mediaVisible=tv!=null||!browsers.isEmpty();active=false;parked=false;stopTv();radio.stop();signals.stop();trip.gap();stopGPS();handler.removeCallbacks(tick);if(mediaVisible)render();super.onPause();}
  @Override protected void onDestroy(){clearBrowsers();radio.stop();handler.removeCallbacks(tick);super.onDestroy();}
  final Runnable tick=new Runnable(){public void run(){if(!active)return;if(parked&&!stationary()){parked=false;render();}refreshLive();handler.postDelayed(this,500);}};
  boolean gpsAllowed(){return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED;}
