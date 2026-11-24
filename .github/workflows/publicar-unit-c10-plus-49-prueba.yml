@@ -1,0 +1,40 @@
+name: Publicar UNIT C10 Plus 4.9 prueba del actualizador
+on:
+  push:
+    branches: ["fix/unit-c10-installer-action-view"]
+    paths: [".github/workflows/publicar-unit-c10-plus-49-prueba.yml"]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Recuperar APK firmada y verificar
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 2 --max-time 180 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/c9f0532c-590d-4aca-af0a-20d3f1fa661a-unit-c10-49-part1.bin" -o p1.bin
+          curl -fL --retry 2 --max-time 180 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/c6aaa2a7-9501-4696-99ec-d87c39acfc4d-unit-c10-49-part2.bin" -o p2.bin
+          echo "77009cdf524a97155f8e113676b2d518ac95a7624fbba0879b6d12c7fbafd87c  p1.bin" | sha256sum -c
+          echo "ce2def153b273a9bb9807cac325a1f3a8b5d896a8f2cafdf77b6f28e0ef76b77  p2.bin" | sha256sum -c
+          cat p1.bin p2.bin > UNIT-C10-Plus-4.9-PRUEBA-ACTUALIZADOR.apk
+          echo "ac951d9689ae6ca6bd510b578805e69c84b9cddcd2c798c010eb43daebabfa08  UNIT-C10-Plus-4.9-PRUEBA-ACTUALIZADOR.apk" | sha256sum -c
+          unzip -tq UNIT-C10-Plus-4.9-PRUEBA-ACTUALIZADOR.apk
+          SDKTOOLS="$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)"
+          test -x "$SDKTOOLS"
+          "$SDKTOOLS" verify --verbose --print-certs UNIT-C10-Plus-4.9-PRUEBA-ACTUALIZADOR.apk | tee signature.txt
+          grep -qi '6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6' signature.txt
+          grep -q 'Verified using v2 scheme.*true' signature.txt
+          "$(dirname "$SDKTOOLS")/zipalign" -c -p 4 UNIT-C10-Plus-4.9-PRUEBA-ACTUALIZADOR.apk
+      - name: Publicar exclusivamente como prueba
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG=unit-c10-plus-4.9-prueba-actualizador
+          APK=UNIT-C10-Plus-4.9-PRUEBA-ACTUALIZADOR.apk
+          gh release create "$TAG" "$APK" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "UNIT C10 Plus 4.9 · Prueba del actualizador" --notes "Prueba sobre la APK 4.8: prioridad ACTION_VIEW en ambas vías de instalación, conservando las autorizaciones oficiales. Parche binario limitado y firma original; no prueba funcional en el C10 ni corrección de proyección del móvil. No cambia el canal general de actualizaciones. Instalar estacionado." --prerelease --latest=false
+          mkdir checked
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$APK" --dir checked
+          echo "ac951d9689ae6ca6bd510b578805e69c84b9cddcd2c798c010eb43daebabfa08  checked/$APK" | sha256sum -c
