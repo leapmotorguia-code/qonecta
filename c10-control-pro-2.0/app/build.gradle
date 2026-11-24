@@ -1,0 +1,8 @@
+plugins { id 'com.android.application' }
+android {
+ namespace 'com.leapmotorguia.c10control'
+ compileSdk 34
+ defaultConfig { applicationId 'com.leapmotorguia.c10control'; minSdk 28; targetSdk 34; versionCode 20; versionName '2.0-laboratorio' }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
