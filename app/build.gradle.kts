@@ -116,9 +116,9 @@ android {
         // Android 6+: lo pide Material 3 (1.14) y, de todas formas, Android Auto ya exige Android 9 en el móvil.
         minSdk = 23
         targetSdk = 36
-        versionCode = 76
-        versionName = "0.3.19-qdauto"
-        setProperty("archivesBaseName", "Qonecta_${versionName}")
+        versionCode = 146
+        versionName = "4.6.0-c10lab"
+        setProperty("archivesBaseName", "UNIT_C10_Lab_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
@@ -293,9 +293,9 @@ android {
         variant.outputs
             .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
             .forEach { output ->
-                var outputFileName = "Qonecta_${variant.versionName}_debug.apk"
+                var outputFileName = "UNIT_C10_Lab_${variant.versionName}_debug.apk"
                 if(variant.buildType.name == "release") {
-                    outputFileName = "Qonecta_${variant.versionName}.apk"
+                    outputFileName = "UNIT_C10_Lab_${variant.versionName}.apk"
                     output.outputFileName = outputFileName
                 }
                 output.outputFileName = outputFileName
