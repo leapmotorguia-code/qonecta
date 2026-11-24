@@ -1121,7 +1121,17 @@ public final class C10NativeHubActivity extends Activity {
         }
 
         void pauseCatalog(){if(leftPane!=null && leftPane.media!=null)leftPane.media.stop();if(rightPane!=null && rightPane.media!=null)rightPane.media.stop();}
-        private boolean catalogStationary(){readReal();return Double.isFinite(speed)&&speed>=0&&speed<0.5 && !activity.isFinishing();}
+        private boolean catalogStationary(){
+            if(activity.isFinishing()||!showing||closed)return false;
+            try{
+                Object d=Class.forName("es.c10.unitplus.integrated.NativeSnapshot").getMethod("read").invoke(null);
+                long age=numberLong(d,"ageMs",Long.MAX_VALUE);
+                double v=number(d,"speed");
+                return age>=0 && age<=3000L && flag(d,"connected",false) && !flag(d,"demo",true)
+                    && Boolean.TRUE.equals(d.getClass().getMethod("usable").invoke(d))
+                    && Double.isFinite(v) && v>=0 && v<0.5;
+            }catch(Throwable ignored){return false;}
+        }
         private void stopCustom() {
             boolean previouslyShowing=showing;
             showing=false;updateHandler.removeCallbacks(refresh);
