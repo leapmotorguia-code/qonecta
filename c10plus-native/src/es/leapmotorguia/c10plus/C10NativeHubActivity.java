@@ -484,7 +484,7 @@ public final class C10NativeHubActivity extends Activity {
     /** Attach only to UNIT's own visible tab row and body, not a second activity. */
     private static final class C10Bridge {
         private static final String[] TABS = {"Maps", "Consumos", "Gráficas",
-            "Accesos C10", "Actualizaciones", "Modelo"};
+            "Accesos C10", "Actualizaciones", "Modelo", "Cockpit", "Radio+", "Prestaciones"};
         // Media providers live ONLY in UNIT's original RADIO and TV screens.
         private static final String[] RADIO_NAMES = {"Spotify"};
         private static final String[] RADIO_URLS = {"https://open.spotify.com"};
@@ -499,6 +499,10 @@ public final class C10NativeHubActivity extends Activity {
         private final SharedPreferences prefs;
         private final ArrayList<TextView> extraButtons = new ArrayList<>();
         private final ArrayList<Double> realSoc = new ArrayList<>();
+        private final ArrayList<SpeedGraph.Point> cockpitHistory=new ArrayList<>();
+        private RadioAudio cockpitRadio;
+        private Performance cockpitPerformance;
+        private String cockpitResult="Sin prueba activa";
         private final Method nativeSelect;
         private final Field nativeActiveTab;
         private String observedNativeRole="";
@@ -952,6 +956,12 @@ public final class C10NativeHubActivity extends Activity {
                 }else latestSource="Sin muestra reciente conectada y verificable";
             }catch(Throwable e){latestSource="Lectura no disponible: "+e.getClass().getSimpleName();}
             readTripTotals();
+            long now=android.os.SystemClock.elapsedRealtime();
+            if(Double.isFinite(speed)&&speed>=0&&speed<=350)SpeedGraph.add(cockpitHistory,now,(float)speed);
+            if(cockpitPerformance!=null && Double.isFinite(speed)){
+                cockpitPerformance.sample(now,speed);cockpitResult=cockpitPerformance.status();
+                if(cockpitPerformance.result!=null)cockpitPerformance=null;
+            }
         }
         private static boolean hasField(Object obj,String name){
             try{obj.getClass().getField(name);return true;}
@@ -1124,6 +1134,8 @@ public final class C10NativeHubActivity extends Activity {
         }
         void dispose() {
             closed=true;stopCustom();
+            if(cockpitRadio!=null){cockpitRadio.stop();cockpitRadio=null;}
+            cockpitPerformance=null;
             closeNativeMediaWeb();
             clearNativeMediaBar();
             updateHandler.removeCallbacks(nativeMediaSafetyTick);
@@ -1142,6 +1154,8 @@ public final class C10NativeHubActivity extends Activity {
             boolean stoppedForMotion;
             Graph graph;
             MetricDashboard dashboard;
+            SpeedGraph cockpitGauge,cockpitGraph;
+            TextView cockpitInfo;
             InAppUpdater updater;
             VehicleAccessAudit.Report accessReport;
             LinearLayout accessList;
@@ -1159,8 +1173,35 @@ public final class C10NativeHubActivity extends Activity {
                     case 3:access();break;
                     case 4:updates();break;
                     case 5:model();break;
+                    case 6:cockpit();break;
+                    case 7:radioPlus();break;
+                    case 8:performancePlus();break;
                 }
             }
+            void cockpit(){
+                cockpitInfo=label("Datos de UNIT · sin simulación",14,0xffcadfe7);layout.addView(cockpitInfo);
+                LinearLayout tiles=row();
+                cockpitGauge=new SpeedGraph(activity,0xff091925,0xffeaf7fd,0xff23d3aa,true);
+                cockpitGraph=new SpeedGraph(activity,0xff091925,0xffeaf7fd,0xff23d3aa,false);
+                tiles.addView(cockpitGauge,new LinearLayout.LayoutParams(0,-1,1f));tiles.addView(cockpitGraph,new LinearLayout.LayoutParams(0,-1,1f));
+                layout.addView(tiles,new LinearLayout.LayoutParams(-1,0,1f));
+                dashboard=new MetricDashboard(activity);layout.addView(dashboard,new LinearLayout.LayoutParams(-1,0,1f));
+            }
+            void radioPlus(){
+                if(cockpitRadio==null)cockpitRadio=new RadioAudio(activity);
+                cockpitInfo=label(cockpitRadio.status(),15,0xffcadfe7);layout.addView(cockpitInfo);
+                ScrollView scroll=new ScrollView(activity);LinearLayout stations=new LinearLayout(activity);stations.setOrientation(LinearLayout.VERTICAL);
+                for(int n=0;n<RadioAudio.NAMES.length;n++){final int index=n;Button b=button(RadioAudio.NAMES[n]);b.setOnClickListener(v->cockpitRadio.play(index));stations.addView(b);}
+                Button stop=button("Detener radio");stop.setOnClickListener(v->cockpitRadio.stop());stations.addView(stop);scroll.addView(stations);layout.addView(scroll,new LinearLayout.LayoutParams(-1,0,1f));
+            }
+            void performancePlus(){
+                cockpitInfo=label(cockpitResult,16,0xffcadfe7);layout.addView(cockpitInfo);
+                layout.addView(label("Solo circuito cerrado. Lecturas UNIT aproximadas, no cronometraje homologado.",14,0xffcadfe7));
+                for(int h:new int[]{50,100,120,140}){final int high=h;Button b=button("0–"+h+" km/h");b.setOnClickListener(v->armPerformance(0,high));layout.addView(b);}
+                Button b=button("80–120 km/h · 3 s estables");b.setOnClickListener(v->armPerformance(80,120));layout.addView(b);
+                Button cancel=button("Cancelar");cancel.setOnClickListener(v->{cockpitPerformance=null;cockpitResult="Cancelada";});layout.addView(cancel);
+            }
+            void armPerformance(int low,int high){new AlertDialog.Builder(activity).setMessage("¿Prueba en circuito cerrado y seguro?").setPositiveButton("Preparar",(d,w)->{cockpitPerformance=new Performance(low,high);cockpitResult="Esperando velocidad inicial";}).setNegativeButton("Cancelar",null).show();}
             void info(String s) {value=label(s,15,0xffcadfe7);layout.addView(value);}
             void web() {
                 web=new WebView(activity);
@@ -1472,6 +1513,9 @@ public final class C10NativeHubActivity extends Activity {
             }
             void refresh() {
                 if(disposed)return;
+                if(kind==6){long now=android.os.SystemClock.elapsedRealtime();Float v=Double.isFinite(speed)&&speed>=0?(float)speed:null;cockpitGauge.update(cockpitHistory,v,now);cockpitGraph.update(cockpitHistory,v,now);cockpitInfo.setText(latestSource);}
+                if(kind==7 && cockpitRadio!=null)cockpitInfo.setText(cockpitRadio.status());
+                if(kind==8)cockpitInfo.setText(cockpitResult);
                 if(value!=null && kind==1) value.setText(
                     "Potencia: "+latestSource+"  ·  "+balanceSource+
                     (balancePartial?"  ·  DATOS PARCIALES":""));
