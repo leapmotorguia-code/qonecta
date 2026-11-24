@@ -1,0 +1,766 @@
+Nacionales	La 1	https://rtvelivestream.rtve.es/rtvesec/la1/la1_main_dvr.m3u8	https://www.rtve.es/play/videos/directo/la-1/	GEO
+Nacionales	La 2	https://rtvelivestream.rtve.es/rtvesec/la2/la2_main_dvr.m3u8	https://www.rtve.es/play/videos/directo/la-2/	GEO
+Nacionales	Antena 3		https://www.atresplayer.com/directos/antena3/	Web oficial
+Nacionales	Cuatro		https://www.mediasetinfinity.es/directo/cuatro/	EXTA,GEO
+Nacionales	Telecinco		https://www.mediasetinfinity.es/directo/telecinco/	EXTA,GEO
+Nacionales	laSexta		https://www.atresplayer.com/directos/lasexta/	Web oficial
+Nacionales	Neox		https://www.atresplayer.com/directos/neox/	Web oficial
+Nacionales	Nova		https://www.atresplayer.com/directos/nova/	Web oficial
+Nacionales	Mega		https://www.atresplayer.com/directos/mega/	Web oficial
+Nacionales	Atreseries		https://www.atresplayer.com/directos/atreseries/	Web oficial
+Nacionales	Be Mad		https://www.mitele.es/directo/bemad	EXTA,GEO
+Nacionales	Divinity		https://www.mitele.es/directo/divinity	EXTA,GEO
+Nacionales	El Toro TV	https://streaming-1.eltorotv.com/lb0/eltorotv-streaming-web/index.m3u8	https://eltorotv.com/tv-en-directo	EVT
+Nacionales	Energy		https://www.mitele.es/directo/energy	EXTA,GEO
+Nacionales	FDF		https://www.mitele.es/directo/fdf	EXTA,GEO
+Nacionales	La Séptima		https://laseptima.com/la-septima-tv-directo/	EMB
+Nacionales	RNE Accesible	https://ztnr.rtve.es/ztnr/6688753.m3u8	https://www.rtve.es/play/videos/directo/rne-streamings/play-rneaccesible/	GEO
+Nacionales	TRECE	https://play.cdn.enetres.net/091DB7AFBD77442B9BA2F141DCC182F5021/021/playlist.m3u8	https://www.cope.es/directos/trece	EVT
+Informativos	24h	https://ztnr.rtve.es/ztnr/1694255.m3u8	https://www.rtve.es/play/videos/directo/24h/	GEO,EMB
+Informativos	3CatInfo	https://directes-tv-cat.3catdirectes.cat/live-content/canal324-hls/master.m3u8	https://www.3cat.cat/3cat/directes/3catinfo-tv/	EMB,GEO
+Informativos	ABC		https://www.abc.es	EMB,EVT
+Informativos	Agencia EFE		https://www.efe.com	EMB,EVT
+Informativos	Cadena SER		https://cadenaser.com	EMB,EVT
+Informativos	El Confidencial	https://sis-global.prod.samsungtv.plus/v1/tvpprd/sc-bmo0niz694whx.m3u8	https://www.elconfidencial.com/television/	-
+Informativos	El Debate		https://www.eldebate.com	EMB,EVT
+Informativos	El Mundo		https://www.elmundo.es	EMB,EVT
+Informativos	El País	https://d2epgk1fomaa1g.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-9n8y4tw0bk3an/live/fast-channel-el-pais/fast-channel-el-pais.m3u8	https://elpais.com	EMB
+Informativos	Euronews	https://euronews-live-spa-es.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6571/bitok/eyJzdGlkIjoiMDA0YjY0NTMtYjY2MC00ZTZkLTlkNzEtMTk3YTM3ZDZhZWIxIiwibWt0IjoiZXMiLCJjaCI6NjU3MSwicHRmIjoxfQ==/26034/euronews-es.m3u8	https://es.euronews.com/live	EMB
+Informativos	La Razón		https://www.larazon.es	EMB,EVT
+Informativos	La Vanguardia		https://www.lavanguardia.com	EMB,EVT
+Informativos	Libertad Digital TV		https://tv.libertaddigital.com/directo.html	EMB
+Informativos	Negocios TV	https://negociostv-negociostv-samsunges.amagi.tv/hls/amagi_hls_data_negociost-negociostv-samsunges/CDN/playlist.m3u8	https://www.negocios.com/directo	EMB
+Informativos	Okdiario		https://okdiario.com	EMB,EVT
+Informativos	Onda Cero		https://www.ondacero.es	EMB,EVT
+Informativos	Radio 5	https://ztnr.rtve.es/ztnr/6982917.m3u8	https://www.rtve.es/play/radio/radio-5/	-
+Informativos	Radio Nacional	https://ztnr.rtve.es/ztnr/6982891.m3u8	https://www.rtve.es/play/videos/directo/rne-streamings/	-
+Deportivos	Aragón Deporte 1		https://www.aragonplay.es/watch/live/69f82201907d412a7bc35c63	EXTA,REG,EVT
+Deportivos	Aragón Deporte 2		https://www.aragonplay.es/watch/live/69f821f4154724838018ad62	EXTA,REG,EVT
+Deportivos	Aragón Deporte 3		https://www.aragonplay.es/watch/live/69f821e915eed9200028511b	EXTA,REG,EVT
+Deportivos	Aragón Deporte 4		https://www.aragonplay.es/watch/live/69f821dc3550029e46ebb127	EXTA,REG,EVT
+Deportivos	AS		https://as.com	EMB,EVT
+Deportivos	Barça Play		https://www.fcbarcelona.cat/ca/barca-play	EMB,EVT
+Deportivos	Betis TV		https://www.realbetisbalompie.es/rtvbetis/directo-tv/	EXTA
+Deportivos	Cádiz CF TV		https://tv.cadizcf.com/24h	EXTB,EMB
+Deportivos	Carrusel Deportivo SER		https://cadenaser.com/cadena-ser/carrusel-deportivo/	EMB,EVT
+Deportivos	Cazaflix		https://cazaflix.com/tv-directo/	EMB
+Deportivos	El 10 del Barça		https://xn--el10delbara-v9a.com	EMB,EVT
+Deportivos	El Chiringuito Inside		https://www.mediasetinfinity.es/deportes/el-chiringuito/	EMB,EVT
+Deportivos	El Larguero SER		https://cadenaser.com/cadena-ser/el-larguero/	EMB,EVT
+Deportivos	El Partidazo de COPE		https://www.cope.es/programas/el-partidazo-de-cope/noticias/sigue-partidazo-cope-directo-canal-youtube-20250602_3162222.html	EMB,EVT
+Deportivos	ElevenTV		https://www.youtube.com/channel/UCg3k7fq0Gy0mLpMb2nlQGQQ	EMB
+Deportivos	Esport3	https://directes-tv-cat.3catdirectes.cat/live-origin/esport3-hls/master.m3u8	https://www.3cat.cat/3cat/directes/esport3/	GEO
+Deportivos	ETB Deportes (Kirolak 360)	https://multimedia.eitb.eus/live-content/oka1hd-hls/master.m3u8	https://kirolakeitb.eus/es/kirolak-360/en-directo/	EVT,REF
+Deportivos	FedHielo TV		https://www.rfedh.es/fedhielo-tv/	EMB,EVT
+Deportivos	Futsalmafer.tv	https://play.agenciastreaming.com:8081/futsalmafertv/index.m3u8	https://canalsports.tv/directo-24-horas/	EVT
+Deportivos	IB3 Esports		https://ib3.org/directe	EMB,EVT
+Deportivos	MARCA		https://www.marca.com	EMB,EVT
+Deportivos	OKLIGA TV		https://www.okliga.tv	EMB,EVT
+Deportivos	RCD Espanyol de Barcelona TV		https://www.rcdespanyol.com	EMB,EVT
+Deportivos	RCD Mallorca TV		https://www.rcdmallorca.es/videos	EMB,EVT
+Deportivos	Real Federación Española de Balonmano		https://www.rfebm.com	EMB,EVT
+Deportivos	Real Federación Española de Patinaje		https://www.fep.es	EMB,EVT
+Deportivos	Real Madrid TV	https://rmtv.akamaized.net/hls/live/2043153/rmtv-es-web/master.m3u8	https://www.realmadrid.com/real-madrid-tv	GEO
+Deportivos	Real Sociedad TV		https://www.realsociedad.eus/es/noticias	EMB,EVT
+Deportivos	Replay		https://replaytv.es/en-directo	EXTB,EMB,GEO
+Deportivos	Sevilla FC+		https://sevillafc.es/sevillafc/inicio	REG
+Deportivos	SPORT		https://www.sport.es	EMB,EVT
+Deportivos	Teledeporte	https://rtvelivestream.rtve.es/rtvesec/tdp/tdp_main.m3u8	https://www.rtve.es/play/videos/directo/tdp/	GEO
+Deportivos	Tiempo de Juego COPE		https://www.cope.es/programas/tiempo-de-juego/noticias/sigue-juego-directo-youtube-20250513_3149685.html	EMB,EVT
+Deportivos	Top Barça	https://amg17560-fcb-amg17560c2-samsung-es-9803.playouts.now.amagi.tv/ts-eu-w1-n2/playlist/amg17560-fcbarcelona-topbarcaspanish-samsunges/playlist.m3u8	https://www.rakuten.tv/es/live_channels/top-barca-es	-
+Deportivos	Villarreal CF TV		https://villarrealcf.es/v-play/	REG
+Deportivos	Vinx TV	https://live.enfoque.media:5443/live/streams/vinxtv.m3u8	https://vinxtv.es/directo	EMB
+Infantiles	Bluey		https://www.bluey.tv/watch/	EMB
+Infantiles	Boing		https://www.mitele.es/directo/boing	EXTA,GEO
+Infantiles	Cartoon Network Latino		https://www.cartoonnetwork.ca	EMB
+Infantiles	Clan	https://ztnr.rtve.es/ztnr/5466990.m3u8	https://www.rtve.es/play/videos/directo/clan/	GEO
+Infantiles	Disney Channel		https://www.youtube.com/@disneychannelES/streams	EMB
+Infantiles	EnerGeek Fan	https://cl-2.backend.energeek.cl/bkp/egfanweb/index.m3u8?token=TDTCh4nnelsES	https://neotv.energeek.cl/canal?slug=energeek-fan	-
+Infantiles	EnerGeek Retro	https://cl-2.backend.energeek.cl/bkp/egretroweb/index.m3u8?token=TDTCh4nnelsES	https://neotv.energeek.cl/canal?slug=energeek	-
+Infantiles	Infantil (Canal Extremadura)	https://cdn-canalextremadura.watchity.net/fast2/master.m3u8	https://www.canalextremadura.app/videos/354923-canal-tematico-infantil	-
+Infantiles	LEGO Friends		https://www.youtube.com/channel/UCP-Ng5SXUEt0VE-TXqRdL6g	EMB
+Infantiles	Little Baby Bum		https://www.youtube.com/user/LittleBabyBumEspanol	EMB,EVT
+Infantiles	Masha y el Oso		https://www.youtube.com/@MashaOso	EMB
+Infantiles	Nick Jr.		https://www.youtube.com/@NickJrEspanol	EMB,EVT
+Infantiles	Pequeradio TV	https://vps-9f1e2662.vps.ovh.net/hls/antenitatv.m3u8	https://www.antenita.es	-
+Infantiles	Pocoyó		https://www.pocoyo.com	EMB
+Infantiles	SX3	https://directes-tv-cat.3catdirectes.cat/live-content/super3-hls/master.m3u8	https://www.3cat.cat/3cat/directes/sx3/	GEO
+Infantiles	Talking Tom and Friends		https://www.youtube.com/TomFriendsEs	EMB
+Infantiles	WB Kids Latino		https://www.youtube.com/wbkidslatino	EMB,EVT
+Eventuales	¡HOLA! Play	https://hola-play-2108fd06-86d4-44e8-9867-c35b4895a1c1-es.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-hls-aes128-rtv-6433-playout/master.m3u8	https://hola.tv	-
+Eventuales	+24	https://ztnr.rtve.es/ztnr/6108696.m3u8	https://www.rtve.es/play/videos/directo/informativos/	EVT
+Eventuales	+tdp	https://ztnr.rtve.es/ztnr/6712432.m3u8	https://www.rtve.es/play/videos/directo/deportes/	EVT
+Eventuales	Al cielo con ella (RTVE)	https://ztnr.rtve.es/ztnr/16862827.m3u8	https://www.rtve.es/play/videos/directo/canales-lineales/play-alcieloconella/	-
+Eventuales	Canal Parlamento	https://congresodirecto.akamaized.net/hls/live/2037973/canalparlamento/master.m3u8	https://www.congreso.es/actualidad/canal-parlamento	EVT
+Eventuales	Cocina (RTVE)	https://ztnr.rtve.es/ztnr/16656232.m3u8	https://www.rtve.es/play/videos/directo/canales-rtve/play-cocina/	-
+Eventuales	Comedia (Mediaset Infinity)		https://www.mitele.es/directo/mitele-comedia/	EXTA
+Eventuales	Conciertos Radio 3 (RTVE)	https://ztnr.rtve.es/ztnr/6924117.m3u8	https://www.rtve.es/play/videos/directo/canales-rtve/conciertos-radio-3/	-
+Eventuales	Congreso de los Diputados	https://congresodirecto.akamaized.net/hls/live/2038274/canal1/master.m3u8	https://www.congreso.es/es/congreso-en-directo	EVT
+Eventuales	Cuéntame (RTVE)	https://ztnr.rtve.es/ztnr/6909843.m3u8	https://www.rtve.es/play/videos/directo/canales-rtve/play-cuentame/	-
+Eventuales	El Sótano Club (Ten)		https://www.youtube.com/playlist?list=PLHUC9SRR5PEkHDQKwu7vjOmY2XUo4755g	EMB,EVT
+Eventuales	En la calle (Mediaset Infinity)		https://www.mitele.es/directo/mitele-en-la-calle/	EXTA
+Eventuales	Eventos (Mediaset Infinity)		https://www.mitele.es/directo/eventos/	EXTA,EVT
+Eventuales	Eventos 2 (Mediaset Infinity)		https://www.mitele.es/directo/eventos-2/	EXTA,EVT
+Eventuales	GH VIP 24h 1 (Mediaset Infinity)		https://www.mitele.es/directo/gh-24h-1/	EXTA
+Eventuales	GH VIP 24h 2 (Mediaset Infinity)		https://www.mitele.es/directo/gh-24h-2/	EXTA
+Eventuales	La Moncloa		https://www.lamoncloa.gob.es	EMB,EVT
+Eventuales	La Promesa (RTVE)	https://ztnr.rtve.es/ztnr/2472039.m3u8	https://www.rtve.es/play/videos/directo/canales-rtve/play-promesa/	-
+Eventuales	La Revuelta (RTVE)	https://ztnr.rtve.es/ztnr/16464388.m3u8	https://www.rtve.es/play/videos/directo/canales-rtve/play-larevuelta/	-
+Eventuales	mtmad 24h		https://www.mitele.es/directo/mtmad-24h	EXTA,GEO
+Eventuales	RTVE 70 años (RTVE)	https://ztnr.rtve.es/ztnr/17232941.m3u8	https://www.rtve.es/play/videos/directo/canales-rtve/play-rtve70/	-
+Eventuales	Segunda estrella (RTVE)	https://ztnr.rtve.es/ztnr/17239088.m3u8	https://www.rtve.es/play/videos/directo/canales-rtve/play-segundaestrella/	-
+Eventuales	Senado	https://senadolive.akamaized.net/hls/live/2006551/punto1/master.m3u8	https://www.senado.es/web/actividadparlamentaria/actualidad/senadoendirecto/index.html	EVT
+Eventuales	Somos Cine (RTVE)	https://ztnr.rtve.es/ztnr/6909845.m3u8	https://www.rtve.es/play/videos/directo/canales-rtve/play-somoscine/	-
+Eventuales	Top Series (Mediaset Infinity)		https://www.mitele.es/directo/mitele-top-series/	EXTA
+Eventuales	Viajes (Mediaset Infinity)		https://www.mitele.es/directo/mitele-viajes/	EXTA
+Streaming	AuronPlay		https://www.twitch.tv/auronplay	EMB,EVT
+Streaming	Cristinini		https://www.twitch.tv/iamcristinini	EMB,EVT
+Streaming	elxokas		https://www.twitch.tv/elxokas	EMB,EVT
+Streaming	Gerard Romero		https://www.twitch.tv/gerardromero	EMB,EVT
+Streaming	GUANYAR		https://www.twitch.tv/guanyar	EMB,EVT
+Streaming	Ibai		https://www.twitch.tv/ibai	EMB,EVT
+Streaming	IlloJuan		https://www.twitch.tv/illojuan	EMB,EVT
+Streaming	JuanSGuarnizo		https://www.twitch.tv/juansguarnizo	EMB,EVT
+Streaming	knekro		https://www.twitch.tv/knekro	EMB,EVT
+Streaming	LOLiTO FDEZ		https://www.twitch.tv/lolitofdez	EMB,EVT
+Streaming	Mixwell		https://www.twitch.tv/mixwell	EMB,EVT
+Streaming	Rubius		https://www.twitch.tv/rubius	EMB,EVT
+Streaming	TheGrefg		https://www.twitch.tv/thegrefg	EMB,EVT
+Autonómicos · Andalucía	101TV Antequera	https://liveingesta318.cdnmedia.tv/101weblive/smil:antequera.smil/playlist.m3u8	https://101play.tv/es/pl/440	UAG,REFI1
+Autonómicos · Andalucía	101TV Cádiz	https://liveingesta318.cdnmedia.tv/101weblive/smil:CADIZ.smil/playlist.m3u8	https://101play.tv/es/pl/569	UAG,REFI1
+Autonómicos · Andalucía	101TV Costa del Sol	https://liveingesta318.cdnmedia.tv/101weblive/smil:BENALMADENA.smil/playlist.m3u8	https://101play.tv/es/pl/476	UAG,REFI1
+Autonómicos · Andalucía	101TV Granada	https://liveingesta318.cdnmedia.tv/101weblive/smil:granada.smil/playlist.m3u8	https://101play.tv/es/pl/233	UAG,REFI1
+Autonómicos · Andalucía	101TV Málaga	https://liveingesta318.cdnmedia.tv/101televisionlive/smil:malagaott.smil/playlist.m3u8?DVR	https://101play.tv/es/pl/359	UAG,REFI1
+Autonómicos · Andalucía	101TV Málaga Cofrade	https://liveingesta318.cdnmedia.tv/101weblive/smil:CofradeMalaga.smil/playlist.m3u8	https://101play.tv/es/pl/614	UAG,REFI1
+Autonómicos · Andalucía	101TV Sevilla	https://liveingesta318.cdnmedia.tv/101televisionlive/smil:sevillaott.smil/playlist.m3u8	https://101play.tv/es/pl/362	UAG,REFI1
+Autonómicos · Andalucía	101TV Sevilla Cofrade	https://liveingesta318.cdnmedia.tv/101weblive/smil:CofradeSevilla.smil/playlist.m3u8	https://101play.tv/es/pl/617	UAG,REFI1
+Autonómicos · Andalucía	7TV Aljarafe	https://streaming004.gestec-video.com/hls/7TVALJARAFE.m3u8	https://www.7tvandalucia.es/video/sevilla-aljarafe/aljarafe-7tv-directo/20250731093841001361.html	-
+Autonómicos · Andalucía	7TV Almería	https://streaming004.gestec-video.com/hls/7TVALMERIA.m3u8	https://www.7tvandalucia.es/video/almeria/almeria-7tv-directo/20250723091305001107.html	-
+Autonómicos · Andalucía	7TV Andalucía	https://especial7tv.gestec-video.com/hls/regional.m3u8	https://www.7tvandalucia.es/video/andalucia/directo/20250718114601000917.html	-
+Autonómicos · Andalucía	7TV Arcos	https://streaming004.gestec-video.com/hls/7TVARCOS.m3u8	https://www.7tvandalucia.es/video/cadiz-arcos/arcos-7tv-directo/20250731092124001344.html	-
+Autonómicos · Andalucía	7TV Cádiz	https://streaming004.gestec-video.com/hls/7TVCADIZ.m3u8	https://www.7tvandalucia.es/video/cadiz/cadiz-7tv-directo/20250723092939001110.html	-
+Autonómicos · Andalucía	7TV Campo de Gibraltar	https://streaming004.gestec-video.com/hls/7TVALGECIRAS.m3u8	https://www.7tvandalucia.es/video/cadiz-campodegibraltar/campo-gibraltar-7tv-directo/20250731092253001346.html	-
+Autonómicos · Andalucía	7TV Córdoba	https://streaming004.gestec-video.com/hls/7TVCORDOBA.m3u8	https://www.7tvandalucia.es/video/cordoba/cordoba-7tv-directo/20250723094526001122.html	-
+Autonómicos · Andalucía	7TV Granada	https://streaming004.gestec-video.com/hls/7TVGRANADA.m3u8	https://www.7tvandalucia.es/video/granada/granada-7tv-directo/20250723120311001147.html	-
+Autonómicos · Andalucía	7TV Jaén	https://streaming004.gestec-video.com/hls/7TVJAEN.m3u8	https://www.7tvandalucia.es/video/jaen/jaen-7tv-directo/20250723123031001175.html	-
+Autonómicos · Andalucía	7TV Jerez	https://streaming004.gestec-video.com/hls/7TVJEREZ.m3u8	https://www.7tvandalucia.es/video/cadiz-jerez/jerez-7tv-directo/20250731092738001352.html	-
+Autonómicos · Andalucía	7TV Linares	https://streaming004.gestec-video.com/hls/7TVLINARES.m3u8	https://www.7tvandalucia.es/video/jaen-linares/linares-7tv-directo/20250731093604001357.html	-
+Autonómicos · Andalucía	7TV Málaga	https://streaming004.gestec-video.com/hls/7TVMALAGA.m3u8	https://www.7tvandalucia.es/video/granada/malaga-7tv-directo/20250723140142001188.html	-
+Autonómicos · Andalucía	7TV Rota	https://streaming004.gestec-video.com/hls/7TVROTA.m3u8	https://www.7tvandalucia.es/video/cadiz-rota/rota-7tv-directo/20250731112132001354.html	-
+Autonómicos · Andalucía	7TV San Fernando	https://streaming004.gestec-video.com/hls/7TVSANFERNANDO.m3u8	https://www.7tvandalucia.es/video/cadiz-sanfernando/san-fernando-7tv-directo/20250724085255001240.html	-
+Autonómicos · Andalucía	7TV Sevilla	https://especial7tv.gestec-video.com/hls/7TVSEVILLA.m3u8	https://www.7tvandalucia.es/video/sevilla/sevilla-7tv-directo/20250723144948001214.html	-
+Autonómicos · Andalucía	8TV Chiclana	https://s.emisoras.tv:8081/chiclana/index.m3u8	https://8cadiz.es/directo-chiclana/	-
+Autonómicos · Andalucía	8TV La Janda	https://s.emisoras.tv:8081/lajanda/index.m3u8	https://8cadiz.es/directo-la-janda/	-
+Autonómicos · Andalucía	8TV Sierra de Cádiz	https://s.emisoras.tv:8081/sierradecadiz/index.m3u8	https://8cadiz.es/directo-sierra/	-
+Autonómicos · Andalucía	9 La Loma TV	https://9laloma.tv/live.m3u8	https://9laloma.tv/directo/	NONAV
+Autonómicos · Andalucía	Almería 24h TV	https://broadcast1.radioponiente.org/almeria24h_aac/index.m3u8	https://www.almeria24htv.com	-
+Autonómicos · Andalucía	Almería TV	https://broadcast1.radioponiente.org/atv/index.m3u8	https://almeriatv.com	-
+Autonómicos · Andalucía	Andalucía Cocina	https://cloud.fastchannel.es/mic/manifiest/hls/acocina/acocina.m3u8	https://xn--vivaespaa-s6a.tv/user/live-tv/ch201-andalucia-cocina/11	-
+Autonómicos · Andalucía	Axarquía TV		https://www.youtube.com/channel/UC0N3U1saaQQWMt2rRPbU0DQ	EMB,EVT
+Autonómicos · Andalucía	Canal 45 TV	https://nlb1-live.emitstream.com/hls/625csn5et2iszm9oze65/master.m3u8	https://www.canal45tv.com	-
+Autonómicos · Andalucía	Canal Coín	https://canalcoin.garjim.es/hls/directo.m3u8	https://canalcoin.com/tv-directo/	-
+Autonómicos · Andalucía	Canal Doñana	https://secure5.todostreaming.es/live/division-alm.m3u8	https://www.canaldonana.com	-
+Autonómicos · Andalucía	Canal Luz Televisión	https://5f71743aa95e4.streamlock.net:1936/CanalLuz/enDirecto/playlist.m3u8	https://canalluztelevision.es/en-directo	-
+Autonómicos · Andalucía	Canal Málaga	https://canalmalaga-tv-live.flumotion.com/playlist.m3u8	https://www.canalmalaga.es/videos/251314-directo-television	-
+Autonómicos · Andalucía	Canal San Roque	https://cdnlivevlc.codev8.net/aytosanroquelive/smil:channel1.smil/playlist.m3u8	https://www.tv.multimediasanroque.com/videos/category/4520-directo	-
+Autonómicos · Andalucía	Canal Sur 2 Accesible	https://rtva-channel22.flumotion.cloud/playlist.m3u8	https://www.canalsurmas.es/videos/77595-canal-sur-2-accesible	-
+Autonómicos · Andalucía	Canal Sur Andalucía	https://live-24-canalsur.interactvty.pro/9bb0f4edcb8946e79f5017ddca6c02b0/74cdbd1b401a7598ab8f3e9b5652c9909daa60dd4f6f96f28396a3f1cfd926f2.m3u8	https://www.canalsurmas.es/videos/131772-canal-sur-andalucia	-
+Autonómicos · Andalucía	Canal Sur Más Noticias	https://rtva-channel42.flumotion.cloud/playlist.m3u8	https://www.canalsurmas.es/videos/131524-canal-sur-mas-live-14	-
+Autonómicos · Andalucía	CanalCosta	https://5f71743aa95e4.streamlock.net:1936/CanalcostaTV/endirecto/playlist.m3u8	https://www.canalcostatv.es	EMB
+Autonómicos · Andalucía	Cartaya TV	https://video3.lhdserver.es/cartayatv/live.m3u8	https://www.radiocartaya.es	UAG
+Autonómicos · Andalucía	Cofradías 24h		https://www.youtube.com/@LIBETELTV	EMB
+Autonómicos · Andalucía	Condavisión	https://5f71743aa95e4.streamlock.net:1936/Condavision/endirecto/playlist.m3u8	https://www.condavision.es	EMB
+Autonómicos · Andalucía	Córdoba TV		https://www.cordoba-tv.com	EMB,EVT
+Autonómicos · Andalucía	Costa Noroeste TV	https://limited31.todostreaming.es/live/noroestetv-livestream.m3u8	https://www.costanoroestetv.net	EMB
+Autonómicos · Andalucía	Diez TV Andújar	https://streamtv2.elitecomunicacion.cloud:3305/live/10tvandujarlive.m3u8	https://dieztv.es/dieztv-andujar-directo/	-
+Autonómicos · Andalucía	Diez TV Las Villas	https://streaming.cloud.innovasur.es/mmj2/index.m3u8	https://dieztv.es/dieztv-lasvillas-directo/	-
+Autonómicos · Andalucía	Diez TV Úbeda	https://streaming.cloud.innovasur.es/mmj/index.m3u8	https://dieztv.es/dieztv-ubeda-directo/	-
+Autonómicos · Andalucía	Écija Comarca TV		https://areacomunicacion.ecija.es	EMB
+Autonómicos · Andalucía	Estepona TV	https://cloudvideo.servers10.com:8081/8022/index.m3u8	https://television.estepona.es/tvendirecto/	-
+Autonómicos · Andalucía	Fuengirola TV	https://streaming004.gestec-video.com/hls/FTV.m3u8	https://fuengirolatv.com/directo-ftv/	-
+Autonómicos · Andalucía	Huelva Conecta	https://servidor.islahostingla.com:3542/live/huelvaconecta3live.m3u8	https://huelvaconecta.com	EMB
+Autonómicos · Andalucía	Huelva TV		https://alacarta.huelvatv.com/directo/	EXTA,EMB
+Autonómicos · Andalucía	Interalmería TV	https://interalmeria.tv/directo/live.m3u8	https://www.interalmeria.tv/directo/	-
+Autonómicos · Andalucía	Jerez TV		https://jereztelevision.com	EMB,EVT
+Autonómicos · Andalucía	Junta de Andalucía		https://www.juntadeandalucia.es	EMB,EVT
+Autonómicos · Andalucía	M95 Marbella	https://limited2.todostreaming.es/live/m95-livestream.m3u8	https://www.m95tvmarbella.es	-
+Autonómicos · Andalucía	Manilva TV	https://stream.castr.com/627a72d21914543be01c1720/live_e2ae1780dc2a11eca660b7b17b7952a5/tracks-v1a1/mono.m3u8	https://www.rtvmanilva.com/tvdirecto/	NONAV,REFC1
+Autonómicos · Andalucía	Marbella TV	https://streaming.rtvmarbella.tv/hls/streamingweb.m3u8	https://rtvmarbella.tv/tv-en-directo/	-
+Autonómicos · Andalucía	Más Jerez		https://masjerez.com/programas-tv	EMB,EVT
+Autonómicos · Andalucía	Mijas 3.40 TV	https://streaming004.gestec-video.com/hls/MIJAS.m3u8	https://mijascomunicacion.com/mijas-340-tv-en-directo/	-
+Autonómicos · Andalucía	MIRA TV		https://www.elmira.es/miratv/	EXTA
+Autonómicos · Andalucía	Music TV Granada	https://cloudvideo.servers10.com:8081/8032/index.m3u8	https://musictvgranada.com	-
+Autonómicos · Andalucía	Onda Algeciras TV	https://cloudtv.provideo.es/live/algecirastv-livestream.m3u8	https://ondaalgecirastv.com/en-directo/	-
+Autonómicos · Andalucía	Onda Cádiz	https://ondacadiztv.es:30443/octv/directo_multi/playlist.m3u8	https://ondacadiz.es/television-directo	-
+Autonómicos · Andalucía	Parlamento de Andalucía	https://stream1.parlamentodeandalucia.es/realizacion1/realizacion1/playlist.m3u8	https://www.parlamentodeandalucia.es/stream/canal4.html	EVT
+Autonómicos · Andalucía	PTV Córdoba	https://streamer.zapitv.com/PTV_CORDOBA/index.m3u8	https://ptvtelecom.com/canales/cordoba.html	UAGB
+Autonómicos · Andalucía	PTV Granada	https://streamer.zapitv.com/PTV-granada/index.m3u8	https://ptvtelecom.com/canales/granada.html	UAGB
+Autonómicos · Andalucía	PTV Linares	https://streamer.zapitv.com/ptv-linarez/index.m3u8	https://www.ptvtelecom.com/canales/linares.html	UAGB
+Autonómicos · Andalucía	PTV Málaga	https://streamer.zapitv.com/PTV-malaga/index.m3u8	https://ptvtelecom.com/canales/malaga.html	UAGB
+Autonómicos · Andalucía	PTV Sevilla	https://streamer.zapitv.com/PTV_sevilla/index.m3u8	https://ptvtelecom.com/canales/sevilla.html	UAGB
+Autonómicos · Andalucía	RTV Tarifa		https://www.youtube.com/@RTVTARIFA	EMB,EVT
+Autonómicos · Andalucía	Sal TV	https://nimble.tuyapro.es/saltv/tv/playlist.m3u8	https://www.saltv.es/endirecto/	-
+Autonómicos · Andalucía	Telécija		https://ecijadigital.es	EMB
+Autonómicos · Andalucía	TeleGranada	https://telegranada.es/hls/stream.m3u8	https://artefm.es	-
+Autonómicos · Andalucía	Telemotril	https://video.telemotril.com/telemotril-channel-1/index.m3u8	https://telemotril.com/telemotril-en-vivo/	-
+Autonómicos · Andalucía	Teleonuba	https://5f71743aa95e4.streamlock.net:1936/Teleonuba/endirecto/playlist.m3u8	https://www.teleonuba.es/en-directo/	EMB
+Autonómicos · Andalucía	TeleQuivir		https://vegadigital.es	EMB
+Autonómicos · Andalucía	Televisión Alhaurín	https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=13354&live=1	https://rtvalhaurinelgrande.com	-
+Autonómicos · Andalucía	TG7	https://flu-01.hucame.es/TG7/index.fmp4.m3u8	https://tg7.es	-
+Autonómicos · Andalucía	Torremolinos TV	https://cdnlivevlc.codev8.net/canaltorremolinoslive/smil:channel1.smil/playlist.m3u8	https://torremolinostv.com/tv-en-directo/	-
+Autonómicos · Andalucía	Tuya La Janda TV	https://nimble.tuyapro.es/app/tv/playlist.m3u8	https://tuyatv.com	-
+Autonómicos · Andalucía	TV Carmona		https://www.televisioncarmona.com	EMB
+Autonómicos · Andalucía	TVM Córdoba	https://d16pwlnz9msuji.cloudfront.net/wct-dad9c712-1c61-4a61-aeee-8be9f5c9e6e9/continuous/8fbfd2f5-30c2-4d48-a24e-73f5d35ba491/index.m3u8	https://tvm.cordoba.es/live	-
+Autonómicos · Andalucía	Uvitel TV		https://uvitelonline.com/en-directo/	EXTA
+Autonómicos · Aragón	Altoaragón Televisión		https://altoaragontelevision.es	EMB,EVT
+Autonómicos · Aragón	Antena Aragón		https://diarioaragones.com	EMB,EVT
+Autonómicos · Aragón	Aragón Noticias Accesible		https://www.aragonplay.es/watch/live/69f8215ba762c9b1ab324ac8	EXTA,REG
+Autonómicos · Aragón	Aragón TV		https://www.aragonplay.es/watch/live/69934178aea15ae34fa39ad0	EXTA,REG
+Autonómicos · Aragón	Calamocha TV		https://www.mijilocatv.es	EMB
+Autonómicos · Aragón	Canal 25 Barbastro TV		https://www.canal25tv.es	EMB
+Autonómicos · Aragón	Cortes de Aragón		https://www.cortesaragon.es	EMB,EVT
+Autonómicos · Aragón	El Tiempo en Aragón (AragonPlay)		https://www.aragonplay.es/watch/live/699341cfc03fcc0e33b898c3	EXTA,REG
+Autonómicos · Aragón	Gobierno de Aragón		https://www.aragon.es	EMB,EVT
+Autonómicos · Canarias	24h Canarias	https://ztnr.rtve.es/ztnr/5473142.m3u8	https://www.rtve.es/play/videos/directo/tve-canarias/24-h-can/	GEO
+Autonómicos · Canarias	Afortunadas TV	https://cloudvideo.servers10.com:8081/8108/index.m3u8	https://www.afortunadastv.com	-
+Autonómicos · Canarias	Ahora TV	https://tv.mediacp.eu/hls/ahoratv/ahoratv.m3u8	https://ahoratelevision.es	-
+Autonómicos · Canarias	Atlántico Televisión	https://live.atlanticotelevision.com/hls/hi/index.m3u8	https://www.atlanticotelevision.com/en-vivo-tv/	-
+Autonómicos · Canarias	Canal 10		https://canal10-television.com	EMB,EVT
+Autonómicos · Canarias	Canal 13 Canarias	https://eu1.servers10.com:8081/8316/index.m3u8	https://www.canal13canarias.es/directo/	-
+Autonómicos · Canarias	Canal 4 Tenerife	https://videoserver.tmcreativos.com:19360/hkbpjryheu/hkbpjryheu.m3u8	https://www.canal4tenerife.tv/directo/	-
+Autonómicos · Canarias	Factoría de Carnaval	https://eu1.servers10.com:8081/8116/index.m3u8	https://multicarnaval.com	-
+Autonómicos · Canarias	Fuerteventura TV	https://live.lancelot.tv/directo/fuerteventura.television/index.m3u8	https://fuerteventuratelevision.com	-
+Autonómicos · Canarias	Gobierno de Canarias		https://www.gobiernodecanarias.org/presidencia/	EMB,EVT
+Autonómicos · Canarias	GranCanariaTV.com		https://www.grancanariatv.com	EMB,EVT
+Autonómicos · Canarias	La 1 Canarias	https://rtvelivestream.rtve.es/rtvesec/can/la1_can_main_dvr.m3u8	https://www.rtve.es/play/videos/directo/tve-canarias/	GEO
+Autonómicos · Canarias	La 2 Canarias	https://rtvelivestream.rtve.es/rtvesec/can/la2_can_main_dvr.m3u8	https://www.rtve.es/play/videos/directo/tve-canarias/la-2-can/	GEO
+Autonómicos · Canarias	Lancelot TV	https://5c0956165db0b.streamlock.net:8090/directo/_definst_/lancelot.television/master.m3u8	https://www.lancelot.tv/directo/	-
+Autonómicos · Canarias	Mírame TV	https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=13696&live=1	https://mirametv.com	-
+Autonómicos · Canarias	Noroeste TV	https://stream.castr.com/5d1f649bed75c92e40481734/live_19364d50fbcd11ed91bd012c3488eabc/index.fmp4.m3u8	https://sites.google.com/view/noroestetv/inicio	NONAV,REFC1
+Autonómicos · Canarias	NORTEvisión		https://nortevision.es/directo/	-
+Autonómicos · Canarias	Parlamento de Canarias		https://www.parcan.es	EMB,EVT
+Autonómicos · Canarias	Radio Calima TV	https://nrvideo1.newradio.it:443/calimafm/calimafm/playlist.m3u8	https://calima.fm/es/	-
+Autonómicos · Canarias	RTV Mogán	https://cloudvideo.servers10.com:8081/8028/index.m3u8	https://www.mogan.es/45-radio-television-de-mogan/3382-ver-television-mogan	-
+Autonómicos · Canarias	Tenerife Más TV	https://k20.usastreams.com:8081/tenerifeplus/index.m3u8	https://www.tenerifeplus.tv	-
+Autonómicos · Canarias	TV Canaria (RTVC)	https://d1oyt3v08gcy18.cloudfront.net/index-events.m3u8	https://www.canariasplay.es/videos/314784-rtvc-en-directo	-
+Autonómicos · Cantabria	11 TV Cantabria		https://www.11tv.es	EMB,EVT
+Autonómicos · Cantabria	Cantabria TV		https://www.cantabriatv.es	EMB
+Autonómicos · Cantabria	De Laredu Lin TV	https://eu1.servers10.com:8081/8034/index.m3u8	https://delaredulintv.com/television-online/	NONAV
+Autonómicos · Cantabria	Gobierno de Cantabria		https://www.cantabria.es	EMB,EVT
+Autonómicos · Cantabria	Parlamento de Cantabria		https://parlamento-cantabria.es	EMB,EVT
+Autonómicos · Cantabria	Popular TV Cantabria	https://limited12.todostreaming.es/live/ptvcantabria-livestream.m3u8	https://populartvcantabria.com/en-directo/	EMB
+Autonómicos · Cantabria	Saja Nansa TV	https://streamlov.alsolnet.com/sajanansatv/live/playlist.m3u8	https://www.ondaoccidental.es/sajanansatv/	-
+Autonómicos · Cantabria	Tevecan 9	https://streamlov.alsolnet.com/jarbhouse/live/playlist.m3u8	https://closeradio.tv/jarbhouse/	-
+Autonómicos · Castilla-La Mancha	Alcarria TV	https://cls.alcarria.tv/live/alcarriatv-livestream.m3u8	https://www.alcarria.tv/ver-en-directo/	-
+Autonómicos · Castilla-La Mancha	Canal 2000		https://www.canal2000.com	REG,NONAV
+Autonómicos · Castilla-La Mancha	Canal 4 Mancha	https://5924d3ad0efcf.streamlock.net/canal4/canal4live/playlist.m3u8	https://villarrobledonoticias.com/canal-4-mancha/	-
+Autonómicos · Castilla-La Mancha	CanalImagen Almansa		https://zonacliente.almatelecom.es/videos/canalimagen	EXTA,REF
+Autonómicos · Castilla-La Mancha	Castilla-La Mancha Media (CMM)	https://cdnapisec.kaltura.com/p/2288691/sp/228869100/playManifest/entryId/1_gnz6ity9/protocol/https/format/applehttp/a.m3u8	https://www.cmmplay.es/live/469/Television	-
+Autonómicos · Castilla-La Mancha	Castilla-La Mancha Radio (CMM)	https://cdnapisec.kaltura.com/p/2288691/sp/228869100/playManifest/entryId/1_fmx3e3sd/protocol/https/format/applehttp/a.m3u8	https://www.cmmplay.es/live/474/Radio-C-LM-Visual	-
+Autonómicos · Castilla-La Mancha	Ciudad Real TV		https://www.ciudadreal.es/servicios-municipales/cr-tv.html	EMB,EVT
+Autonómicos · Castilla-La Mancha	Cortes de Castilla-La Mancha		https://www.cortesclm.es	EMB,EVT
+Autonómicos · Castilla-La Mancha	Gobierno de Castilla-La Mancha		https://www.castillalamancha.es/actualidad/sala-prensa	EVT,EXTA
+Autonómicos · Castilla-La Mancha	Guada TV Media	https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=12689&live=1	https://www.guadatv.tv/streaming/	-
+Autonómicos · Castilla-La Mancha	Imás TV	https://secure3.todostreaming.es/live/imastv-livestream.m3u8	https://imastv.es/directo-tv/	NONAV
+Autonómicos · Castilla-La Mancha	TeleToledo	https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=12688&live=1	https://www.teletoledo.es	-
+Autonómicos · Castilla-La Mancha	TV Hellín	https://5940924978228.streamlock.net/directohellin/directohellin/playlist.m3u8	https://televisionhellin.com/tvhellindirecto.html	-
+Autonómicos · Castilla-La Mancha	Visión 6 TV		https://www.visionseis.tv/tv-online-vision-seis/	EMB
+Autonómicos · Castilla y León	987 TV		https://987tv.es	EMB,EVT
+Autonómicos · Castilla y León	Canal 54		https://www.canal54.es/#directo	EMB
+Autonómicos · Castilla y León	Canal 9 Soria		https://canal9soria.com	EMB,EVT
+Autonómicos · Castilla y León	Cortes de Castilla y León	https://directo.ccyl.es/Hemiciclo/smil:Hemiciclo.smil/playlist.m3u8	https://www.ccyl.es/Home/Inicio	EVT
+Autonómicos · Castilla y León	Junta de Castilla y León	https://16escalones-live2.flumotion.com/chunks.m3u8	https://www.jcyl.es/web/jcyltv.html	EVT
+Autonómicos · Castilla y León	La 7 (CyLTV)		https://www.cyltvplay.es/player/d3badef6-d229-4a27-9609-03df3d17ca3/la7/la7	EXTA
+Autonómicos · Castilla y León	La 8 Ávila		https://www.cyltvplay.es/player/8ff2818d-60f4-43dd-a76f-7e43644e51d/la8av/la-8-avila	EXTA
+Autonómicos · Castilla y León	La 8 Bierzo		https://www.cyltvplay.es/player/f10db0a9-9d70-4c22-a331-54f18e37a50/la8bi/la-8-bierzo	EXTA
+Autonómicos · Castilla y León	La 8 Burgos		https://www.cyltvplay.es/player/f6b3c206-798e-4ef9-aad7-beb4c0369b0/la8bu/la-8-burgos	EXTA
+Autonómicos · Castilla y León	La 8 León		https://www.cyltvplay.es/player/9981645e-51e3-4959-90ac-8e73efcfd15/la8le/la-8-leon	EXTA
+Autonómicos · Castilla y León	La 8 Palencia		https://www.cyltvplay.es/player/873e0dae-6224-4e3a-8c60-acf7b56e2cc/la8pa/la-8-palencia	EXTA
+Autonómicos · Castilla y León	La 8 Salamanca		https://www.cyltvplay.es/player/4b93450f-34f7-4301-9dc1-d43b076f117/la8sa/la-8-salamanca	EXTA
+Autonómicos · Castilla y León	La 8 Segovia		https://www.cyltvplay.es/player/cd2029ac-aea3-4f48-accf-14caed70a33/la8se/la-8-segovia	EXTA
+Autonómicos · Castilla y León	La 8 Soria		https://www.cyltvplay.es/player/36864735-715b-4d21-b934-242d3ace2e4/la8so/la-8-soria	EXTA
+Autonómicos · Castilla y León	La 8 Valladolid		https://www.cyltvplay.es/player/b2970950-0f6d-434f-a0ee-4159a270bf7/la8va/la-8-valladolid	EXTA
+Autonómicos · Castilla y León	La 8 Zamora		https://www.cyltvplay.es/player/e176f0c7-3c25-4892-98be-98fea180e8e/la8za/la-8-zamora	EXTA
+Autonómicos · Castilla y León	Radio Evolución Burgos		https://radioevolucion.es/directo	EMB,EVT
+Autonómicos · Castilla y León	Telemedina Canal 9		https://www.lavozdemedinadigital.com	EMB,EVT
+Autonómicos · Castilla y León	TV Aranda	https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=12686&live=1	https://www.telearanda.es	-
+Autonómicos · Cataluña	22TV Televisió de Solsona		https://22cabletv.wordpress.com	EMB
+Autonómicos · Cataluña	24h Catalunya	https://ztnr.rtve.es/ztnr/4952053.m3u8	https://www.rtve.es/play/videos/directo/tve-catalunya/24h-cat/	GEO
+Autonómicos · Cataluña	33	https://directes-tv-cat.3catdirectes.cat/live-content/c33-super3-hls/master.m3u8	https://www.3cat.cat/3cat/directes/33/	GEO
+Autonómicos · Cataluña	3Cat Anime	https://directes-tv-cat.3catdirectes.cat/live-content/tem2-hls/master.m3u8	https://www.3cat.cat/3cat/directes/tem2/	GEO
+Autonómicos · Cataluña	3Cat Càmeres del temps	https://directes-tv-cat.3catdirectes.cat/live-content/beauties-hls/master.m3u8	https://www.3cat.cat/3cat/directes/beauties/	EMB,GEO
+Autonómicos · Cataluña	3Cat Doraemon	https://fast-tailor.3catdirectes.cat/v1/channel/doraemon/hls.m3u8	https://www.3cat.cat/3cat/directes/fc3/	GEO
+Autonómicos · Cataluña	3Cat Exclusiu 1	https://directes-tv-cat.3catdirectes.cat/live-content/oca1-hls/master.m3u8	https://www.3cat.cat/3cat/directes/oca1/	GEO,EVT
+Autonómicos · Cataluña	3Cat Exclusiu 2	https://directes-tv-cat.3catdirectes.cat/live-content/oca2-hls/master.m3u8	https://www.3cat.cat/3cat/directes/oca2/	GEO,EVT
+Autonómicos · Cataluña	3Cat Exclusiu 3	https://directes-tv-cat.3catdirectes.cat/live-content/oca3-hls/master.m3u8	https://www.3cat.cat/3cat/directes/oca3/	GEO,EVT
+Autonómicos · Cataluña	3Cat Exclusiu 4	https://directes-tv-cat.3catdirectes.cat/live-content/oca4-hls/master.m3u8	https://www.3cat.cat/3cat/directes/oca4/	GEO,EVT
+Autonómicos · Cataluña	3Cat Joc de Cartes	https://fast-tailor.3catdirectes.cat/v1/channel/joc-de-cartes/hls.m3u8	https://www.3cat.cat/3cat/directes/fc2/	GEO
+Autonómicos · Cataluña	3Cat Plats bruts	https://fast-tailor.3catdirectes.cat/v1/channel/ccma-channel2/hls.m3u8	https://www.3cat.cat/3cat/directes/fc1/	GEO
+Autonómicos · Cataluña	3Cat Verdi Clàssics	https://directes-tv-cat.3catdirectes.cat/live-content/tem1-hls/master.m3u8	https://www.3cat.cat/3cat/directes/tem1/	GEO
+Autonómicos · Cataluña	3Cat Vinagreta	https://fast-tailor.3catdirectes.cat/v1/channel/vinagreta/hls.m3u8	https://www.3cat.cat/3cat/directes/fc4/	GEO
+Autonómicos · Cataluña	Banyoles Televisió		https://www.laxarxames.cat/player/8029	EXTA,REG
+Autonómicos · Cataluña	BDN Badalona TV	https://liveingesta318.cdnmedia.tv/badalonatvlive/smil:live.smil/playlist.m3u8?DVR	https://www.bdncom.cat/ca	UAG,REFI1
+Autonómicos · Cataluña	betevé	https://cdnapisec.kaltura.com/p/2346171/sp/234617100/playManifest/entryId/1_vfibi2fe/protocol/https/format/applehttp/a.m3u8?referrer=aHR0cHM6Ly9iZXRldmUuY2F0	https://beteve.cat/en-directe/	-
+Autonómicos · Cataluña	Bon Dia TV	https://directes-tv-cat.3catdirectes.cat/live-content/bondia-hls/master.m3u8	https://www.3cat.cat/bondiatv/	GEO
+Autonómicos · Cataluña	Canal 10 Empordà	https://ventdelnord.tv:8080/escala/directe.m3u8	https://www.canal10.cat/endirecte	-
+Autonómicos · Cataluña	Canal 21 Ebre		https://www.canal21ebre.com/inici/en-directe/	EXTB,REG
+Autonómicos · Cataluña	Canal 4 TV Catalunya	https://5caf24a595d94.streamlock.net:1937/8014/8014/playlist.m3u8	https://www.grup4.com	-
+Autonómicos · Cataluña	Canal Blau TV		https://canalblau.tv	EXTB,REG
+Autonómicos · Cataluña	Canal Parlament		https://parlament.cat/ext/f?p=700:1	EVT
+Autonómicos · Cataluña	Canal Reus	https://ingest2-video.streaming-pro.com/creus/stream/playlist.m3u8	https://canalreus.cat/directe/	-
+Autonómicos · Cataluña	Canal Taronja Anoia	https://ingest1-video.streaming-pro.com/canaltaronja/anoia/playlist.m3u8	https://www.anoia.canaltaronja.cat	-
+Autonómicos · Cataluña	Canal Taronja Central	https://ingest1-video.streaming-pro.com/canaltaronja/central/playlist.m3u8	https://www.central.canaltaronja.cat	-
+Autonómicos · Cataluña	Canal Taronja Osona i Moianés	https://ingest1-video.streaming-pro.com/canaltaronja/osona/playlist.m3u8	https://www.osona.canaltaronja.cat	-
+Autonómicos · Cataluña	Canal Terrassa	https://ingest2-video.streaming-pro.com/canalterrassa/stream/playlist.m3u8	https://terrassadigital.cat/directe/	-
+Autonómicos · Cataluña	Canal Terres de l'Ebre		https://canalte.cat/en-directe/	EXTB,REG
+Autonómicos · Cataluña	Cugat TV		https://www.cugat.cat/tv-directe/	EXTB,REG
+Autonómicos · Cataluña	El 9 TV		https://el9nou.cat/el9tv/	EXTB,REG
+Autonómicos · Cataluña	Empordà TV	https://video3.lhdserver.es/empordatv2/live.m3u8	https://www.empordadigital.cat/directe/	-
+Autonómicos · Cataluña	etv	https://liveingesta318.cdnmedia.tv/tvetvlive/smil:rtmp01.smil/playlist.m3u8?DVR	https://etv.cat/#directe	UAG,REFI1
+Autonómicos · Cataluña	Govern de la Generalitat de Catalunya		https://govern.cat/gov	EMB,EVT
+Autonómicos · Cataluña	L'Hospitalet TV	https://liveingesta318.cdnmedia.tv/tvhospitaletlive/smil:tvhospitalet.smil/playlist.m3u8?DVR	https://lhdigital.cat/en-directe/	UAG,REFI1
+Autonómicos · Cataluña	La 1 Catalunya	https://rtvelivestream.rtve.es/rtvesec/cat/la1_cat_main_dvr.m3u8	https://www.rtve.es/play/videos/directo/tve-catalunya/	GEO
+Autonómicos · Cataluña	La 2Cat	https://rtvelivestream.rtve.es/rtvesec/cat/la2_cat_main_dvr.m3u8	https://www.rtve.es/play/videos/directo/tve-catalunya/la-2-cat/	GEO
+Autonómicos · Cataluña	La Xarxa		https://laxarxames.cat/directe	REG
+Autonómicos · Cataluña	Lleida TV	https://liveingesta318.cdnmedia.tv/lleidatvlive/smil:live.smil/playlist.m3u8?DVR	https://ott.lleidatv.cat/ca/pl/6	UAG,REFI1
+Autonómicos · Cataluña	Olot Televisió		https://laxarxames.cat/player/8042	EXTA,REG
+Autonómicos · Cataluña	Penedès TV	https://liveingesta318.cdnmedia.tv/rtvvilafrancalive/smil:live.smil/playlist.m3u8?DVR	https://www.rtvvilafranca.cat/penedes-televisio-en-directe/	UAG,REFI1
+Autonómicos · Cataluña	Piera TV	https://5d776b1861da1.streamlock.net/piera/smil:piera.smil/playlist.m3u8	https://piera.practic.cat	-
+Autonómicos · Cataluña	Pirineus TV		https://www.pirineustv.cat	EMB,EXTB
+Autonómicos · Cataluña	Ràdio 4	https://ztnr.rtve.es/ztnr/6982935.m3u8	https://www.rtve.es/play/videos/directo/radio-4-webcam/79888/	-
+Autonómicos · Cataluña	RTV Cardedeu	https://liveingesta318.cdnmedia.tv/tvcardedeulive/smil:rtmp01.smil/playlist.m3u8?DVR	https://www.rtvc.cat/tele/	UAG,REFI1
+Autonómicos · Cataluña	RTV El Vendrell	https://liveingesta318.cdnmedia.tv/tvvendrelllive/smil:directe.smil/playlist.m3u8	https://www.rtvelvendrell.cat/directes/televisio/	UAG,REFI1
+Autonómicos · Cataluña	TAC 12	https://ingest3-video.streaming-pro.com/tac12_ABR/stream/playlist.m3u8	https://www.tac12.tv/en-directe	-
+Autonómicos · Cataluña	TV Berguedà		https://tvbergueda.cat/en-directe	EXTB,REG
+Autonómicos · Cataluña	TV Costa Brava	https://liveingesta318.cdnmedia.tv/costabravatvlive/smil:live.smil/playlist.m3u8	https://www.tvcostabrava.com/canals-online	UAG,REFI1
+Autonómicos · Cataluña	TV del Ripollès		https://laxarxames.cat/player/8047	EXTA,REG
+Autonómicos · Cataluña	TV Sabadell - Vallès	https://ingest1-video.streaming-pro.com/canaltaronja/sabadell/playlist.m3u8	https://www.sabadell.canaltaronja.cat/sabadell-valles/directe/	-
+Autonómicos · Cataluña	TV Sant Cugat		https://www.tvsantcugat.cat/cobertura/directe-tv-hd/	EMB
+Autonómicos · Cataluña	TV3	https://directes3-tv-cat.3catdirectes.cat/live-content/tv3-hls/master.m3u8	https://www.3cat.cat/3cat/directes/tv3/	GEO
+Autonómicos · Cataluña	TVGirona		https://laxarxames.cat/player/8044	EXTA,REG
+Autonómicos · Cataluña	tvmataró		https://www.tvmataro.cat/sp/programacio	EXTB,REG
+Autonómicos · Cataluña	Vallès Visió		https://vallesvisio.cat/333281-2/	EXTB,REG
+Autonómicos · Cataluña	VOTV	https://ingest2-video.streaming-pro.com/votv/streaming_web/playlist.m3u8	https://votv.cat/votv-en-directe/	-
+Autonómicos · Ceuta	Ceuta TV		https://www.ceutatv.com/estaticas/ceuta-tv-en-directo.html	EVT
+Autonómicos · Ceuta	El Faro		https://elfarodeceuta.es	EMB,EVT
+Autonómicos · Ceuta	RTVCE		https://www.ceutaplay.es/pages/live	EXTA
+Autonómicos · C. de Madrid	Asamblea de Madrid		https://www.asambleamadrid.es	EMB,EVT
+Autonómicos · C. de Madrid	Canal 33 Madrid	https://media2.streambrothers.com:1936/8140/8140/playlist.m3u8	https://www.canal33.info	-
+Autonómicos · C. de Madrid	Canal Red		https://canalred.tv	EMB
+Autonómicos · C. de Madrid	Déjate de Historias TV	https://limited44.todostreaming.es/live/dejatedeh-livestream.m3u8	https://dejatedehistorias.es/directo/	-
+Autonómicos · C. de Madrid	Distrito TV	https://live.emitstream.com/hls/3mn7wpcv7hbmxmdzaxap/master.m3u8	https://distritotv.es	-
+Autonómicos · C. de Madrid	EsTuTele		https://estutele.com	-
+Autonómicos · C. de Madrid	Gobierno de la Comunidad de Madrid		https://www.comunidad.madrid	EMB,EVT
+Autonómicos · C. de Madrid	iPROtv	https://59ec5453559f0.streamlock.net/iprotv/iprotv/playlist.m3u8	https://iprotv.eu	-
+Autonómicos · C. de Madrid	LaOtra		https://www.tlmad.es/pages/live/laotra	EXTA,EVT
+Autonómicos · C. de Madrid	LIRA TV	https://cloud2.streaminglivehd.com:1936/liratv/liratv/playlist.m3u8	https://liratv.es	NONAV
+Autonómicos · C. de Madrid	Onda Madrid 101.3		https://www.tlmad.es/pages/live/onda-madrid-1013	EXTA
+Autonómicos · C. de Madrid	Teleganés	https://live.emitstream.com/hls/5z6oj7ziwxzfnj78vg2m/master.m3u8	https://www.teleganes.com/en-directo/	-
+Autonómicos · C. de Madrid	Telemadrid		https://www.tlmad.es/pages/live/telemadrid	EXTA,EVT
+Autonómicos · C. Foral de Navarra	Gobierno de Navarra		https://www.navarra.es	EMB,EVT
+Autonómicos · C. Foral de Navarra	Navarra TV		https://www.navarratelevision.es/Directo	EMB,EXTB
+Autonómicos · C. Foral de Navarra	Parlamento de Navarra	https://broadcasting.parlamentodenavarra.es/live/canal1/playlist.m3u8?DVR	https://www.parlamentodenavarra.es	EVT
+Autonómicos · C. Foral de Navarra	Xaloa Telebista	https://streaming.mediacast.pro/live/xaloa/playlist.m3u8	https://xaloatelebista.eus/zuzenean/	-
+Autonómicos · C. Valenciana	12TV Alicante		https://www.12tv.es	-
+Autonómicos · C. Valenciana	33TV	https://limited43.todostreaming.es/live/simbana-livestream.m3u8	https://33tv.es	-
+Autonómicos · C. Valenciana	7 TeleValencia	https://play.cdn.enetres.net/9E9557EFCEBB43A89CEC8FBD3C500247022/028/playlist.m3u8	https://7televalencia.com/directo-7televalencia/	-
+Autonómicos · C. Valenciana	8 La Marina TV	https://streaming005.gestec-video.com/hls/canal24.m3u8	https://8lamarinatv.com	NONAV
+Autonómicos · C. Valenciana	À Punt	https://fastly.live.brightcove.com/1846756479408303045/eu-central-1/6057955885001/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJob3N0IjoiZWFxNWh4LmVncmVzcy53YzQ3bTEiLCJhY2NvdW50X2lkIjoiNjA1Nzk1NTg4NTAwMSIsImVobiI6ImZhc3RseS5saXZlLmJyaWdodGNvdmUuY29tIiwiaXNzIjoiYmxpdmUtcGxheWJhY2stc291cmNlLWFwaSIsInN1YiI6InBhdGhtYXB0b2tlbiIsImF1ZCI6WyI2MDU3OTU1ODg1MDAxIl0sImp0aSI6IjE4NDY3NTY0Nzk0MDgzMDMwNDUifQ.o6wb_VA-TVxl3ERgr7FKLlaTjY7smErmsf73QAydySE/playlist-hls-dvr.m3u8	https://www.apuntmedia.es/directe/directe-tv_136_1392524.html	EXTA
+Autonómicos · C. Valenciana	Alacantí TV	https://streaming01.gestec-video.com/hls/artequatreAlacanti.m3u8	https://www.alacantitv.com/en-directo/	NONAV
+Autonómicos · C. Valenciana	Burriana TeVe	https://stream.burrianateve.com:8443/hls/abr_burrianateve/index.m3u8	https://burrianateve.com/directe/	-
+Autonómicos · C. Valenciana	Canal 3 Biar	https://avantstreaming.es/hls/canal3hd.m3u8	https://canal3biar.es/directe/	-
+Autonómicos · C. Valenciana	Canal 56	https://videos.canal56.com/directe/stream/index.m3u8	https://canal56.com/online/	NONAV
+Autonómicos · C. Valenciana	Ciudades Del Ocio TV	https://cloudvideo.servers10.com:8081/8024/index.m3u8	https://www.ciudadesdelocio.tv	NONAV
+Autonómicos · C. Valenciana	Corts Valencianes	https://streamserver3.seneca.tv/cval_live/cdn_enc_3/master.m3u8	https://mediateca.cortsvalencianes.es/library/lives/	EVT
+Autonómicos · C. Valenciana	Elche 7 TV	https://elche7tv.gestec-video.com/hls/canal2.m3u8	https://elche7tv.es/tv-en-directo/	NONAV
+Autonómicos · C. Valenciana	Enguera TV		https://www.enguera.es/content/enguera-tv	EMB,EVT
+Autonómicos · C. Valenciana	Generalitat Valenciana		https://www.gva.es	EMB,EVT
+Autonómicos · C. Valenciana	Información TV		https://www.informacion.es/videos/informaciontv/	EMB
+Autonómicos · C. Valenciana	Intercomarcal TV	https://streamingtvi.gestec-video.com/hls/tvixa.m3u8	https://www.intercomarcal.com	NONAV
+Autonómicos · C. Valenciana	La 8 Mediterráneo	https://newscript.gestec-video.com/hls/8TVEVENTOS.m3u8	https://laocho.tv/tv-en-directo/	-
+Autonómicos · C. Valenciana	Levante TV		https://www.levante-emv.com/videos/levante-tv	EMB
+Autonómicos · C. Valenciana	Maestrat TV	https://stream.maestrat.tv/hls/stream.m3u8	https://www.maestrat.tv/directe	-
+Autonómicos · C. Valenciana	Onda 15 TV	https://cloudvideo.servers10.com:8081/8034/index.m3u8	https://onda15.es	-
+Autonómicos · C. Valenciana	Onda Valencia	https://cloudvideo.servers10.com:8081/8116/index.m3u8	https://www.ondavalencia.es/en-directo/onda-valencia-tv	-
+Autonómicos · C. Valenciana	Punt 3 Vall Uixó	https://bit.controlstreams.com:5443/LiveApp/streams/punt3.m3u8	https://www.punt3.es/Directo/	-
+Autonómicos · C. Valenciana	Ràdio Bocairent TV		https://radiobocairent.com	EMB
+Autonómicos · C. Valenciana	Ribera TV	https://common01.todostreaming.es/live/ribera-livestream.m3u8	https://www.riberatelevisio.com/en-directe/	-
+Autonómicos · C. Valenciana	Tele Safor	https://video.telesafor.com/hls/video.m3u8	https://telesafor.com	-
+Autonómicos · C. Valenciana	TeleElx	https://tvdirecto.teleelx.es/stream/teleelx.m3u8	https://teleelx.es/directo/	NONAV
+Autonómicos · C. Valenciana	Televisió de Castelló		https://www.tvcs.tv/en-directe/	EMB
+Autonómicos · C. Valenciana	Tevequatre TV		https://teve4.com/directe/	EMB
+Autonómicos · C. Valenciana	TV 4 La Vall	https://valldeuxo.gestec-video.com/hls/lavall.m3u8	https://teve4lavall.com	NONAV
+Autonómicos · C. Valenciana	TV Almassora	https://play.turesportmedia.com/hls/abr_tvalmassora/index.m3u8	https://www.tvalmassora.com/en-directo/en-directo-television-almassora/	-
+Autonómicos · C. Valenciana	tvA	https://streaming007.gestec-video.com/hls/artequatreTVA.m3u8	https://www.tv-a.es	NONAV
+Autonómicos · C. Valenciana	Une Vinalopó	https://streamingtvi.gestec-video.com/hls/unesd.m3u8	https://www.unevinalopo.es/directo/	NONAV
+Autonómicos · C. Valenciana	Univers TV	https://cloud2.streaminglivehd.com:1936/universfaller/universfaller/playlist.m3u8	https://www.universvalencia.es	-
+Autonómicos · Extremadura	Asamblea de Extremadura		https://www.asambleaex.es	EMB,EVT
+Autonómicos · Extremadura	Canal Extremadura	https://d2ymuyhevki1a1.cloudfront.net/wct-ddd2992e-86fc-4611-a491-7f392259e9ba/continuous/9be76611-d2cd-474d-bf19-ef702ba31b02/index.m3u8	https://www.canalextremadura.app/videos/182630-canal-video-24h	-
+Autonómicos · Extremadura	EXN24 (Extremadura Noticias)	https://dsdhx5k1zli7y.cloudfront.net/wct-73d928aa-5bc9-408c-97c6-61d898009440/continuous/41fa7b5f-29f3-4b34-8dee-a68fa27a7080/index.m3u8	https://www.canalextremadura.app/videos/289428-exn24	-
+Autonómicos · Extremadura	Junta de Extremadura		https://www.juntaex.es	EMB,EVT
+Autonómicos · Extremadura	Semos asina (Canal Extremadura)	https://cdn-canalextremadura.watchity.net/fast3/master.m3u8	https://www.canalextremadura.app/videos/350407-canal-tem%C3%A1tico-semos-asina-canal-extremadura	-
+Autonómicos · Extremadura	Toros (Canal Extremadura)	https://cdn-canalextremadura.watchity.net/fast1/master.m3u8	https://www.canalextremadura.app/videos/289341-canal-tem%C3%A1tico-toros-canal-extremadura	-
+Autonómicos · Extremadura	TV Extremeña		https://www.xn--televisionextremea-30b.com/directo/	EMB
+Autonómicos · Galicia	Anove TV	https://cloud.streamingconnect.tv/hls/anove/anove.m3u8	https://anove.gal	-
+Autonómicos · Galicia	Auria TV		https://www.auria.es	EMB,EVT
+Autonómicos · Galicia	Hermes TV		https://hermesvigo.com/directo-tv/	EMB
+Autonómicos · Galicia	Parlamento de Galicia	https://pgalicia-live.akamaized.net/hls/live/2040697/pleno/playlist.m3u8	https://www.es.parlamentodegalicia.es/EmisionDirecto/	EVT
+Autonómicos · Galicia	Telemiño	https://laregionlive.flumotion.cloud/laregionlive/smil:channel1.smil/playlist.m3u8	https://www.laregion.es/teleminho/	-
+Autonómicos · Galicia	TeleVigo		https://www.televigo.com	-
+Autonómicos · Galicia	TV Ferrol	https://directo.tvferrol.es/tv.m3u8	https://tvferrol.es/es/contenido.php?c=4	-
+Autonómicos · Galicia	TVG	https://crtvg-europa.flumotion.cloud/playlist_dvr.m3u8	https://www.agalega.gal/videos/76475-tvg	EMB
+Autonómicos · Galicia	TVG 2	https://crtvg-tvg2.flumotion.cloud/playlist_dvr.m3u8	https://www.agalega.gal/videos/77550-tv-g2	-
+Autonómicos · Galicia	TVG Cativ@s	https://crtvg-xabarinr2-schlive.flumotion.cloud/crtvglive/smil:channel7PRG.smil/playlist.m3u8	https://www.agalega.gal/videos/76536-xabarin-tv2	-
+Autonómicos · Galicia	TVG Eventos	https://crtvg-events1.flumotion.cloud/playlist.m3u8	https://www.agalega.gal/videos/category/11998-directos	EVT
+Autonómicos · Galicia	TVG Mira Radio Galega	https://crtvg-mirarg-schlive.flumotion.cloud/crtvglive/smil:channel1PRG.smil/playlist.m3u8	https://www.agalega.gal/videos/76478-mira-rg	EMB
+Autonómicos · Galicia	TVG Mociñ@s	https://crtvg-xabarinr3-schlive.flumotion.cloud/crtvglive/smil:channel8PRG.smil/playlist.m3u8	https://www.agalega.gal/videos/76537-xabarin-tv3	-
+Autonómicos · Galicia	TVG Pequerrech@s	https://crtvg-xabarinr1-schlive.flumotion.cloud/crtvglive/smil:channel6PRG.smil/playlist.m3u8	https://www.agalega.gal/videos/76535-xabarin-r1	-
+Autonómicos · Galicia	TVG Universo Castelao	https://crtvg-universo-castelao-schlive.flumotion.cloud/playlist.m3u8	https://www.agalega.gal/videos/315378-universo-castelao	-
+Autonómicos · Galicia	TVG Xabarin	https://crtvg-infantil-schlive.flumotion.cloud/crtvglive/smil:channel5PRG.smil/playlist.m3u8	https://www.agalega.gal/videos/76534-xabarin-tv	-
+Autonómicos · Galicia	Xunta de Galicia	https://xuntalive.akamaized.net/hls/live/2032287/streamxunta/master.m3u8	https://www.xunta.gal/video-en-directo	EVT
+Autonómicos · Illes Balears	Canal 4 TV Mallorca	https://5caf24a595d94.streamlock.net:1937/8110/8110/playlist.m3u8	https://www.grup4.com	NONAV
+Autonómicos · Illes Balears	Fibwi TV		https://fibwi.live/es/tv	EXTA
+Autonómicos · Illes Balears	Govern de les Illes Balears		https://www.caib.es	EMB,EVT
+Autonómicos · Illes Balears	IB3 Global		https://ib3.org/directe	EMB
+Autonómicos · Illes Balears	Parlament de les Illes Balears		https://www.parlamentib.es	EMB,EVT
+Autonómicos · Illes Balears	TEF	https://tef.servertv.online:3268/live/teflive.m3u8	https://teftv.com/la-tef-en-directe/	NONAV
+Autonómicos · La Rioja	7 La Rioja		https://www.7rioja.tv/Directo	EXTB,EMB
+Autonómicos · La Rioja	Cocina Familiar		https://cocina-familiar.com	-
+Autonómicos · La Rioja	Gobierno de La Rioja		https://actualidad.larioja.org/tv	EMB,EVT
+Autonómicos · La Rioja	Parlamento de La Rioja	https://media.parlamento-larioja.org/live/parlarioja/playlist.m3u8	https://mediateca.parlamento-larioja.org/live	EVT
+Autonómicos · La Rioja	TV Rioja	https://5924d3ad0efcf.streamlock.net/riojatv/riojatvlive/playlist.m3u8	https://www.larioja.com/tvr/directo-20210408161442-nt.html	-
+Autonómicos · Melilla	Melilla TV		https://tvmelilla.es/directo.php	EXTB,EMB
+Autonómicos · Melilla	Popular TV Melilla	https://5940924978228.streamlock.net/8009/ngrp:8009_all/playlist.m3u8	https://populartvmelilla.com	-
+Autonómicos · País Vasco	28 Kanala	https://streaming.28kanala.eus/hls/z.m3u8	https://28kanala.eus/telebista/zuzenekoa	-
+Autonómicos · País Vasco	Durangaldeko TV	https://live.emitstream.com/hls/5f9asjsehd7gmyxsdpzu/master.m3u8	https://dotb.eus/tbkanala/	-
+Autonómicos · País Vasco	El Conquistador (ETB On)		https://www.etbon.eus/ch/el-conquistador	EXTA
+Autonómicos · País Vasco	ETB 1	https://cdn1.etbon.eus/etb1/index.m3u8	https://etbon.eus/ch/etb-1	-
+Autonómicos · País Vasco	ETB 1 On	https://cdn1.etbon.eus/etb1on/index.m3u8	https://etbon.eus/ch/etb-1on	-
+Autonómicos · País Vasco	ETB 2	https://cdn1.etbon.eus/etb2/index.m3u8	https://etbon.eus/ch/etb-2	-
+Autonómicos · País Vasco	ETB 2 On	https://cdn1.etbon.eus/etb2on/index.m3u8	https://etbon.eus/ch/etb-2on	-
+Autonómicos · País Vasco	ETB Eventos 1	https://cdn1.etbon.eus/oc1/index.m3u8	https://etbon.eus/ch/oca-1	EVT
+Autonómicos · País Vasco	ETB Eventos 2	https://cdn1.etbon.eus/oc2/index.m3u8	https://etbon.eus/ch/oca-2	EVT,GEO
+Autonómicos · País Vasco	Euskadi Meteo (ETB On)	https://cdn1.etbon.eus/meteo/index.m3u8	https://www.etbon.eus/ch/euskadi-meteo	-
+Autonómicos · País Vasco	Euskal Herriko Bertsolari Txapelketa (ETB On)		https://etbon.eus/ch/finalak	EXTA
+Autonómicos · País Vasco	Eusko Jaurlaritza		https://www.euskadi.eus/gobierno-vasco/inicio/	EVT,EXTA
+Autonómicos · País Vasco	Eusko Legebiltzarra	https://bideoak.legebiltzarra.eus/zuzenean/stream-3_channel-1/playlist.m3u8	https://www.legebiltzarra.eus	EVT
+Autonómicos · País Vasco	Futbola Euskal selekzioa (ETB On)		https://etbon.eus/ch/futbola-euskal-selekzioa	EXTA
+Autonómicos · País Vasco	Goiena Eus	https://zuzenean.goienamedia.eus/goiena-telebista.m3u8	https://goiena.eus/telebista/zuzenekoa	-
+Autonómicos · País Vasco	Goierri Irrati TV	https://streaming.gitb.eus/hls/z.m3u8	https://gitb.eus/telebista/zuzenekoa	-
+Autonómicos · País Vasco	GUKA TB	https://streaming.ukt.eus/hls/test.m3u8	https://guka.eus/telebista/zuzenekoa	-
+Autonómicos · País Vasco	Hamaika TV	https://cdn3.wowza.com/1/RERMR282dnU5eE5Z/OHY0dVFs/hls/live/playlist.m3u8	https://www.hamaika.eus/zuzenean	-
+Autonómicos · País Vasco	Oizmendi TB	https://zuzenean.oizmendi.eus/hls/z.m3u8	https://www.oizmendi.eus/zuzenean/	-
+Autonómicos · País Vasco	Tele 7	https://ingest2-video.streaming-pro.com/tele7_ABR/stream/playlist.m3u8	https://tele7.tv/tele-7-en-directo/	-
+Autonómicos · País Vasco	TeleBilbao	https://player.telebilbao.es/hls/web-public/live.m3u8	https://www.telebilbao.es/directo/	NONAV,UAG,REF
+Autonómicos · País Vasco	Urola TB	https://5940924978228.streamlock.net/j_Directo2/j_Directo2/playlist.m3u8	https://www.urolatelebista.com	-
+Autonómicos · País Vasco	Vaya Semanita (ETB On)		https://www.etbon.eus/ch/vaya-semanita	EXTA
+Autonómicos · P. de Asturias	Gobierno del Principado de Asturias		https://actualidad.asturias.es	EMB,EVT
+Autonómicos · P. de Asturias	Junta General del Principado de Asturias	https://wmserver.jgpa.es/live/_definst_/livestream2/playlist.m3u8	https://www.jgpa.es/emision-en-directo	EVT
+Autonómicos · P. de Asturias	TPA7		https://www.rtpa.es/tpa-television	EXTA
+Autonómicos · R. de Murcia	Arabí TV	https://streamtv2.elitecomunicacion.cloud:3628/live/arabitv2025live.m3u8	https://www.arabitv.es/en-directo/	-
+Autonómicos · R. de Murcia	Asamblea Regional de Murcia		https://www.asambleamurcia.es	EMB,EVT
+Autonómicos · R. de Murcia	Canal 1 Mar Menor Torre Pacheco	https://directo.tuwebtv.es/canal1.m3u8	https://www.tuwebtv.es/directo.php	-
+Autonómicos · R. de Murcia	Consejo de Gobierno de la Región de Murcia	https://crmlive.redctnet.es/liveedge/ConsejoGob/playlist.m3u8	https://www.carm.es	EVT
+Autonómicos · R. de Murcia	La 7		https://www.la7tv.es/video/a-la-carta/7tv-en-directo/20220810150726000939.html	EXTA
+Autonómicos · R. de Murcia	La 7+		https://www.la7tv.es/video/a-la-carta/la-7/20221004091316003030.html	EXTA
+Autonómicos · R. de Murcia	Popular TV Murcia	https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=12690&live=1	https://populartvrm.com/directo	-
+Int. Europa	1+1 Ucrania		https://1plus1.video/tvguide/1plus1/online	EMB
+Int. Europa	Aragón TV Internacional		https://www.aragonplay.es/watch/live/699341967864450d4f062ba9	EXTA,REG
+Int. Europa	ARD Das Erste Alemania	https://daserste-live.ard-mcdn.de/daserste/live/hls/int/master.m3u8	https://www.ardmediathek.de/daserste/live/	-
+Int. Europa	ATV Andorra	https://livesg1.rtva.hiway.media/11a6d6f4-ee13-47c7-9c27-7313cf5424e2/manifest.m3u8	https://www.rtva.ad/en-directe/atv	EXTA
+Int. Europa	BFM TV Francia	https://live-cdn-stream-euw1.bfmtv.bct.nextradiotv.com/master.m3u8	https://www.bfmtv.com/en-direct/	-
+Int. Europa	Bloomberg Europe	https://www.bloomberg.com/media-manifest/streams/eu.m3u8	https://www.bloomberg.com/live/europe	-
+Int. Europa	BR Bayerischer Alemania	https://mcdn.br.de/br/fs/bfs_sued/hls/int/master.m3u8	https://www.br.de	-
+Int. Europa	Channel 24 Ucrania	https://streamvideol1.luxnet.ua/news24/news24.stream/playlist.m3u8	https://24tv.ua/online	-
+Int. Europa	CNEWS Francia		https://www.cnews.fr/le-direct	EXTB,EMB
+Int. Europa	CNN Internacional	https://ds2c506obo7m8.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-7zjq3tdqasbg8/index.m3u8	https://cnnespanol.cnn.com	EMB
+Int. Europa	CNN Portugal		https://cnnportugal.iol.pt/direto	EXTA
+Int. Europa	Current Time TV	https://rferl-ingest.akamaized.net/hls/live/2121657/tvmc05/playlist.m3u8	https://www.currenttime.tv/live	-
+Int. Europa	Digi24 Rumanía	https://pubads.g.doubleclick.net/ssai/event/OQfdjUhHSDSlb1fJVzehsQ/master.m3u8	https://www.digi24.ro/live/digi24	-
+Int. Europa	DW Alemania	https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/index.m3u8	https://www.dw.com/es/live-tv/channel-spanish	-
+Int. Europa	Euronews Internacional		https://es.euronews.com/live	EMB
+Int. Europa	France 24 Francia		https://www.france24.com/es/en-vivo	EMB
+Int. Europa	franceinfo: Francia		https://www.franceinfo.fr/en-direct/tv.html	EMB
+Int. Europa	GB News Reino Unido	https://amg01076-lightningintern-gbnews-samsunguk-0lu52.amagi.tv/playlist/amg01076-lightningintern-gbnews-samsunguk/playlist.m3u8	https://www.gbnews.com/watch/live	NONAV
+Int. Europa	GBC Gibraltar		https://www.gbc.gi/watch-live	-
+Int. Europa	HR Hessenschau Alemania	https://hr-live.ard-mcdn.de/hr/live/hls/de/master.m3u8	https://www.hessenschau.de/tv-sendung/livestream-fernsehen-118.html	-
+Int. Europa	ICTV Ucrania		https://ictv.ua/ua/online/	EMB
+Int. Europa	Islas Canarias TV	https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=17089&live=1	https://islascanarias.tv	-
+Int. Europa	Kanal Freedom Ucrania		https://uatv.ua/live/	EXTA,REF
+Int. Europa	La7 Italia	https://d1chghleocc9sm.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-evfku205gqrtf/Live.m3u8	https://tg.la7.it/dirette-tv	-
+Int. Europa	Lòria TV Andorra		https://loriatv.com	EMB
+Int. Europa	N1 Croacia	https://best-str.umn.cdn.united.cloud/stream?stream=sp1400&sp=n1info&channel=n1hrv&u=n1info&p=n1Sh4redSecre7iNf0&player=m3u8	https://n1info.hr/n1-tv-live-stream/	-
+Int. Europa	NDR Niedersachsen Alemania	https://ndrint.akamaized.net/hls/live/2020766/ndr_int/master.m3u8	https://www.ndr.de/fernsehen/livestream	-
+Int. Europa	NOW TV Turquía		https://www.nowtv.com.tr/canli-yayin	EXTA
+Int. Europa	Porto Canal Portugal		https://portocanal.fcporto.pt/direto	EXTA
+Int. Europa	Rai News 24 Italia		https://www.rainews.it/notiziari/rainews24	EXTA
+Int. Europa	RTCG SAT Montenegro	https://rtcg-live-open.morescreens.com/RTCG_1_004/playlist.m3u8	https://rtcg.me/cir/tv/gledaj-tvcgmne.html	-
+Int. Europa	RTÉ News Irlanda		https://www.rte.ie/news/player/	EMB
+Int. Europa	RTP 1 Portugal		https://www.rtp.pt/play/direto/rtp1	EXTA
+Int. Europa	RTP 2 Portugal		https://www.rtp.pt/play/direto/rtp2	EXTA
+Int. Europa	RTP Açores Portugal		https://www.rtp.pt/play/direto/rtpacores	EXTA
+Int. Europa	RTP Internacional Portugal		https://www.rtp.pt/play/direto/rtpinternacional	EXTA
+Int. Europa	RTP Madeira Portugal		https://www.rtp.pt/play/direto/rtpmadeira	EXTA
+Int. Europa	RTP Notícias Portugal		https://www.rtp.pt/play/direto/rtp3	EXTA
+Int. Europa	RÚV Islandia	https://ruv-web-live.akamaized.net/streymi/ruverl/ruverl.m3u8	https://www.ruv.is/sjonvarp/beint/ruv	-
+Int. Europa	San Marino RTV	https://d2hrvno5bw6tg2.cloudfront.net/smrtv-ch01/_definst_/smil:ch-01.smil/master.m3u8	https://www.sanmarinortv.sm/programmi/web-tv	-
+Int. Europa	Sky News Reino Unido	https://dqco14bu26p3z.cloudfront.net/30505/89006005/hls/master.m3u8?ads.xumo_channelId=89006005&ads.xumo_streamId=89006005	https://news.sky.com/watch-live	-
+Int. Europa	Sportitalia	https://origin-001.streamup.eu/sportitalia/sihd_abr2/playlist.m3u8	https://sportitalialive.it/sihd/	-
+Int. Europa	SR Saarland Alemania	https://srfs.akamaized.net/hls/live/689649/srfsgeo/index.m3u8	https://www.sr.de	-
+Int. Europa	STAR TV Turquía		https://www.startv.com.tr/canli-yayin	EXTA
+Int. Europa	Star TVE Europa	https://rtvelivestream-rtveplayplus.rtve.es/rtvesec/int/star_main_dvr_1080.m3u8	https://www.rtve.es/play/videos/directo/play-plus-europa/star-hd/	GEO
+Int. Europa	Tagesschau24 Alemania	https://tagesschau.akamaized.net/hls/live/2020115/tagesschau/tagesschau_1/master.m3u8	https://www.tagesschau.de/multimedia/livestreams/livestream1	-
+Int. Europa	Telemadrid Internacional		https://www.tlmad.es/pages/live/internacional	EMB,EXTA
+Int. Europa	Televixin Malta		https://tvmi.mt/live/2	EXTA
+Int. Europa	Televixin Malta Sport		https://tvmi.mt/live/4	EXTA
+Int. Europa	TRT Haber Turquía	https://tv-trthaber.medya.trt.com.tr/master.m3u8	https://www.trthaber.com/canli-yayin-izle.html	-
+Int. Europa	TRT World Turquía	https://tv-trtworld.medya.trt.com.tr/master.m3u8	https://www.trtworld.com	-
+Int. Europa	TV Canaria Net	https://d2q93scm3qt8zp.cloudfront.net/index-events.m3u8	https://www.canariasplay.es/videos/314793-ott7	EMB
+Int. Europa	TV3 CAT	https://directes-tv-es.3catdirectes.cat/live-content/tvc-hls/master.m3u8	https://www.3cat.cat/3cat/directes/tv3/	GEO
+Int. Europa	TV5Monde Francia	https://ott.tv5monde.com/Content/HLS/Live/channel(europe	https://europe.tv5monde.com/en/live	-
+Int. Europa	TVE Internacional Europa	https://rtvelivestream-rtveplayplus.rtve.es/rtvesec/int/tvei_eu_main_dvr_1080.m3u8	https://www.rtve.es/play/videos/directo/tve-internacional-europa/	GEO
+Int. Europa	TVP Polonia		https://polonia.tvp.pl/44562671/tvp-polonia-stream	EMB
+Int. Europa	VizionPlus Albania	https://tringliveviz.akamaized.net/delta/105/out/u/qwaszxerdfcvrtryuy.m3u8	https://www.vizionplus.tv/livestream/	-
+Int. Europa	WDR Westdeutscher Alemania	https://wdrfsww247.akamaized.net/hls/live/2009628/wdr_msl4_fs247ww/master.m3u8	https://www1.wdr.de/fernsehen/livestream/	-
+Int. América	24h Chile		https://www.24horas.cl/envivo/	EMB
+Int. América	A24 Argentina		https://www.a24.com/vivo	EMB
+Int. América	ABC News USA		https://abcnews.com/Live	EMB
+Int. América	ABC TV Paraguay		https://www.abc.com.py/tv/	EXTA
+Int. América	ADN Noticias México	https://mdstrm.com/live-stream-playlist/60b578b060947317de7b57ac.m3u8	https://live.adn40.mx	-
+Int. América	America TeVe USA	https://live.gideo.video/americateve2/master.m3u8	https://www.americateve.com/vivo	-
+Int. América	América TV Argentina		https://www.americatv.com.ar/vivo	EMB
+Int. América	Bloomberg USA	https://www.bloomberg.com/media-manifest/streams/us.m3u8	https://www.bloomberg.com/live/us/btv	-
+Int. América	Bolivia 7.1 TV		https://www.boliviatv.bo/principal/vivo71.php	EXTB,EMB
+Int. América	Bolivia 7.2 TV		https://www.boliviatv.bo/principal/vivo72.php	EXTB,EMB
+Int. América	BUZZR TV USA	https://buzzrota-ono.amagi.tv/playlist.m3u8	https://buzzrtv.com/watch	-
+Int. América	C5N Argentina		https://www.c5n.com/vivo	EMB
+Int. América	Canal 11 Honduras	https://redirector.rudo.video/hls-video/c54ac2799874375c81c1672abb700870537c5223/canal11hn/canal11hn.smil/playlist.m3u8	https://canal11.hn/en-vivo/	-
+Int. América	Canal 6 Honduras	https://video.dataserv.cc:3910/live/canal6honduraslive.m3u8	https://canal6hn.com/en-vivo/	-
+Int. América	Canal 6 Multimedios México	https://mdstrm.com/live-stream-playlist/57b4dbf5dbbfc8f16bb63ce1.m3u8	https://www.multimediostv.com/en-vivo/monterrey	-
+Int. América	Canal 7 Argentina		https://www.canal7.com.ar	EMB
+Int. América	Canal Antigua Guatemala		https://canalantigua.tv/envivo/	EXTA
+Int. América	Canal IPe Perú		https://www.irtpplay.gob.pe/canalipe/envivo	EXTA
+Int. América	Canal Once México	https://vivo.canaloncelive.tv/secureoncedos/oncedigital/playlist.m3u8	https://canalonce.mx/en-vivo	-
+Int. América	Canal Telecaribe Colombia	https://liveingesta118.cdnmedia.tv/telecaribetvlive/smil:rtmp01.smil/playlist.m3u8?DVR	https://premium.telecaribe.co	UAG,REFI1
+Int. América	Canal TRO Colombia	https://liveingesta118.cdnmedia.tv/canaltro2live/smil:live.smil/playlist.m3u8	https://canaltro.com/canal-tro-2/senal-en-vivo/	UAG,REFI1
+Int. América	CBS News USA	https://cbsn-us.cbsnstream.cbsnews.com/out/v1/55a8648e8f134e82a470f83d562deeca/master.m3u8	https://www.cbsnews.com/live/	-
+Int. América	CDN 37 República Dominicana		https://cdn.com.do/envivo/	EXTA
+Int. América	Cheddar USA	https://hls.livecdn.io/cheddar.com/cheddar/playlist.m3u8	https://cheddar.com/live	-
+Int. América	Citytv Colombia		https://citytv.eltiempo.com/en-vivo	EMB
+Int. América	CNN Brasil		https://www.cnnbrasil.com.br/ao-vivo/	EMB
+Int. América	Color Visión República Dominicana		https://colorvision.com.do/en-vivo/	EXTA
+Int. América	Cosmos TV Perú	https://videoserver.tmcreativos.com:19360/tvcosmos/tvcosmos.m3u8	https://cosmos.pe	-
+Int. América	Court TV USA	https://content.uplynk.com/channel/6c0bd0f94b1d4526a98676e9699a10ef.m3u8	https://www.courttv.com/title/court-tv-live-stream-web/	-
+Int. América	Crónica TV Argentina		https://www.cronica.com.ar/cronica-en-vivo/	EMB
+Int. América	Cubavisión TV Cuba	https://cdn.teveo.cu/live/video/A36pWmuWvZBQskuZ/ngrp:gppfydfzpSUn9Udy.stream/playlist.m3u8	https://teveo.cu/live/video/AKDdWvMTYzfsfnNJ/embed?auto=true	REF,NONAV
+Int. América	Ecuador TV	https://video-eu1.streamerr.co/hls/s64029a8fdf/live.m3u8	https://www.ecuadortv.ec/en-vivo	-
+Int. América	El Financiero México		https://www.elfinanciero.com.mx/tv	EXTA,EMB
+Int. América	El Nueve Argentina		https://www.elnueve.com.ar/en-vivo	EMB
+Int. América	Estrella TV USA	https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg00567-estrellamedia-estrellatv-estrellamedia/playlist.m3u8	https://www.estrellatv.com/en?section=livesection	-
+Int. América	Excélsior México		https://www.excelsior.com.mx/tv	EMB
+Int. América	Exitosa Noticias Perú	https://luna-4-video.mediaserver.digital/exitosatv_233b-4b49-a726-5a451262/index.m3u8	https://www.exitosanoticias.pe/tv/envivo	-
+Int. América	Globovisión Venezuela	https://59d39900ebfb8.streamlock.net/globo-720p/globo-720p/playlist.m3u8	https://globovision.com	-
+Int. América	HCH Honduras		https://hch.tv/hch-en-vivo/	EXTB,EMB
+Int. América	Infobae Argentina		https://www.infobae.com/en-vivo/	EMB
+Int. América	La Nación Argentina		https://lnmas.lanacion.com.ar	EMB
+Int. América	La Tele Tuya Venezuela		https://teletuya.net/en-vivo/	EXTB,EMB
+Int. América	LaTele Paraguay		https://www.latele.com.py/en-vivo	EXTA
+Int. América	Latina Perú	https://redirector.rudo.video/hls-video/567ffde3fa319fadf3419efda25619456231dfea/latina/latina.smil/playlist.m3u8	https://www.latina.pe/tvenvivo	-
+Int. América	LiveNOW from FOX USA	https://fox-foxnewsnow-samsungus.amagi.tv/playlist.m3u8	https://www.foxnews.com	-
+Int. América	Meganoticias Chile		https://www.meganoticias.cl/senal-en-vivo/	EMB
+Int. América	México Travel Channel	https://5ca9af4645e15.streamlock.net/mexicotravel/videomexicotravel/playlist.m3u8	https://mexicotravelchannel.mx/#en-vivo	-
+Int. América	Milenio México		https://www.milenio.com/mileniotv	EMB
+Int. América	N+ Foro México		https://www.nmas.com.mx/en-vivo/?canal=forotv	EXTA
+Int. América	N+ México		https://www.nmas.com.mx/en-vivo/?canal=noticieros	EXTA
+Int. América	N+ Univision USA		https://www.univision.com/noticias	EMB
+Int. América	NASA+ USA		https://plus.nasa.gov	EMB
+Int. América	NBC News USA		https://www.nbcnews.com/now	EMB
+Int. América	Newsmax2 USA	https://nmxlive.akamaized.net/hls/live/529965/Live_1/index.m3u8	https://www.newsmaxtv.com/n2	-
+Int. América	Noticias Caracol Colombia		https://www.noticiascaracol.com/senal-en-vivo	EMB
+Int. América	Noticias NPY Paraguay		https://www.npy.com.py/en-vivo	EXTA
+Int. América	Noticias RCN Colombia	https://aka-live1050.delivery.roku.com/63a55317-8cde-4c4a-9a5f-3e6a97ae7c9e/t2-origin/out/v1/live.m3u8	https://www.noticiasrcn.com	EMB
+Int. América	Noticias Telemundo USA		https://www.telemundo.com	EMB
+Int. América	NTN24 América		https://www.ntn24.com/en-vivo/	EMB
+Int. América	Oromar TV Ecuador	https://stream.oromar.tv/hls/oromartv_hi/index.m3u8	https://oromartv.com/tv-en-vivo/	-
+Int. América	Panamericana Perú		https://panamericana.pe/tvenvivo	EXTB,EMB
+Int. América	Quiero TV México	https://stream.ontvmx.com/ontv/ghxTYEQmKkB2UJyVuW/playlist.m3u8	https://quierotv.mx/videoenvivo	-
+Int. América	Real America's Voice USA	https://d2jiqiw4g5lj5k.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/AmericasVoiceChannel-prod/AVSamsung/AVSamsung.m3u8	https://americasvoice.news	-
+Int. América	Record News Brasil		https://noticias.r7.com/record-news	EMB
+Int. América	Red Uno de Bolivia		https://www.reduno.com.bo/senal-en-vivo	EXTB
+Int. América	Rede Massa Brasil		https://www.redemassa.com.br/aovivo/	EMB
+Int. América	RedeTV! Brasil		https://www.redetv.uol.com.br/aovivo	EXTB,EMB
+Int. América	SBT Interior Brasil		https://thmais.com.br/aracatuba/sbtinterior-aovivo/	EXTA,UAG
+Int. América	Señal Colombia	https://streaming.rtvc.gov.co/TV_Senal_Colombia_live/smil:live.smil/playlist.m3u8	https://www.senalcolombia.tv/senal-en-vivo	-
+Int. América	TELE 10 Nayarit México	https://live.iplanay.gob.mx/hls/nayarittv.m3u8	https://tele10.nayarit.gob.mx/en-vivo/	-
+Int. América	TELE13 Chile		https://www.t13.cl/en-vivo	EMB
+Int. América	Teleamazonas Ecuador		https://www.teleamazonas.com/teleamazonas-en-vivo/	EMB
+Int. América	Teleantioquia Colombia	https://liveingesta118.cdnmedia.tv/teleantioquialive/smil:dvrlive.smil/playlist_DVR.m3u8	https://www.teleantioquia.co/al-aire/	UAG,REFI1
+Int. América	TeleDiario Costa Rica	https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445.m3u8	https://www.telediario.cr/television	-
+Int. América	Telefe Noticias Argentina		https://www.mitelefe.com/telefe-en-vivo	EMB
+Int. América	Telefuturo Paraguay		https://www.telefuturo.com.py/envivo	EXTA
+Int. América	Telemicro República Dominicana		https://telemicro.com.do/players/5tv/	EXTA
+Int. América	Telepacífico Colombia	https://live-edge-par-1.cdn.enetres.net/6E5C615AA5FF4123ACAF0DAB57B7B8DC021/live-telepacifico/index.m3u8	https://telepacifico.com/live-telepacifico	-
+Int. América	TeleSUR Venezuela	https://mblesmain01.telesur.ultrabase.net/mbliveMain/hd/playlist.m3u8	https://www.telesurtv.net	-
+Int. América	Teletica 7 Costa Rica		https://www.teletica.com/vivo?canal=teletica-7	EMB
+Int. América	Todo Noticias Argentina		https://tn.com.ar/envivo/24hs/	EMB
+Int. América	Trece Costa Rica		https://sinartdigital.com/envivo-canaltrece	EMB
+Int. América	TTT Trinidad y Tobago		https://www.ttt.live/stream/	EMB
+Int. América	TV Cultura Brasil	https://player-tvcultura.stream.uol.com.br/live/tvcultura.m3u8	https://cultura.uol.com.br/aovivo/	-
+Int. América	TV Florida USA		https://tvfloridausa.com/ao-vivo/	-
+Int. América	TV Perú		https://www.tvperu.gob.pe/play	EXTA
+Int. América	TV Perú Noticias		https://www.tvperu.gob.pe/noticias/play	EXTA
+Int. América	Unicanal Paraguay		https://unicanal.com.py/en-vivo/	EXTA
+Int. América	Venezolana de Televisión Venezuela		https://vtv.com.ve	EMB
+Int. América	VPI TV Venezuela		https://vpitv.com/en-vivo/	EMB
+Int. América	WeatherNation USA	https://d2ferbiwcx1539.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-8zd06wicndthf-ssai-prd/WNNationalSamsung/WNNationalSamsung.m3u8	https://www.weathernationtv.com	-
+Int. América	Willax Perú		https://willax.pe/en-vivo	EXTB,EMB
+Int. América	WIPR Puerto Rico	https://streamwipr.pr/hls/stream/index.m3u8	https://wipr.pr	-
+Int. América	WTV Nicaragua	https://cloudvideo.servers10.com:8081/8130/index.m3u8	https://wtvnicaragua.com/player/tv-player.html	-
+Int. Asia	Aaj Tak India	https://feeds.intoday.in/aajtak/api/master.m3u8	https://www.aajtak.in/livetv	-
+Int. Asia	Al Arabiya Emiratos Árabes Unidos	https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8	https://www.alarabiya.net/live-stream	-
+Int. Asia	Al Jazeera Catar	https://live-hls-web-aje-gcp.thehlive.com/AJE/index.m3u8	https://www.aljazeera.com/live	-
+Int. Asia	Arirang TV Corea del Sur	https://amdlive-ch01-g-ctnd-com.akamaized.net/arirang_1gch/smil:arirang_1gch.smil/playlist.m3u8	https://www.arirang.com/live	-
+Int. Asia	Ary News Pakistán		https://live.arynews.tv	EMB
+Int. Asia	CGTN Documentary China	https://english-livebkali.cgtn.com/live/doccgtn.m3u8	https://www.cgtn.com/channel/documentary	-
+Int. Asia	CGTN Español China		https://espanol.cgtn.com/en-directo	EXTA
+Int. Asia	CGTN News China	https://english-livebkali.cgtn.com/live/encgtn.m3u8	https://www.cgtn.com/tv	-
+Int. Asia	Channel NewsAsia Singapur	https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index.m3u8	https://www.channelnewsasia.com/watch	-
+Int. Asia	Chung T'ien CTI News Taiwán		https://ctinews.com	EMB
+Int. Asia	EBC News Taiwán		https://news.ebc.net.tw	EMB
+Int. Asia	Express News Pakistán		https://www.express.pk/live/	EMB
+Int. Asia	Geo News Pakistán		https://live.geo.tv	EMB
+Int. Asia	HispanTV Irán	https://live.presstv.ir/hls/hispantv.m3u8	https://www.hispantv.com/directo	-
+Int. Asia	India Today	https://indiatodaylive.akamaized.net/hls/live/2014320/indiatoday/indiatodaylive/playlist.m3u8	https://www.indiatoday.in/livetv	-
+Int. Asia	KBS World Corea del Sur		https://world.kbs.co.kr	EMB
+Int. Asia	New Delhi TV 24x7 India	https://ndtv24x7elemarchana.akamaized.net/hls/live/2003678/ndtv24x7/ndtv24x7master.m3u8	https://www.ndtv.com/livetv-ndtv24x7	-
+Int. Asia	NHK World Japón	https://media-tyo.hls.nhkworld.jp/hls/w/live/master.m3u8	https://www3.nhk.or.jp/nhkworld/en/live/	-
+Int. Asia	Nippon News TV Japón		https://news.ntv.co.jp/live	EXTA
+Int. Asia	Oman TV	https://partneta.cdn.mgmlcdn.com/omantv/smil:omantv.stream.smil/master.m3u8	https://www.omaninfo.om/omantv	-
+Int. Asia	Republic World TV India	https://amg01218-amg01218c6-amgplt0915.playout.now3.amagi.tv/ts-ap-s1-n1/playlist/amg01218-amg01218c6-amgplt0915/playlist.m3u8	https://www.republicworld.com/livetv	-
+Int. Asia	SET News Taiwán		https://live.setn.com	EMB
+Int. Asia	Teledifusão de Macau	https://globallive.tdm.com.mo/ch2/ch2.live/playlist.m3u8	https://www.tdm.com.mo/zh-hant/live	-
+Int. Asia	Times Now India		https://timesofindia.indiatimes.com/live-tv	EMB
+Int. Asia	TVBS News Taiwán		https://news.tvbs.com.tw/live/news4live	EMB
+Int. Asia	TVE Internacional Asia y Pacífico	https://rtvelivestream-rtveplayplus.rtve.es/rtvesec/int/tvei_asia_main_dvr_1080.m3u8	https://www.rtve.es/play/videos/directo/tve-internacional-asia/	GEO
+Int. Asia	TVK Camboya	https://live.kh.malimarcdn.com/live/tvk.stream/playlist.m3u8	https://www.tvk.gov.kh	-
+Int. Asia	UNTV News & Rescue Filipinas		https://www.untvnews.com	EMB
+Int. África	AfricaNews		https://www.africanews.com/live/	EMB
+Int. África	Channels TV Nigeria		https://www.channelstv.com/live/	EMB
+Int. África	Joy News TV Ghana		https://www.myjoyonline.com/media/joy-news-live	EMB
+Int. África	Medi1 TV Marruecos	https://cdn.live.easybroadcast.io/abr_corp/83_medi1tv-arabic_g90v4ec/playlist_dvr.m3u8	https://medi1tv.com	-
+Int. África	RASD TV	https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=12830&live=1	https://rasd.tv	-
+Int. África	RTP África		https://www.rtp.pt/play/direto/rtpafrica	EXTA
+Int. África	SenTV Senegal		https://sentv.sn/tv	EMB,EXTA
+Int. África	SNRT Al Aoula Marruecos		https://snrtlive.ma/fr/al-aoula	EMB
+Int. África	SNRT Al Maghribia Marruecos		https://snrtlive.ma/fr/almaghribia	EMB
+Int. África	SNRT Arryadia Marruecos		https://snrtlive.ma/fr/arryadia	EMB
+Int. África	SNRT Athaqafia Marruecos		https://snrtlive.ma/fr/athaqafia	EMB
+Int. África	SNRT Laayoune El Aaiún Marruecos		https://snrtlive.ma/fr/laayoune	EMB
+Int. África	TVGE 1 Guinea Ecuatorial	https://rpn.bozztv.com/ses/tvge/tvge.smil/playlist.m3u8	https://www.tvgelive.gq/live.php	-
+Int. Otros	ABC News Australia	https://abc-news-dmd-streams-1.akamaized.net/out/v1/abc83881886746b0802dc3e7ca2bc792/index.m3u8	https://iview.abc.net.au/video/NS1413V001S00	-
+Int. Otros	Agrotendencia		https://agrotendencia.tv/en-directo/	-
+Int. Otros	AKC TV Dogs	https://install.akctvcontrol.com/speed/broadcast/138/desktop-playlist.m3u8	https://akc.tv	-
+Int. Otros	Bloomberg Originals	https://www.bloomberg.com/media-manifest/streams/qt.m3u8	https://www.bloomberg.com/qt/live	-
+Int. Otros	Classic Arts Showcase	https://classicarts.akamaized.net/hls/live/1024257/CAS/master.m3u8	https://www.classicartsshowcase.org/watch-classic-arts-showcase/	-
+Int. Otros	Classic Mr Bean		https://www.youtube.com/@ClassicMrBean	EMB
+Int. Otros	Earth TV		https://www.earthtv.com/en	EXTB
+Int. Otros	Fashion TV	https://ftv1.b-cdn.net/bfdbb576-83f7-11f0-9f89-0200170e3e04_1000028043_HLS/manifest.m3u8	https://www.fashiontv.com/live	-
+Int. Otros	Miami TV Fashion		https://miamitv.com/canal/Fashion	-
+Int. Otros	Miami TV Gold	https://8f4cbe9fa8d44aa3bfd4283527a9effd.mediatailor.us-east-2.amazonaws.com/v1/master/c3d3fd1c31fa281b88eab2cd253e2ca576b6628b/fast_gold/playlist.m3u8	https://miamitv.com/canal/gold	-
+Int. Otros	Miami TV Jenny Live	https://bdc8100df748400cabc7e133824c8ceb.mediatailor.us-east-2.amazonaws.com/v1/master/c3d3fd1c31fa281b88eab2cd253e2ca576b6628b/fast-jennylive/playlist.m3u8	https://miamitv.com/canal/jenny-live	-
+Int. Otros	Miami TV Latino		https://miamitv.com/canal/miami-tv-latino	-
+Int. Otros	ServusTV WetterPanorama	https://rbmn-live.akamaized.net/hls/live/665268/Wetterpanorama/master.m3u8	https://www.servustv.com/aktuelles/k/wetterpanorma-kanal/	-
+Int. Otros	Tastemade	https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg00047-tastemade-tastemadees16international24i-ono/playlist.m3u8	https://app.tastemade.com/live-now	-
+Int. Otros	United Nations TV		https://webtv.un.org/en	EXTA
+Deportivos Int.	Best Cable Sports Perú		https://bestcableperu.com.pe/lima/enVivo/bestCableSport	EXTA
+Deportivos Int.	FIBA		https://fibatv.com/live	EMB,EVT
+Deportivos Int.	FIBA3x3		https://fiba3x3.com	EMB,EVT
+Deportivos Int.	Garage TV Argentina	https://stream1.sersat.com/hls/garagetv.m3u8	https://elgarage.com	-
+Deportivos Int.	Int. Table Soccer Federation	https://stream.ads.ottera.tv/playlist.m3u8?network_id=7333	https://www.tablesoccer.org	-
+Deportivos Int.	Meridiano Venezuela		https://meridiano.net/meridianotv.html	EMB
+Deportivos Int.	MoreThanSports TV	https://mts1.iptv-playoutcenter.de/mts/mts-web/playlist.m3u8	https://morethansports.tv	-
+Deportivos Int.	Olympic Channel		https://www.olympics.com/es/live/	EXTA
+Deportivos Int.	Premier Padel		https://premierpadel.com/es/wheretowatch	EMB,EVT
+Deportivos Int.	Pro Padel League		https://propadelleague.com	EMB,EVT
+Deportivos Int.	Red Bull TV	https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8	https://www.redbull.tv/en/epg	-
+Deportivos Int.	Stadium USA	https://2d006483e2aa43fe812f7b464cb2916d.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/Samsung_Stadium/playlist.m3u8	https://www.ballysports.com/channels/stadium	-
+Deportivos Int.	UFC		https://www.ufcespanol.com	EMB,EVT
+Deportivos Int.	World Table Tennis		https://www.worldtabletennis.com/livevideo	EMB,EVT
+Deportivos Int.	X Games		https://www.xgames.com/watch/	EMB,EVT
+Musicales	30A Music USA	https://30a-tv.com/feeds/ceftech/30atvmusic.m3u8	https://30a-tv.com/30a/30a-tv-music-channel/	-
+Musicales	4FUN TV Polonia	https://stream.4fun.tv:8888/hls/4f.m3u8	https://4fun.tv	-
+Musicales	70-80's Italia	https://585b674743bbb.streamlock.net/9050/9050/playlist.m3u8	https://www.70-80.it/tv-player/	-
+Musicales	Activa TV España	https://streamtv.mediasector.es/hls/activatv/index.m3u8	https://www.emisorasmusicales.net/activa-tv/	-
+Musicales	Beautiful Piano Music		https://soothingrelaxation.com	EMB
+Musicales	Cadena Elite España	https://cloudvideo.servers10.com:8081/8004/index.m3u8	https://www.cadenaelite.es	-
+Musicales	Café del Mar Ibiza España		https://cafedelmar.com	EMB
+Musicales	Chillhop Music		https://chillhop.com	EMB
+Musicales	CMC Croacia	https://stream.cmctv.hr:49998/cmc/live.m3u8	https://cmc.com.hr/program/cmc-tv-stream/	-
+Musicales	College Music		https://collegemusic.co.uk	EMB
+Musicales	Conexión Berazategui Argentina	https://lbgo.bozztv.com/ssh101/ssh101/conexionbera/playlist.m3u8	https://www.conexionberazategui.com.ar/tvenvivo/	-
+Musicales	Dance TV Estonia	https://m1b2.worldcast.tv/dancetelevisionone/2/dancetelevisionone.m3u8	https://www.dancetv.net	-
+Musicales	EnerGeek Radio Chile	https://cl-2.backend.energeek.cl/bkp/egradioweb/index.m3u8?token=TDTCh4nnelsES	https://energeek.cl/radio-en-vivo/	-
+Musicales	Eurovision Song Contest		https://www.eurovision.com	EMB
+Musicales	Expres Chequia	https://ocko-live.ssl.cdn.cra.cz/channels/ocko_expres/playlist/cze/live_hq.m3u8	https://ocko.tv/zive?channel=expres	-
+Musicales	Junior Eurovision Song Contest		https://junior.eurovision.com	EMB
+Musicales	Kronehit Austria	https://bitcdn-kronehit.bitmovin.com/v2/hls/playlist.m3u8	https://www.kronehit.at	-
+Musicales	La Mega Mundial USA	https://server80.servistreaming.com:3477/stream/play.m3u8	https://www.lamegamundial.com	-
+Musicales	LoFi Hip-Hop Beats Music		https://stzzzy.com	EMB
+Musicales	m2o Italia	https://4c4b867c89244861ac216426883d1ad0.msvdn.net/live/S62628868/uhdWBlkC1AoO/playlist.m3u8	https://www.m2o.it/m2o-tv/	-
+Musicales	Molahits TV España	https://ventdelnord.tv:8080/mola/directe.m3u8	https://www.molatv.cat	-
+Musicales	NRG91 Grecia		https://nrg91.gr/nrgtv.html	-
+Musicales	Number1 TV Turquía	https://b01c02nl.mediatriple.net/videoonlylive/mtkgeuihrlfwlive/broadcast_5c9e17cd59e8b.smil/playlist.m3u8	https://www.numberone.com.tr/2015/12/18/nr1-tv-canli-yayin/	-
+Musicales	Ocko Chequia	https://ocko-live.ssl.cdn.cra.cz/channels/ocko/playlist/cze/live_hq.m3u8	https://ocko.tv/zive	-
+Musicales	On TV Portugal	https://5ce9406b73c33.streamlock.net/ONFM/livestream/master.m3u8	https://www.onfm.pt	-
+Musicales	Portal Foxmix Chile	https://panel.tvstream.cl:1936/8040/8040/playlist.m3u8	https://www.portalfoxmix.cl/tv/	-
+Musicales	Power TV Turquía	https://livetv.powerapp.com.tr/powerTV/powerhd.smil/playlists.m3u8	https://www.powerapp.com.tr/tvs/power-tvs/powertv/	-
+Musicales	QMusic Países Bajos	https://stream.qmusic.nl/qmusic/videohls.m3u8	https://qmusic.nl/live/kijk	-
+Musicales	Radio 3 España	https://ztnr.rtve.es/ztnr/6982918.m3u8	https://www.rtve.es/play/videos/directo/radio-3-webcam/53522/	-
+Musicales	Radio Capital Italia	https://4c4b867c89244861ac216426883d1ad0.msvdn.net/live/S35394734/Z6U2wGoDYANk/playlist.m3u8	https://www.capital.it/tv/	-
+Musicales	Radio Italia TV	https://radioitaliatv.akamaized.net/hls/live/2093117/RadioitaliaTV/master.m3u8	https://www.radioitalia.it/radioitaliatv	-
+Musicales	RadioU TV USA	https://1826200335.rsc.cdn77.org/1826200335/index.m3u8	https://radiou.com/tv/	REF,NONAV
+Musicales	RDS Social TV Italia	https://stream.rdstv.radio/index.m3u8	https://www.rds.it/rds-social-tv	-
+Musicales	Retro Music TV Chequia	https://stream.mediawork.cz/retrotv/retrotvHQ1/playlist.m3u8	https://retromusic.cz/#retro_tv	-
+Musicales	Retro Plus TV Chile	https://scl.edge.grupoz.cl/retroplustvuno/live/playlist.m3u8	https://www.retroplustv.com/#se%C3%B1ales	-
+Musicales	Rock TV Rumanía		https://www.rockfm.ro/rocktv	EXTA
+Musicales	RTL 102.5 Best Italia	https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S76960628/OEPHRUIctA0M/playlist_video.m3u8	https://play.rtl.it/live/2/rtl-1025-best-tv/	-
+Musicales	RTL 102.5 Bro&Sis Italia	https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S75007890/MUGHuxc9dQ3b/playlist_video.m3u8	https://play.rtl.it/live/16/bro-and-sis-tv/	-
+Musicales	RTL 102.5 Caliente Italia	https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S8448465/zTYa1Z5Op9ue/playlist_video.m3u8	https://play.rtl.it/live/44/rtl-1025-caliente-tv/	-
+Musicales	RTL 102.5 Disco Italia	https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S51100361/0Fb4R3k82b5Z/playlist_video.m3u8	https://play.rtl.it/live/21/rtl-1025-doc-tv/	-
+Musicales	RTL 102.5 Italia	https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S97044836/tbbP8T1ZRPBL/playlist_video.m3u8	https://play.rtl.it/live/1/radiovisione	-
+Musicales	RTL 102.5 Napulè Italia	https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S27134503/0f9AhuwKlhnZ/playlist_video.m3u8	https://play.rtl.it/live/20/rtl-1025-napule-tv/	-
+Musicales	RTL 102.5 Traffic Italia	https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S38122967/2lyQRIAAGgRR/playlist_video.m3u8	https://play.rtl.it/live/35/rtl-1025-news-tv/	-
+Musicales	RTL Radio Freccia Italia	https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S3160845/0tuSetc8UFkF/playlist_video.m3u8	https://play.rtl.it/live/17/radiofreccia-radiovisione/	-
+Musicales	RTL Zeta Italia	https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S9346184/XEx1LqlYbNic/playlist_video.m3u8	https://play.rtl.it/live/18/radio-zeta-radiovisione/	-
+Musicales	RU.TV Rusia		https://ok.ru/videoembed/230273326594?nochat=1&autoplay=1	EXTA,UAG
+Musicales	Sky Folk Macedonia del Norte	https://eu.live.skyfolk.mk/live.m3u8	https://skyfolk.mk	-
+Musicales	Sol Música España	https://d2glyu450vvghm.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-21u4g5cjglv02/sm.m3u8	https://amcchannels.es/sol-musica	-
+Musicales	Spektra TV España	https://cloudvideo.servers10.com:8081/8026/tracks-v1a1/index.m3u8	https://spektratv.com	-
+Musicales	Spirit TV USA	https://cdnlive.myspirit.tv/LS-ATL-43240-2/index.m3u8	https://myspirit.tv	-
+Musicales	Star Chequia	https://ocko-live.ssl.cdn.cra.cz/channels/ocko_gold/playlist/cze/live_hq.m3u8	https://ocko.tv/zive?channel=star	-
+Musicales	The Good Life Radio		https://www.youtube.com/channel/UChs0pSaEoNLV4mevBFGaoKA	EMB
+Musicales	The K-POP Corea del Sur		https://www.bigc.im	EMB
+Musicales	Tomorrowland TV		https://oneworldradio.tomorrowland.com	EMB
+Musicales	Top Latino TV Perú		https://toplatino.net/tv/	EXTA
+Musicales	Tropical Moon TV		https://tropicalmoontv.com/player/player.php	-
+Musicales	V2Beat TV	https://abr.de1se01.v2beat.live/playlist.m3u8	https://www.vibee.tv/webpage-player/	-
+Musicales	Venus Media Paraguay	https://copaco.desdeparaguay.net/venusmedia/venusmedia_alt/playlist.m3u8	https://www.venus.com.py/envivo	-
+Musicales	Verbena TV España	https://streamtv2.elitecomunicacion.cloud:3144/live/verbenatvlive.m3u8	https://verbenafm.com	-
+Musicales	VM Latino Costa Rica	https://59ef525c24caa.streamlock.net/vmtv/vmlatino/playlist.m3u8	https://vmlatino.com/en-vivo/	-
+Religiosos	3ABN USA	https://3abn.bozztv.com/3abn2/Lat_live/smil:Lat_live.smil/playlist.m3u8	https://3abnplus.tv/catalog	-
+Religiosos	Abadia de Montserrat España		https://abadiamontserrat.cat/seccio/montserrat-tv	EMB,EVT
+Religiosos	CBN USA		https://cbn.com/video/cbn-espanol-channel-live-https	EXTA
+Religiosos	Cetelmon TV España		https://www.cetelmon.tv	-
+Religiosos	Ecclesia COPE España	https://cope-religion-video.flumotion.com/playlist.m3u8	https://www.cope.es/religion	-
+Religiosos	Emmanuel TV Nigeria		https://www.stream.emmanuel.tv	EMB
+Religiosos	Enlace TV Costa Rica	https://livecdn.enlace.plus/enlace/smil:enlace-hd.smil/playlist.m3u8	https://www.enlace.org/envivo/	-
+Religiosos	ESNE USA		https://elsembradorministries.com/esne_deployment/tv	EXTA
+Religiosos	EWTN USA	https://cdn3.wowza.com/1/SmVrQmZCUXZhVDgz/b3J3MFJv/hls/live/playlist.m3u8	https://www.ewtn.com/es/en-vivo	-
+Religiosos	María Visión España y México	https://1601580044.rsc.cdn77.org/live/_jcn_/amls:Italiatre/playlist.m3u8	https://www.mariavision.com/mariavisionenvivo	-
+Religiosos	Radio María España		https://radiomaria.es/directo/	EMB
+Religiosos	Redevida Brasil	https://d12e4o88jd8gex.cloudfront.net/out/v1/cea3de0b76ac4e82ab8ee0fd3f17ce12/index.m3u8	https://www.redevida.com.br/ao-vivo	-
+Religiosos	RTV Diocesana Toledo España	https://live.emitstream.com/hls/5i3pxfuz4az356yu22ij/master.m3u8	https://rtvd.org	-
+Religiosos	RTV Vida España	https://vidartv2.todostreaming.es/live/radiovida-emisiontvhd.m3u8	https://vidartvplus.com	-
+Religiosos	Solidaria TV	https://canadaremar2.todostreaming.es/live/solidariatv-webhd.m3u8	https://www.solidariatv.com	-
+Religiosos	TBN España	https://edge.xn--tbnespaa-j3a.es/LiveApp/streams/tbnlive.m3u8	https://xn--tbnespaa-j3a.es	-
+Religiosos	Vatican News		https://www.vaticannews.va/es.html	EMB
