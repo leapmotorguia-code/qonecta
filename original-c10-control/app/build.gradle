@@ -1,0 +1,23 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.leapmotorguia.c10control'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.leapmotorguia.c10control'
+        minSdk 26
+        targetSdk 33
+        versionCode 1
+        versionName '1.0.0-original'
+    }
+    buildTypes {
+        release { minifyEnabled false }
+        debug { applicationIdSuffix '.debug' }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    packaging { resources { excludes += ['META-INF/DEPENDENCIES','META-INF/LICENSE*'] } }
+}
