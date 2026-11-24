@@ -1,0 +1,2 @@
+# C10 Cockpit One 1.0
+Variante de nuestro código 6.1 con identificador separado. Nuevo inicio gráfico y TDT nativa VideoView con 9 canales públicos (fuente: https://github.com/LaQuay/TDTChannels/blob/master/TELEVISION.md). No se han comprobado emisiones en LeapOS. Vídeo solo estacionado. Radio nativa de la 6.1. Datos OEM, proyección propia, cámaras y actualizador pendientes. Firma de laboratorio; no modifica UNIT.
