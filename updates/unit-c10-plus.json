@@ -3,10 +3,10 @@
   "channel": "stable",
   "published": true,
   "packageName": "com.tencent.qqmusiccar",
-  "versionCode": 470,
-  "versionName": "4.6-base08-compatibilidad",
-  "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-4.6-compatibilidad/UNIT-C10-Plus-4.6-COMPATIBILIDAD.apk",
-  "sha256": "3125da5d7f3a54998872a239569aff99f86cb60f5a9b38f24e12b84d4084ee3e",
+  "versionCode": 490,
+  "versionName": "4.8-base08-actualizador",
+  "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-4.8-multimedia/UNIT-C10-Plus-4.8-MULTIMEDIA.apk",
+  "sha256": "0da5c8b6b9600a4933e6921ca72acacbe4c429aaaa4d520af29a62de030c30b7",
   "signerSha256": "6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6",
-  "notes": "Prueba de instalación: código de 4.5 conservado, firma original v1 y v2, bibliotecas alineadas. No confirma compatibilidad de LeapOS; instalar estacionado."
+  "notes": "4.8 prueba: Radio+ 949 emisoras, TDT+ 766 canales, búsqueda, filtro por país y favoritos. Conserva 4.7 y su actualizador corregido. Emisiones y actualización directa pendientes de validar en LeapOS. Instalar estacionado."
 }
