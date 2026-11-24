@@ -25,7 +25,7 @@ final class MediaCenter {
  void load(String asset,ArrayList<Channel> dest,boolean r){try(BufferedReader reader=new BufferedReader(new InputStreamReader(a.getAssets().open(asset),StandardCharsets.UTF_8))){String s;while((s=reader.readLine())!=null){String[] x=s.split("\\t",-1);if(x.length==6)dest.add(new Channel(x,r));}}catch(IOException e){android.util.Log.e("CockpitMedia","Catalog",e);}}
  boolean busy(){return video!=null||web!=null;}
  boolean visible(){return host!=null;}
- void close(){session++;if(full)setFull(false);stop();host=null;output=null;status=null;radioStatus=null;current=null;list=null;adapter=null;remoteBusy=false;}
+ void close(){session++;if(full)setFull(false);stop();host=null;output=null;status=null;radioStatus=null;current=null;list=null;adapter=null;listBtn=null;favBtn=null;countryBtn=null;categoryBtn=null;moreBtn=null;remoteBusy=false;}
  void stop(){generation++;requested=false;if(video!=null){try{video.stopPlayback();}catch(Exception ignored){}video=null;}if(web!=null){try{web.stopLoading();web.onPause();if(web.getParent() instanceof ViewGroup)((ViewGroup)web.getParent()).removeView(web);web.destroy();}catch(Exception ignored){}web=null;}if(output!=null)output.removeAllViews();}
  void message(String s){if(status!=null)status.setText(s);}
  boolean allowed(){return a.videoAllowed()&&output!=null;}
@@ -35,15 +35,15 @@ final class MediaCenter {
  Button compact(String text,Runnable click){Button b=a.button(text,click);b.setTextSize(12);b.setMinHeight(a.dp(36));b.setMinimumHeight(a.dp(36));b.setPadding(a.dp(9),0,a.dp(9),0);return b;}
  void tool(LinearLayout row,String text,Runnable click){row.addView(compact(text,click),new LinearLayout.LayoutParams(-2,a.dp(36)));}
  void show(LinearLayout l,String page){
+ if(host!=null){a.label(l,"Ya hay un centro multimedia abierto.");return;}
  radioMode=page.equals("Radio");
  if(!radioMode&&!a.videoAllowed()){a.title(l,page);a.label(l,"Vídeo y servicios web: vehículo estacionado. En Samsung de prueba no se exige GPS.");a.btn(l,"Confirmar estacionamiento",a::parkedPrompt);return;}
- if(host!=null){a.label(l,"Ya hay un centro multimedia abierto.");return;}
  host=l;session++;showList=true;favoritesOnly=false;country=a.prefs.getString(radioMode?"radio_country":"tv_country","España");category="Todos";query="";remote.clear();remoteCode="";remoteOffset=0;remoteBusy=false;
  boolean catalog=radioMode||page.equals("TV / TDT");
  HorizontalScrollView scroll=new HorizontalScrollView(a);scroll.setHorizontalScrollBarEnabled(false);top=a.row();scroll.addView(top);l.addView(scroll,new LinearLayout.LayoutParams(-1,a.dp(36)));
- if(catalog){listBtn=compact(radioMode?"Emisoras":"Canales",()->{showList=!showList;layoutPanes();});top.addView(listBtn);favBtn=compact("★ Favoritos",()->{favoritesOnly=!favoritesOnly;showList=true;layoutPanes();filter();});top.addView(favBtn);tool(top,"☆ Guardar",()->toggleFavorite(current));}
- if(!radioMode){tool(top,"Formato",()->new AlertDialog.Builder(a).setTitle("Formato de imagen").setSingleChoiceItems(RATIOS,ratioIndex,(d,i)->{ratioIndex=i;a.prefs.edit().putInt("media_ratio",i).apply();if(output!=null)for(int n=0;n<output.getChildCount();n++)output.getChildAt(n).requestLayout();d.dismiss();}).setNegativeButton("Cancelar",null).show());tool(top,"Pantalla completa / salir",()->setFull(!full));tool(top,"Atrás web",()->{if(web!=null&&web.canGoBack())web.goBack();});tool(top,"Web oficial",()->{if(current!=null&&!current.web.isEmpty())openWeb(current.web,current.name);else message("No hay web seleccionada");});}
- tool(top,"Detener",()->{if(radioMode){a.radio.stop();refresh();}else stop();message("Reproducción detenida");});
+ if(!radioMode){listBtn=compact(catalog?"Canales":"Servicios",()->{if(full)setFull(false);showList=!showList;layoutPanes();});top.addView(listBtn);}if(catalog){favBtn=compact("★ Favoritos",()->{favoritesOnly=!favoritesOnly;showList=true;layoutPanes();filter();});top.addView(favBtn);tool(top,"☆ Guardar",()->toggleFavorite(current));}
+ if(!radioMode){tool(top,"Formato",()->new AlertDialog.Builder(a).setTitle("Formato de imagen").setSingleChoiceItems(RATIOS,ratioIndex,(d,i)->{ratioIndex=i;a.prefs.edit().putInt("media_ratio",i).apply();if(output!=null){for(int n=0;n<output.getChildCount();n++)output.getChildAt(n).requestLayout();output.requestLayout();}d.dismiss();}).setNegativeButton("Cancelar",null).show());tool(top,"Pantalla completa / salir",()->setFull(!full));tool(top,"Atrás web",()->{if(web!=null&&web.canGoBack())web.goBack();});tool(top,"Web oficial",()->{if(current!=null&&!current.web.isEmpty())openWeb(current.web,current.name);else message("No hay web seleccionada");});}
+ tool(top,"Detener",()->{if(radioMode){a.radio.stop();refresh();}else{stop();if(full)setFull(false);showList=true;layoutPanes();}message("Reproducción detenida");});
  status=a.text(radioMode?"Selecciona una emisora":"Selecciona un canal o servicio",13,a.fg);status.setSingleLine(true);status.setEllipsize(android.text.TextUtils.TruncateAt.END);status.setPadding(a.dp(4),0,a.dp(4),0);l.addView(status,new LinearLayout.LayoutParams(-1,a.dp(21)));
  area=a.row();area.setGravity(Gravity.TOP);l.addView(area,new LinearLayout.LayoutParams(-1,0,1));
  listPane=a.col();area.addView(listPane,new LinearLayout.LayoutParams(0,-1,1));output=a.col();output.setBackgroundColor(Color.BLACK);area.addView(output,new LinearLayout.LayoutParams(0,-1,2));
