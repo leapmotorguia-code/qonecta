@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Qonecta+</string>
+    <string name="app_name">UNIT C10 Lab</string>
     <string name="menu">Menu</string>
     <string name="settings">Settings</string>
 
@@ -191,7 +191,7 @@
     <string name="video">Android Auto</string>
     <string name="self_mode">Self Mode</string>
     <string name="to_android_auto">To Android Auto</string>
-    <string name="title">Open Headunit</string>
+    <string name="title">UNIT C10 Lab</string>
     <string name="remove">Remove</string>
     <string name="usb">USB</string>
     <string name="wifi">WiFi</string>
