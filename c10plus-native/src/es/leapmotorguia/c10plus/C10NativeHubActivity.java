@@ -82,7 +82,7 @@ public final class C10NativeHubActivity extends Activity {
         root.setPadding(24,24,24,24);
         root.setBackgroundColor(0xff07141e);
         TextView heading = new TextView(this);
-        heading.setText("UNIT C10 Plus 5.2 · Integración y actualizaciones");
+        heading.setText("UNIT C10 Plus 5.3 · Integración y actualizaciones");
         heading.setTextColor(0xff04e2bd);
         heading.setTextSize(25);
         heading.setGravity(Gravity.CENTER);
@@ -92,7 +92,7 @@ public final class C10NativeHubActivity extends Activity {
         status.setTextSize(16);
         status.setGravity(Gravity.CENTER);
         status.setPadding(12,20,12,20);
-        status.setText("Versión 5.2 · Iniciando la integración con UNIT...");
+        status.setText("Versión 5.3 · Iniciando la integración con UNIT...");
         root.addView(status);
         Button retry = new Button(this);
         retry.setText("Recuperar nuestras pantallas / Abrir UNIT");
@@ -111,7 +111,7 @@ public final class C10NativeHubActivity extends Activity {
         });
         root.addView(original);
         Button diagnostic=new Button(this);
-        diagnostic.setText("Diagnóstico de integración 5.2");
+        diagnostic.setText("Diagnóstico de integración 5.3");
         diagnostic.setOnClickListener(v->showStartupDiagnostic());
         root.addView(diagnostic);
         homeRoot=root;
@@ -469,13 +469,13 @@ public final class C10NativeHubActivity extends Activity {
         text.setText(report);text.setTextSize(15);text.setTextColor(Color.WHITE);
         text.setPadding(24,16,24,16);
         scroll.addView(text);
-        new AlertDialog.Builder(this).setTitle("C10 Plus 5.2 · Comprobación")
+        new AlertDialog.Builder(this).setTitle("C10 Plus 5.3 · Comprobación")
             .setView(scroll)
             .setPositiveButton("Copiar informe",(dialog,which)->{
                 android.content.ClipboardManager cb=(android.content.ClipboardManager)
                     getSystemService(Context.CLIPBOARD_SERVICE);
                 if(cb!=null) cb.setPrimaryClip(android.content.ClipData.newPlainText(
-                    "Diagnóstico de inicio 5.2",report));
+                    "Diagnóstico de inicio 5.3",report));
                 Toast.makeText(this,"Informe copiado",Toast.LENGTH_SHORT).show();
             })
             .setNegativeButton("Cerrar",null).show();
@@ -490,14 +490,14 @@ public final class C10NativeHubActivity extends Activity {
                 if(bridge!=null){bridge.dispose();bridge=null;}
                 bridge = C10Bridge.attach(this, (ViewGroup)view);
                 handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,1500);
-                status.setText("5.2 · Mejoras integradas en UNIT");
-                Toast.makeText(this,"UNIT C10 Plus 5.2 conectado",Toast.LENGTH_LONG).show();
+                status.setText("5.3 · Mejoras integradas en UNIT");
+                Toast.makeText(this,"UNIT C10 Plus 5.3 conectado",Toast.LENGTH_LONG).show();
             } catch (Throwable e) {
                 status.setText("UNIT funciona, pero el acceso C10 Plus ha fallado: "+e.getClass().getSimpleName());
                 getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE).edit()
                     .putString("bridge",String.valueOf(e)).apply();
                 new AlertDialog.Builder(this)
-                    .setTitle("C10 Plus 5.2 no pudo enlazar con UNIT")
+                    .setTitle("C10 Plus 5.3 no pudo enlazar con UNIT")
                     .setMessage("La aplicación original sigue disponible. Pulsa «Diagnóstico» para obtener el motivo y corregirlo sin desinstalar.")
                     .setPositiveButton("Diagnóstico",(dialog,which)->showStartupDiagnostic())
                     .setNegativeButton("Continuar con UNIT",null).show();
@@ -543,10 +543,8 @@ public final class C10NativeHubActivity extends Activity {
         // Media providers live ONLY in UNIT's original RADIO and TV screens.
         private static final String[] RADIO_NAMES = {"Spotify"};
         private static final String[] RADIO_URLS = {"https://open.spotify.com"};
-        private static final String[] TV_NAMES = {"Netflix","Prime Video","Max (HBO)","Pluto TV","YouTube"};
-        private static final String[] TV_URLS = {"https://www.netflix.com",
-            "https://www.primevideo.com","https://www.max.com","https://pluto.tv",
-            "https://www.youtube.com"};
+        private static final String[] TV_NAMES = {"Pluto TV","YouTube"};
+        private static final String[] TV_URLS = {"https://pluto.tv","https://www.youtube.com"};
         private final Activity activity;
         private final FrameLayout body;
         private final LinearLayout nativeRow;
@@ -1423,7 +1421,7 @@ public final class C10NativeHubActivity extends Activity {
                 tools.addView(scan,new LinearLayout.LayoutParams(0,dip(48),1f));
                 tools.addView(copy,new LinearLayout.LayoutParams(0,dip(48),1f));
                 layout.addView(tools);
-                Button diag=button("Diagnóstico del inicio y firma 5.2");
+                Button diag=button("Diagnóstico del inicio y firma 5.3");
                 diag.setOnClickListener(v->((C10NativeHubActivity)activity).showStartupDiagnostic());
                 layout.addView(diag,new LinearLayout.LayoutParams(-1,dip(46)));
                 Button tests=button("Registrar prueba de Android Auto / CarPlay");
