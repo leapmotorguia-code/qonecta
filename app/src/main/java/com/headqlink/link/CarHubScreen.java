@@ -23,7 +23,7 @@ final class CarHubScreen implements CarScreen {
 
     /** Para la vista previa (PreviewActivity): pestaña con la que se abrirá la sección. */
     static void selectTab(int tab) {
-        lastTab = Math.max(0, Math.min(TABS.length - 1, tab));
+        lastTab = Math.max(0, Math.min(TABS.length, tab));
     }
 
     static int lastTab() {
@@ -41,10 +41,10 @@ final class CarHubScreen implements CarScreen {
         LinearLayout col = new LinearLayout(c);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setBackgroundColor(CarKit.BG);
-        int n = MateFeed.seen(c) ? TABS.length : TABS.length - 1;
+        int n = MateFeed.seen(c) ? TABS.length + 1 : TABS.length;
         if (lastTab >= n) lastTab = n - 1;
         String[] names = new String[n];
-        for (int i = 0; i < n; i++) names[i] = Str.get(TABS[i]);
+        for (int i = 0; i < n; i++) names[i] = (i == n - 1) ? "C10 Plus" : Str.get(TABS[i]);
         // Con la pantalla partida (la mitad de ancho) las seis pestañas no caben: la fila se desplaza.
         android.widget.HorizontalScrollView tabScroll = new android.widget.HorizontalScrollView(c);
         tabScroll.setHorizontalScrollBarEnabled(false);
@@ -67,7 +67,9 @@ final class CarHubScreen implements CarScreen {
         lastTab = tab;
         if (current != null) current.destroy();
         body.removeAllViews();
-        switch (tab) {
+        if (tab == (MateFeed.seen(host.context()) ? 7 : 6)) {
+            current = new C10PlusScreen();
+        } else switch (tab) {
             case 0:
                 current = new RouteTab();
                 break;

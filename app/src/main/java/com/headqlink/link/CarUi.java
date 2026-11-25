@@ -591,7 +591,7 @@ final class CarUi {
      * ocio.
      */
     static boolean splitCapable(String name) {
-        return splitRoom && ("car".equals(name) || "guide".equals(name) || "web".equals(name) || "videos".equals(name)
+        return splitRoom && ("car".equals(name) || "c10plus".equals(name) || "guide".equals(name) || "web".equals(name) || "videos".equals(name)
                 || "tv".equals(name) || "karaoke".equals(name) || "companion".equals(name));
     }
 
@@ -2192,9 +2192,13 @@ final class CarUi {
         list.addView(navButton(c, Str.get(R.string.hql_mode_aa), "aa", R.drawable.hql_ic_aa));
         // Los botones que se eligieron en Ajustes, en su orden («Auto» arriba y «Ajustes» abajo van fijos).
         for (String id : new Config(ctx).panelButtons()) {
+            // C10 Plus beta: hide games and karaoke, preserve the rest of UNIT.
+            if ("games".equals(id) || "karaoke".equals(id)) continue;
             list.addView(navButton(c, navLabel(id), id, navIcon(id)));
             if ("radio".equals(id)) list.addView(buildRadioMini(c));
         }
+        // The same navigation strip as Radio, TV and Car: no second application or toolbar.
+        list.addView(navButton(c, "C10 Plus", "c10plus", R.drawable.hql_ic_gauges));
         list.addView(buildSplitButton(c));
         list.addView(buildSwapButton(c));
         addHaButtons(c, list);
@@ -2461,6 +2465,7 @@ final class CarUi {
     /** Texto de un botón del panel por su id (Config.PANEL_BUTTONS_ALL). */
     static String navLabel(String id) {
         switch (id) {
+            case "c10plus": return "C10 Plus";
             case "car": return Str.get(R.string.hql_car);
             case "photos": return Str.get(R.string.hql_photos);
             case "videos": return Str.get(R.string.hql_videos);
@@ -2478,6 +2483,7 @@ final class CarUi {
 
     static int navIcon(String id) {
         switch (id) {
+            case "c10plus": return R.drawable.hql_ic_gauges;
             case "car": return R.drawable.hql_ic_gauges;
             case "photos": return R.drawable.hql_ic_photos;
             case "videos": return R.drawable.hql_ic_videos;
@@ -3004,6 +3010,8 @@ final class CarUi {
                 return HomeScreen::new;
             case "settings":
                 return SettingsScreen::new;
+            case "c10plus":
+                return C10PlusScreen::new;
             case "car":
                 return CarHubScreen::new;
             case "gauges":
