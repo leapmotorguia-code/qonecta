@@ -18,7 +18,7 @@ final class PremiumCockpit extends View {
         invalidate();
     }
     private void box(Canvas c,float x,float y,float w,float h,int color){
-        p.setShader(null);p.setStyle(Paint.Style.FILL);p.setColor(color);c.drawRoundRect(x,y,x+w,y+h,15,15,p);
+        p.setStyle(Paint.Style.FILL);p.setShader(new LinearGradient(x,y,x+w,y+h,color,0xff061923,Shader.TileMode.CLAMP));c.drawRoundRect(x,y,x+w,y+h,15,15,p);p.setShader(null);
         p.setStyle(Paint.Style.STROKE);p.setColor(EDGE);p.setStrokeWidth(1);c.drawRoundRect(x,y,x+w,y+h,15,15,p);p.setStyle(Paint.Style.FILL);
     }
     private void text(Canvas c,String s,float x,float y,float size,int color,boolean bold,float max,boolean center){
@@ -50,8 +50,15 @@ final class PremiumCockpit extends View {
         float cx=dw/2,cy=compact?189:181,r=compact?135:143;
         box(c,8,8,dw-16,compact?357:344,0xff0a1d2a);
         text(c,"TELEMETRÍA · UNIT",24,32,16,TEAL,true,dw-48,false);
+        arc(c,cx,cy,r+8,140,260,1,0xff3b6476);
         arc(c,cx,cy,r,140,260,12,EDGE);
-        if(Double.isFinite(speed)){float f=(float)Math.min(1,speed/200);if(f>0)arc(c,cx,cy,r,140,260*f,12,TEAL);}
+        if(Double.isFinite(speed)){float f=(float)Math.min(1,speed/200);if(f>0){
+            arc(c,cx,cy,r,140,260*f,22,0xff0b4241);
+            rect.set(cx-r,cy-r,cx+r,cy+r);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(12);p.setStrokeCap(Paint.Cap.ROUND);
+            SweepGradient glow=new SweepGradient(cx,cy,new int[]{GREEN,TEAL,BLUE,BLUE},new float[]{0f,.34f,.72f,1f});
+            Matrix m=new Matrix();m.setRotate(140,cx,cy);glow.setLocalMatrix(m);p.setShader(glow);c.drawArc(rect,140,260*f,false,p);p.setShader(null);p.setStyle(Paint.Style.FILL);
+        }}
+        for(int i=0;i<=40;i++){if(i%4==0)continue;double a=Math.toRadians(140+i*6.5);line(c,cx+(r-18)*(float)Math.cos(a),cy+(r-18)*(float)Math.sin(a),cx+(r-22)*(float)Math.cos(a),cy+(r-22)*(float)Math.sin(a),EDGE,1);}
         for(int i=0;i<=10;i++){
             double angle=Math.toRadians(140+i*26);float x1=cx+(r-17)*(float)Math.cos(angle),y1=cy+(r-17)*(float)Math.sin(angle);
             float x2=cx+(r-27)*(float)Math.cos(angle),y2=cy+(r-27)*(float)Math.sin(angle);
@@ -70,7 +77,7 @@ final class PremiumCockpit extends View {
         tile(c,lx,178,side,83,"ENTRADA",fmt(incoming,2," kWh"),"No solo frenada",TEAL);
         tile(c,rx,178,side,83,"COMBUSTIBLE",fmt(fuel,1," L"),"Restante · si disponible",BLUE);
         drawCar(c,cx-70,cy+68,140,58);
-        text(c,"Datos originales del vehículo · no sustituye al cuadro OEM",cx,compact?352:339,12,MUTED,false,dw-46,true);
+        text(c,"Telemetría UNIT · cuadro complementario",cx,compact?352:339,12,MUTED,false,dw-46,true);
         float y=compact?377:365;float cell=(dw-40)/3f;
         double net=Double.isFinite(spent)&&Double.isFinite(incoming)?spent-incoming:Double.NaN;
         double avg=Double.isFinite(net)&&km>0&&!partial?net*100/km:Double.NaN;
