@@ -463,7 +463,7 @@ public final class C10NativeHubActivity extends Activity {
         getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
             .putLong("last_pause",System.currentTimeMillis())
             .putBoolean("unit_dialog_showing", hadVisibleUnitOnPause).apply();
-        if(bridge!=null){bridge.pauseCatalog();bridge.closeNativeMediaWeb();}
+        if(bridge!=null){bridge.pauseCatalog();bridge.closeNativeMediaWeb();bridge.suspendUi();}
         super.onPause();
     }
     @Override protected void onStop() {
@@ -473,7 +473,7 @@ public final class C10NativeHubActivity extends Activity {
     }
     @Override protected void onResume() {
         super.onResume();
-        foreground=true;clearProjectionBridge();
+        foreground=true;clearProjectionBridge();if(bridge!=null)bridge.resumeUi();
         if(requestedTab>=0&&bridge!=null&&nativeDialog!=null&&nativeDialog.isShowing()){int t=requestedTab;requestedTab=-1;bridge.selectExtra(t);}
         handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,650);
         getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
@@ -658,7 +658,7 @@ public final class C10NativeHubActivity extends Activity {
             @Override public void run() {
                 if(nativeMediaOverlay == null || nativeMediaBrowser == null || closed) return;
                 readReal();
-                if(Double.isFinite(speed) && Math.abs(speed) > 1.5d) {
+                if(!videoStationary()) {
                     closeNativeMediaWeb();
                     Toast.makeText(activity,"Vídeo detenido: vehículo en movimiento",Toast.LENGTH_LONG).show();
                 } else updateHandler.postDelayed(this,2000);
@@ -666,6 +666,7 @@ public final class C10NativeHubActivity extends Activity {
         };
         private long lastSample;
         private boolean recentCockpitSpeed;
+        private NativeTelemetry extraTelemetry=new NativeTelemetry();
         private double latestSoc = Double.NaN;
         private String latestSource = "Sin telemetría confirmada";
         private double consumed = Double.NaN, recovered = Double.NaN, gasoline = Double.NaN;
@@ -805,23 +806,16 @@ public final class C10NativeHubActivity extends Activity {
 
         private void askToOpenNativeMedia(String section,String title,String url,boolean video) {
             readReal();
-            if(video && Double.isFinite(speed) && Math.abs(speed)>1.5d) {
+            if(video && !videoStationary()) {
                 Toast.makeText(activity,"No se puede mostrar vídeo en movimiento",Toast.LENGTH_LONG).show();
                 return;
             }
-            // Streaming sites are embedded; user confirmation is required for video.
-            if(video) {
-                new AlertDialog.Builder(activity)
-                    .setTitle(title+" en TV")
-                    .setMessage("Abre el servicio web dentro de UNIT. Confirma que el coche está estacionado. El proveedor puede bloquear vídeo o acceso por DRM.")
-                    .setPositiveButton("Estoy estacionado",(d,w)->openNativeMedia(section,title,url,true))
-                    .setNegativeButton("Cancelar",null).show();
-            } else openNativeMedia(section,title,url,false);
+            openNativeMedia(section,title,url,video);
         }
 
         private void openNativeMedia(String section,String title,String url,boolean video) {
             closeNativeMediaWeb();
-            if(showing || closed)return;
+            if(showing || closed || (video&&!videoStationary()))return;
             // The TV service must occupy the EXISTING player rectangle (RTVE etc.),
             // not cover the channel grid and the rest of UNIT.
             FrameLayout tvSlot=null;
@@ -1016,7 +1010,7 @@ public final class C10NativeHubActivity extends Activity {
          * non-demo data before showing its old vehicle snapshot as a live reading.
          */
         private void readReal() {
-            latestSoc=gasoline=speed=powerKw=Double.NaN;recentCockpitSpeed=false;
+            latestSoc=gasoline=speed=powerKw=Double.NaN;recentCockpitSpeed=false;extraTelemetry=new NativeTelemetry();
             try {
                 Class<?> r=Class.forName("es.c10.unitplus.integrated.NativeSnapshot");
                 Object d=r.getMethod("read").invoke(null);
@@ -1026,11 +1020,11 @@ public final class C10NativeHubActivity extends Activity {
                 boolean connected=flag(d,"connected",false);
                 boolean demo=flag(d,"demo",true);
                 boolean legacy=!hasField(d,"authoritative");
-                boolean trusted=legacy?(usable&&fresh&&connected&&!demo):
-                    (usable&&flag(d,"authoritative",false));
+                boolean trusted=usable&&fresh&&connected&&!demo&&(legacy||flag(d,"authoritative",false));
                 if(trusted){
                     latestSource=legacy?"UNIT 0.8: lectura conectada reciente · origen sin certificación":
                         String.valueOf(d.getClass().getField("source").get(d));
+                    extraTelemetry=NativeTelemetry.read(d);
                     latestSoc=number(d,"soc");
                     speed=number(d,"speed");
                     long speedAge=numberLong(d,"ageMs",Long.MAX_VALUE);recentCockpitSpeed=speedAge>=0&&speedAge<=3000L&&connected&&!demo;
@@ -1046,8 +1040,8 @@ public final class C10NativeHubActivity extends Activity {
             }catch(Throwable e){latestSource="Lectura no disponible: "+e.getClass().getSimpleName();}
             readTripTotals();
             long now=android.os.SystemClock.elapsedRealtime();
-            if(Double.isFinite(speed)&&speed>=0&&speed<=350)SpeedGraph.add(cockpitHistory,now,(float)speed);
-            if(cockpitPerformance!=null && Double.isFinite(speed)){
+            if(recentCockpitSpeed&&Double.isFinite(speed)&&speed>=0&&speed<=350)SpeedGraph.add(cockpitHistory,now,(float)speed);
+            if(cockpitPerformance!=null && recentCockpitSpeed && Double.isFinite(speed)){
                 cockpitPerformance.sample(now,speed);cockpitResult=cockpitPerformance.status();
                 if(cockpitPerformance.result!=null)cockpitPerformance=null;
             }
@@ -1211,9 +1205,15 @@ public final class C10NativeHubActivity extends Activity {
             updateHandler.post(refresh);
         }
 
+        void suspendUi(){updateHandler.removeCallbacks(refresh);if(leftPane!=null)leftPane.active(false);if(rightPane!=null)rightPane.active(false);}
+        void resumeUi(){if(closed)return;if(leftPane!=null)leftPane.active(true);if(rightPane!=null)rightPane.active(true);if(showing){updateHandler.removeCallbacks(refresh);updateHandler.post(refresh);}}
         void pauseCatalog(){if(leftPane!=null && leftPane.media!=null)leftPane.media.stop();if(rightPane!=null && rightPane.media!=null)rightPane.media.stop();}
         private boolean catalogStationary(){
-            if(activity.isFinishing()||!isUiForeground()||!showing||closed)return false;
+            return showing && videoStationary();
+        }
+        private boolean videoStationary(){
+            if(activity.isFinishing()||!isUiForeground()||closed)return false;
+            if(host.isStandaloneTablet())return true;
             try{
                 Object d=Class.forName("es.c10.unitplus.integrated.NativeSnapshot").getMethod("read").invoke(null);
                 long age=numberLong(d,"ageMs",Long.MAX_VALUE);
@@ -1238,7 +1238,9 @@ public final class C10NativeHubActivity extends Activity {
         }
         boolean isAttachedTo(ViewGroup current){if(closed||current!=hub||!nativeRow.isAttachedToWindow()||extraButtons.size()!=TABS.length)return false;for(TextView t:extraButtons)if(t.getParent()!=nativeRow)return false;return true;}
         void dispose() {
+            boolean restoreBody=showing&&custom!=null&&custom.getParent()==body;
             closed=true;stopCustom();
+            if(restoreBody&&hub.isAttachedToWindow()){try{Object active=nativeActiveTab.get(hub);if(active!=null)nativeSelect.invoke(hub,active);}catch(Throwable ignored){}}
             if(cockpitRadio!=null){cockpitRadio.stop();cockpitRadio=null;}
             cockpitPerformance=null;
             closeNativeMediaWeb();
@@ -1261,7 +1263,7 @@ public final class C10NativeHubActivity extends Activity {
             MetricDashboard dashboard;
             PremiumCockpit premium;
             SpeedGraph cockpitGauge,cockpitGraph;
-            TextView cockpitInfo;
+            TextView cockpitInfo,nativeSummary;
             InAppUpdater updater;
             MediaPanel media;
             VehicleAccessAudit.Report accessReport;
@@ -1479,6 +1481,7 @@ public final class C10NativeHubActivity extends Activity {
                 info("UNIT 0.8 · Balance orientativo si hay contadores; no confundir con regeneración exclusiva");
                 dashboard=new MetricDashboard(activity);
                 layout.addView(dashboard,new LinearLayout.LayoutParams(-1,0,1f));
+                nativeSummary=label("Acumulados UNIT (orientativos): esperando lectura",13,0xffb8d9e6);layout.addView(nativeSummary);
                 LinearLayout actions=row();
                 Button restart=button("Reiniciar medición");
                 restart.setOnClickListener(v->new AlertDialog.Builder(activity)
@@ -1670,7 +1673,8 @@ public final class C10NativeHubActivity extends Activity {
             }
             void refresh() {
                 if(disposed)return;
-                if(premium!=null){premium.update(recentCockpitSpeed?speed:Double.NaN,latestSoc,powerKw,consumed,recovered,tripKm,gasoline,balancePartial);cockpitInfo.setText(latestSource);}
+                if(premium!=null){premium.update(recentCockpitSpeed?speed:Double.NaN,latestSoc,powerKw,consumed,recovered,tripKm,gasoline,balancePartial);premium.extra(extraTelemetry);cockpitInfo.setText(latestSource);}
+                if(nativeSummary!=null)nativeSummary.setText("UNIT · acumulados orientativos (no son los contadores reiniciables): "+display(extraTelemetry.nativeDistance,"km")+" · salida "+display(extraTelemetry.nativeEnergy,"kWh")+" · entrada "+display(extraTelemetry.nativeIncoming,"kWh")+" · media "+display(extraTelemetry.avg,"kWh/100 km"));
                 if(cockpitGraph!=null){long now=android.os.SystemClock.elapsedRealtime();Float v=recentCockpitSpeed&&Double.isFinite(speed)&&speed>=0?(float)speed:null;cockpitGraph.update(cockpitHistory,v,now);}
                 if(media!=null)media.refresh();
                 if(kind==8)cockpitInfo.setText(cockpitResult);
