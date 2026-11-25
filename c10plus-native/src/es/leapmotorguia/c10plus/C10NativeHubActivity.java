@@ -1269,7 +1269,7 @@ public final class C10NativeHubActivity extends Activity {
                 TextView mapEmpty=label("MAPS\n\nPulsa para abrir la cartografía real.\nSin ruta activa en el cockpit.",14,0xffb1cbd6);mapEmpty.setGravity(Gravity.CENTER);
                 mapSlot.addView(mapEmpty,new FrameLayout.LayoutParams(-1,-1));
                 left.addView(mapSlot,new LinearLayout.LayoutParams(-1,0,1));
-                Button mapButton=button("Abrir Maps");mapButton.setOnClickListener(v->selectExtra(0));left.addView(mapButton,new LinearLayout.LayoutParams(-1,dip(48)));
+                Button mapButton=button("Cargar mapa");mapButton.setOnClickListener(v->{if(web==null){mapSlot.removeAllViews();web(mapSlot);web.loadUrl("https://www.google.com/maps");mapButton.setText("Abrir Maps");}else selectExtra(0);});left.addView(mapButton,new LinearLayout.LayoutParams(-1,dip(48)));
                 main.addView(left,new LinearLayout.LayoutParams(0,-1,22));
                 main.addView(premium,new LinearLayout.LayoutParams(0,-1,50));
                 LinearLayout right=new LinearLayout(activity);right.setOrientation(LinearLayout.VERTICAL);right.setPadding(dip(3),dip(3),dip(3),dip(3));
@@ -1292,7 +1292,7 @@ public final class C10NativeHubActivity extends Activity {
                     float dp=(r-l)/activity.getResources().getDisplayMetrics().density;
                     int side=dp>=1000?View.VISIBLE:View.GONE;
                     int shortcutsVisibility=dp>=700?View.VISIBLE:View.GONE;
-                    if(left.getVisibility()!=side)left.setVisibility(side);
+                    if(left.getVisibility()!=side){left.setVisibility(side);if(web!=null){if(side==View.GONE)web.onPause();else web.onResume();}}
                     if(right.getVisibility()!=shortcutsVisibility)right.setVisibility(shortcutsVisibility);
                 });
                 layout.addView(main,new LinearLayout.LayoutParams(-1,0,1f));
@@ -1322,7 +1322,8 @@ public final class C10NativeHubActivity extends Activity {
             }
             void armPerformance(int low,int high){new AlertDialog.Builder(activity).setMessage("¿Prueba en circuito cerrado y seguro?").setPositiveButton("Preparar",(d,w)->{cockpitPerformance=new Performance(low,high);cockpitResult="Esperando velocidad inicial";}).setNegativeButton("Cancelar",null).show();}
             void info(String s) {value=label(s,15,0xffcadfe7);layout.addView(value);}
-            void web() {
+            void web() {web(layout);}
+            void web(ViewGroup parent) {
                 web=new WebView(activity);
                 WebSettings ws=web.getSettings();
                 ws.setJavaScriptEnabled(true);
@@ -1408,7 +1409,7 @@ public final class C10NativeHubActivity extends Activity {
                                 ". La navegación puede requerir la aplicación Google Maps del móvil.");
                     }
                 });
-                layout.addView(web,new LinearLayout.LayoutParams(-1,0,1));
+                if(parent instanceof FrameLayout)parent.addView(web,new FrameLayout.LayoutParams(-1,-1));else parent.addView(web,new LinearLayout.LayoutParams(-1,0,1));
             }
             void maps() {
                 info("Google Maps WEB dentro de UNIT. El mapa y la navegación pueden requerir un WebView compatible y permisos; Google Maps de Android Auto es otra aplicación.");
@@ -1657,7 +1658,7 @@ public final class C10NativeHubActivity extends Activity {
                     fullScreenWeb=null;
                 }
                 if(web!=null) {
-                    try{web.stopLoading();web.loadUrl("about:blank");web.onPause();layout.removeView(web);web.destroy();}
+                    try{web.stopLoading();web.loadUrl("about:blank");web.onPause();if(web.getParent() instanceof ViewGroup)((ViewGroup)web.getParent()).removeView(web);web.destroy();}
                     catch(Throwable ignored){}
                     web=null;
                 }
