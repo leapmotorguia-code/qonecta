@@ -603,7 +603,10 @@ public final class C10NativeHubActivity extends Activity {
         private final Runnable nativeMediaTabMonitor=new Runnable() {
             @Override public void run() {
                 if(closed)return;
-                if(showing&&custom!=null&&custom.getParent()!=body)stopCustom();
+                boolean nowSplit=nativeBool("isSplitScreen"), nowRight=nativeBool("getAaRight");
+                boolean splitChanged=nowSplit!=lastNativeSplit||nowRight!=lastNativeRight;
+                lastNativeSplit=nowSplit;lastNativeRight=nowRight;
+                if(showing&&custom!=null&&custom.getParent()!=body){int restore=currentCustomTab;stopCustom();long now=android.os.SystemClock.elapsedRealtime();if(splitChanged&&restore>=0&&isUiForeground()&&now-lastSplitRepair>1500){lastSplitRepair=now;final int generation=nativeSelectionGeneration;updateHandler.postDelayed(()->{if(!closed&&!showing&&isUiForeground()&&generation==nativeSelectionGeneration)selectExtra(restore);},180);}}
                 try{
                     Object active=nativeActiveTab.get(hub);
                     String tab=active==null?"":String.valueOf(active).toUpperCase(Locale.ROOT);
@@ -654,6 +657,10 @@ public final class C10NativeHubActivity extends Activity {
         private WebView nativeMediaBrowser;
         private android.app.Dialog nativeVideoFullscreen;
         private int nativeSelectionGeneration;
+        private int currentCustomTab=-1;
+        private boolean lastNativeSplit,lastNativeRight;
+        private long lastSplitRepair;
+        private boolean nativeBool(String name){try{return Boolean.TRUE.equals(hub.getClass().getMethod(name).invoke(hub));}catch(Throwable ignored){return false;}}
         private final Runnable nativeMediaSafetyTick = new Runnable() {
             @Override public void run() {
                 if(nativeMediaOverlay == null || nativeMediaBrowser == null || closed) return;
@@ -1184,7 +1191,7 @@ public final class C10NativeHubActivity extends Activity {
             closeNativeMediaWeb();
             clearNativeMediaBar();
             stopCustom();
-            showing=true;
+            showing=true;currentCustomTab=tab;lastNativeSplit=nativeBool("isSplitScreen");lastNativeRight=nativeBool("getAaRight");
             stopNativeTick();
             custom=new LinearLayout(activity);
             custom.setOrientation(LinearLayout.VERTICAL);
@@ -1236,7 +1243,7 @@ public final class C10NativeHubActivity extends Activity {
                 h.postDelayed((Runnable)nativeTick,550);
             }
         }
-        boolean isAttachedTo(ViewGroup current){if(closed||current!=hub||!nativeRow.isAttachedToWindow()||extraButtons.size()!=TABS.length)return false;for(TextView t:extraButtons)if(t.getParent()!=nativeRow)return false;return true;}
+        boolean isAttachedTo(ViewGroup current){if(closed||current!=hub||!nativeRow.isAttachedToWindow()||extraButtons.size()!=TABS.length)return false;try{Field f=hub.getClass().getDeclaredField("bodyContainer");f.setAccessible(true);if(f.get(hub)!=body)return false;}catch(Throwable e){return false;}for(TextView t:extraButtons)if(t.getParent()!=nativeRow)return false;return true;}
         void dispose() {
             boolean restoreBody=showing&&custom!=null&&custom.getParent()==body;
             closed=true;stopCustom();
@@ -1673,7 +1680,7 @@ public final class C10NativeHubActivity extends Activity {
             }
             void refresh() {
                 if(disposed)return;
-                if(premium!=null){premium.update(recentCockpitSpeed?speed:Double.NaN,latestSoc,powerKw,consumed,recovered,tripKm,gasoline,balancePartial);premium.extra(extraTelemetry);cockpitInfo.setText(latestSource);}
+                if(premium!=null){premium.update(recentCockpitSpeed?speed:Double.NaN,latestSoc,powerKw,consumed,recovered,tripKm,gasoline,balancePartial);premium.extra(extraTelemetry);cockpitInfo.setText(latestSource+(nativeBool("isSplitScreen")&&!nativeBool("getHostedInsideProjection")?" · Panel lateral UNIT: no confirma ruta real":""));}
                 if(nativeSummary!=null)nativeSummary.setText("UNIT · acumulados orientativos (no son los contadores reiniciables): "+display(extraTelemetry.nativeDistance,"km")+" · salida "+display(extraTelemetry.nativeEnergy,"kWh")+" · entrada "+display(extraTelemetry.nativeIncoming,"kWh")+" · media "+display(extraTelemetry.avg,"kWh/100 km"));
                 if(cockpitGraph!=null){long now=android.os.SystemClock.elapsedRealtime();Float v=recentCockpitSpeed&&Double.isFinite(speed)&&speed>=0?(float)speed:null;cockpitGraph.update(cockpitHistory,v,now);}
                 if(media!=null)media.refresh();
