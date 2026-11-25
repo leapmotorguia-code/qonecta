@@ -11,7 +11,8 @@ final class PremiumCockpit extends View {
     private static final int BG=0xff06131e, PANEL=0xff0c2230, EDGE=0xff224557, WHITE=0xffeaf7ff, MUTED=0xff9dbac9, TEAL=0xff27e3c1, BLUE=0xff59c8ff, GREEN=0xff9ce84b, AMBER=0xffffc779;
     private double speed=Double.NaN,soc=Double.NaN,power=Double.NaN,spent=Double.NaN,incoming=Double.NaN,km=Double.NaN,fuel=Double.NaN;
     private boolean partial;
-    PremiumCockpit(Context c){super(c);setContentDescription("Cuadro digital de datos UNIT; no sustituye los instrumentos originales.");}
+    private Bitmap carArt;
+    PremiumCockpit(Context c){super(c);try(java.io.InputStream in=c.getAssets().open("c10-premium-car.png")){carArt=BitmapFactory.decodeStream(in);}catch(Exception ignored){}setContentDescription("Cuadro digital de datos UNIT; no sustituye los instrumentos originales.");}
     void update(double v,double battery,double kw,double used,double in,double distance,double litres,boolean incomplete){
         speed=v>=0&&v<=350?v:Double.NaN;soc=battery>=0&&battery<=100?battery:Double.NaN;
         power=Double.isFinite(kw)?kw:Double.NaN;spent=used;incoming=in;km=distance;fuel=litres;partial=incomplete;
@@ -36,6 +37,7 @@ final class PremiumCockpit extends View {
         text(c,hint,x+25,y+h-11,12,MUTED,false,w-34,false);
     }
     private void drawCar(Canvas c,float x,float y,float w,float h){
+        if(carArt!=null){p.setShader(null);p.setStyle(Paint.Style.FILL);p.setFilterBitmap(true);c.drawBitmap(carArt,null,new RectF(x,y,x+w,y+h),p);return;}
         c.save();c.translate(x,y);c.scale(w/260,h/104);
         p.setShader(new LinearGradient(0,25,0,88,new int[]{0xffaac2ce,0xff4a697e,0xff152c3a},null,Shader.TileMode.CLAMP));
         Path body=new Path();body.moveTo(8,68);body.lineTo(16,48);body.lineTo(50,38);body.lineTo(80,13);body.quadTo(93,5,116,6);body.lineTo(177,9);body.quadTo(197,14,213,37);body.lineTo(240,43);body.quadTo(255,48,255,72);body.lineTo(243,84);body.lineTo(15,84);body.close();c.drawPath(body,p);p.setShader(null);
@@ -75,10 +77,10 @@ final class PremiumCockpit extends View {
         tile(c,rx,167,side,92,"COMBUSTIBLE",fmt(fuel,1," L"),"Nivel · si disponible",AMBER);
         p.setShader(new RadialGradient(cx,328,150,new int[]{0xff174e50,0xff0a1d2a},null,Shader.TileMode.CLAMP));c.drawOval(cx-150,301,cx+150,351,p);p.setShader(null);
         rect.set(cx-145,311,cx+145,345);p.setStyle(Paint.Style.STROKE);p.setColor(TEAL);p.setStrokeWidth(1.5f);c.drawOval(rect,p);p.setStyle(Paint.Style.FILL);
-        drawCar(c,cx-118,247,236,95);
-        text(c,"FLUJO DE ENERGÍA",cx,363,14,TEAL,true,240,true);
+        drawCar(c,cx-118,247,236,114);
+        text(c,"FLUJO DE ENERGÍA",cx,370,14,TEAL,true,240,true);
         String flow=Double.isFinite(power)?power>0?"Batería → sistema eléctrico":power<0?"Entrada → batería":"Sin intercambio medido":"Sin potencia disponible";
-        text(c,flow,cx,382,13,MUTED,false,dw-34,true);
+        text(c,flow,cx,388,13,MUTED,false,dw-34,true);
         double net=Double.isFinite(spent)&&Double.isFinite(incoming)?spent-incoming:Double.NaN;
         double avg=Double.isFinite(net)&&km>0&&!partial?net*100/km:Double.NaN;
         float cell=(dw-40)/3f, y=lower, th=compact?91:80;
