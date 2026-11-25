@@ -68,12 +68,13 @@ public final class C10NativeHubActivity extends Activity {
     private boolean premiumOpened;
     private int requestedTab=-1;
     private Activity projectionOwner;
+    private C10Connect connect;
     private C10Bridge projectionBridge;
     private final Runnable projectionScan=()->scanProjection();
     private final android.app.Application.ActivityLifecycleCallbacks projectionLifecycle=new android.app.Application.ActivityLifecycleCallbacks(){
         public void onActivityCreated(Activity a,Bundle b){}
         public void onActivityStarted(Activity a){}
-        public void onActivityResumed(Activity a){if(a==C10NativeHubActivity.this){clearProjectionBridge();return;}String n=a.getClass().getName();if(n.equals("com.andrerinas.openheadunit.main.MainActivity")||n.equals("com.andrerinas.openheadunit.aap.AapProjectionActivity")||n.equals("com.shilapi.xcertplay.CarPlayHostActivity")||n.equals("com.shilapi.xcertplay.LeapCarPlayActivity")){clearProjectionBridge();projectionOwner=a;handler.postDelayed(projectionScan,400);}}
+        public void onActivityResumed(Activity a){if(connect!=null)connect.observed(a);if(a==C10NativeHubActivity.this){clearProjectionBridge();return;}String n=a.getClass().getName();if(n.equals("com.andrerinas.openheadunit.main.MainActivity")||n.equals("com.andrerinas.openheadunit.aap.AapProjectionActivity")||n.equals("com.shilapi.xcertplay.CarPlayHostActivity")||n.equals("com.shilapi.xcertplay.LeapCarPlayActivity")){clearProjectionBridge();projectionOwner=a;handler.postDelayed(projectionScan,400);}}
         public void onActivityPaused(Activity a){if(a==projectionOwner)clearProjectionBridge();}
         public void onActivityStopped(Activity a){}
         public void onActivitySaveInstanceState(Activity a,Bundle b){}
@@ -89,6 +90,7 @@ public final class C10NativeHubActivity extends Activity {
 
     @Override public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        connect=new C10Connect(this);
         getApplication().registerActivityLifecycleCallbacks(projectionLifecycle);
         requestedTab=getIntent().getIntExtra("c10plus_tab",-1);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
@@ -98,7 +100,7 @@ public final class C10NativeHubActivity extends Activity {
         root.setPadding(24,24,24,24);
         root.setBackgroundColor(0xff07141e);
         TextView heading = new TextView(this);
-        heading.setText("UNIT C10 Plus 5.7 · Integración y actualizaciones");
+        heading.setText("UNIT C10 Plus 5.8 · Integración y actualizaciones");
         heading.setTextColor(0xff04e2bd);
         heading.setTextSize(25);
         heading.setGravity(Gravity.CENTER);
@@ -108,12 +110,13 @@ public final class C10NativeHubActivity extends Activity {
         status.setTextSize(16);
         status.setGravity(Gravity.CENTER);
         status.setPadding(12,20,12,20);
-        status.setText("Versión 5.7 · Iniciando la integración con UNIT...");
+        status.setText("Versión 5.8 · Iniciando la integración con UNIT...");
         root.addView(status);
         Button retry = new Button(this);
         retry.setText("Recuperar nuestras pantallas / Abrir UNIT");
         retry.setOnClickListener(v -> restoreNative());
         root.addView(retry);
+        Button connectButton=new Button(this);connectButton.setText("C10 Connect · Teléfono");connectButton.setOnClickListener(v->connect.show(this,()->restoreNative()));root.addView(connectButton);
         Button original = new Button(this);
         original.setText("UNIT original (rescate)");
         original.setOnClickListener(v -> {
@@ -127,7 +130,7 @@ public final class C10NativeHubActivity extends Activity {
         });
         root.addView(original);
         Button diagnostic=new Button(this);
-        diagnostic.setText("Diagnóstico de integración 5.7");
+        diagnostic.setText("Diagnóstico de integración 5.8");
         diagnostic.setOnClickListener(v->showStartupDiagnostic());
         root.addView(diagnostic);
         homeRoot=root;
@@ -473,7 +476,7 @@ public final class C10NativeHubActivity extends Activity {
     }
     @Override protected void onResume() {
         super.onResume();
-        foreground=true;clearProjectionBridge();if(bridge!=null)bridge.resumeUi();
+        foreground=true;if(connect!=null)connect.returned();clearProjectionBridge();if(bridge!=null)bridge.resumeUi();
         if(requestedTab>=0&&bridge!=null&&nativeDialog!=null&&nativeDialog.isShowing()){int t=requestedTab;requestedTab=-1;bridge.selectExtra(t);}
         handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,650);
         getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
@@ -493,19 +496,19 @@ public final class C10NativeHubActivity extends Activity {
     private void showStartupDiagnostic() {
         String error=getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE)
             .getString("bridge","");
-        String report=StartupDiagnostics.report(this,error);
+        String report=StartupDiagnostics.report(this,error)+"\n"+(connect==null?"":connect.report());
         android.widget.ScrollView scroll=new android.widget.ScrollView(this);
         TextView text=new TextView(this);
         text.setText(report);text.setTextSize(15);text.setTextColor(Color.WHITE);
         text.setPadding(24,16,24,16);
         scroll.addView(text);
-        new AlertDialog.Builder(this).setTitle("C10 Plus 5.7 · Comprobación")
+        new AlertDialog.Builder(this).setTitle("C10 Plus 5.8 · Comprobación")
             .setView(scroll)
             .setPositiveButton("Copiar informe",(dialog,which)->{
                 android.content.ClipboardManager cb=(android.content.ClipboardManager)
                     getSystemService(Context.CLIPBOARD_SERVICE);
                 if(cb!=null) cb.setPrimaryClip(android.content.ClipData.newPlainText(
-                    "Diagnóstico de inicio 5.7",report));
+                    "Diagnóstico de inicio 5.8",report));
                 Toast.makeText(this,"Informe copiado",Toast.LENGTH_SHORT).show();
             })
             .setNegativeButton("Cerrar",null).show();
@@ -520,15 +523,15 @@ public final class C10NativeHubActivity extends Activity {
                 if(bridge!=null){bridge.dispose();bridge=null;}
                 bridge = C10Bridge.attach(this, (ViewGroup)view);
                 handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,1500);
-                status.setText("5.7 · Mejoras integradas en UNIT");
+                status.setText("5.8 · Mejoras integradas en UNIT");
                 if(requestedTab>=0||!premiumOpened){int target=requestedTab>=0?requestedTab:11;requestedTab=-1;premiumOpened=true;C10Bridge initial=bridge;handler.postDelayed(()->{if(foreground&&bridge==initial&&!isFinishing()&&nativeDialog==d&&d.isShowing()&&!initial.showing)initial.selectExtra(target);},350); }
-                Toast.makeText(this,"UNIT C10 Plus 5.7 conectado",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"UNIT C10 Plus 5.8 conectado",Toast.LENGTH_LONG).show();
             } catch (Throwable e) {
                 status.setText("UNIT funciona, pero el acceso C10 Plus ha fallado: "+e.getClass().getSimpleName());
                 getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE).edit()
                     .putString("bridge",String.valueOf(e)).apply();
                 new AlertDialog.Builder(this)
-                    .setTitle("C10 Plus 5.7 no pudo enlazar con UNIT")
+                    .setTitle("C10 Plus 5.8 no pudo enlazar con UNIT")
                     .setMessage("La aplicación original sigue disponible. Pulsa «Diagnóstico» para obtener el motivo y corregirlo sin desinstalar.")
                     .setPositiveButton("Diagnóstico",(dialog,which)->showStartupDiagnostic())
                     .setNegativeButton("Continuar con UNIT",null).show();
@@ -1349,7 +1352,7 @@ public final class C10NativeHubActivity extends Activity {
                 sc.addView(nav);layout.addView(sc,new LinearLayout.LayoutParams(-1,-2));
             }
             void moduleMenu(String title,String[] names,int[] ids){new AlertDialog.Builder(activity).setTitle(title).setItems(names,(d,i)->selectExtra(ids[i])).show();}
-            void phoneMenu(){new AlertDialog.Builder(activity).setTitle("Conexiones del teléfono").setItems(new String[]{"Android Auto · conexión UNIT","Apple CarPlay · conexión UNIT","Bluetooth · emparejar dispositivo","Wi-Fi · configuración"},(d,i)->{try{Intent link;if(i<2){link=new Intent();link.setClassName(activity.getPackageName(),i==0?"com.andrerinas.openheadunit.main.MainActivity":"com.shilapi.xcertplay.LeapCarPlayActivity");}else link=new Intent(i==2?android.provider.Settings.ACTION_BLUETOOTH_SETTINGS:android.provider.Settings.ACTION_WIFI_SETTINGS);activity.startActivity(link);}catch(Throwable e){Toast.makeText(activity,"Ajuste o conexión no disponible en este dispositivo",Toast.LENGTH_LONG).show();}}).show();}
+            void phoneMenu(){host.connect.show(activity,()->{if(activity==host)selectExtra(11);else host.openPlusTab(activity,11);});}
             android.graphics.drawable.GradientDrawable premiumCard(){
                 android.graphics.drawable.GradientDrawable g=new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TL_BR,new int[]{0xff10394a,0xff061722});
                 g.setCornerRadius(dip(12));g.setStroke(dip(1),0xff327a89);return g;
@@ -1522,7 +1525,7 @@ public final class C10NativeHubActivity extends Activity {
                 tools.addView(scan,new LinearLayout.LayoutParams(0,dip(48),1f));
                 tools.addView(copy,new LinearLayout.LayoutParams(0,dip(48),1f));
                 layout.addView(tools);
-                Button diag=button("Diagnóstico del inicio y firma 5.7");
+                Button diag=button("Diagnóstico del inicio y firma 5.8");
                 diag.setOnClickListener(v->((C10NativeHubActivity)activity).showStartupDiagnostic());
                 layout.addView(diag,new LinearLayout.LayoutParams(-1,dip(46)));
                 Button tests=button("Registrar prueba de Android Auto / CarPlay");
