@@ -2,7 +2,9 @@ name: C10 Plus - módulo para APK original UNIT
 
 on:
   push:
-    branches: [feature/c10plus-tu-apk-unit-nativa, feature/unit-basada-en-08-estable, feature/unit-c10-4-5-1-installer-resume, feature/unit-45-cockpit-merge]
+    branches: [feature/c10plus-tu-apk-unit-nativa, feature/unit-basada-en-08-estable, feature/unit-c10-4-5-1-installer-resume, feature/unit-45-cockpit-merge, feature/c10-plus-60-recovery]
+  pull_request:
+    branches: [feature/unit-45-cockpit-merge]
   workflow_dispatch:
 
 permissions:
@@ -63,4 +65,4 @@ jobs:
             c10plus-native/out/tools/apksigner.jar
             c10plus-native/out/tools/zipalign
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 90
