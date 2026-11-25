@@ -53,6 +53,9 @@ jobs:
       - name: Bundle SDK signing utilities (no private keys)
         run: |
           mkdir -p c10plus-native/out/tools
+          cp "$ANDROID_HOME/platforms/android-35/android.jar" c10plus-native/out/tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib/d8.jar" c10plus-native/out/tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/aapt2" c10plus-native/out/tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" c10plus-native/out/tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" c10plus-native/out/tools/
           chmod +x c10plus-native/out/tools/zipalign
@@ -62,7 +65,6 @@ jobs:
           name: C10Plus-Native-Addon-DEX
           path: |
             c10plus-native/out/dex/classes.dex
-            c10plus-native/out/tools/apksigner.jar
-            c10plus-native/out/tools/zipalign
+            c10plus-native/out/tools/
           if-no-files-found: error
           retention-days: 90
