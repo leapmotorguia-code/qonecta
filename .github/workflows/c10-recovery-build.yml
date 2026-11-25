@@ -2,6 +2,8 @@ name: C10 recovery build
 on:
   push:
     branches: [feature/c10-plus-60-recovery]
+  pull_request:
+    branches: [feature/unit-45-cockpit-merge]
   workflow_dispatch:
 permissions:
   contents: read
