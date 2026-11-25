@@ -1256,7 +1256,23 @@ public final class C10NativeHubActivity extends Activity {
             void cockpit(){
                 cockpitInfo=label("Datos UNIT · sin simulación",13,0xffb0cbd6);layout.addView(cockpitInfo);
                 premium=new PremiumCockpit(activity);
-                layout.addView(premium,new LinearLayout.LayoutParams(-1,0,1f));
+                LinearLayout main=row();
+                main.addView(premium,new LinearLayout.LayoutParams(0,-1,3.5f));
+                if(activity.getResources().getConfiguration().screenWidthDp>=700){
+                    android.widget.ScrollView shortcutScroll=new android.widget.ScrollView(activity);
+                    shortcutScroll.setFillViewport(true);
+                    LinearLayout shortcuts=new LinearLayout(activity);shortcuts.setOrientation(LinearLayout.VERTICAL);shortcuts.setPadding(dip(5),dip(3),dip(3),dip(3));
+                    int[] dests={1,2,3,9,7,0,4,5};
+                    String[] shortcutsText={"▥  Consumos","⌁  Gráficas","▣  Accesos C10","▣  TDT+","◉  Radio+","➤  Maps","↓  Actualizaciones","◇  Modelo"};
+                    for(int j=0;j<dests.length;j+=2){
+                        LinearLayout rr=row();
+                        for(int i=j;i<j+2;i++){final int dest=dests[i];Button b=button(shortcutsText[i]);b.setTextSize(12);LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(0,dip(58),1);bp.setMargins(dip(2),dip(3),dip(2),dip(3));rr.addView(b,bp);b.setOnClickListener(v->selectExtra(dest));}
+                        shortcuts.addView(rr);
+                    }
+                    TextView info=label("MEDIA · NAVEGACIÓN\nAbre el módulo desde aquí. Los datos no disponibles se muestran como —.",12,0xff9dbac9);
+                    shortcuts.addView(info);shortcutScroll.addView(shortcuts);main.addView(shortcutScroll,new LinearLayout.LayoutParams(0,-1,1.7f));
+                }
+                layout.addView(main,new LinearLayout.LayoutParams(-1,0,1f));
                 HorizontalScrollView sc=new HorizontalScrollView(activity);
                 sc.setHorizontalScrollBarEnabled(false);
                 LinearLayout nav=row();
