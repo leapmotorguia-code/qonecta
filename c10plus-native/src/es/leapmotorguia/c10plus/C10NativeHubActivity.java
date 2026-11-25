@@ -83,7 +83,7 @@ public final class C10NativeHubActivity extends Activity {
         root.setPadding(24,24,24,24);
         root.setBackgroundColor(0xff07141e);
         TextView heading = new TextView(this);
-        heading.setText("UNIT C10 Plus 5.4 · Integración y actualizaciones");
+        heading.setText("UNIT C10 Plus 5.5 · Integración y actualizaciones");
         heading.setTextColor(0xff04e2bd);
         heading.setTextSize(25);
         heading.setGravity(Gravity.CENTER);
@@ -93,7 +93,7 @@ public final class C10NativeHubActivity extends Activity {
         status.setTextSize(16);
         status.setGravity(Gravity.CENTER);
         status.setPadding(12,20,12,20);
-        status.setText("Versión 5.4 · Iniciando la integración con UNIT...");
+        status.setText("Versión 5.5 · Iniciando la integración con UNIT...");
         root.addView(status);
         Button retry = new Button(this);
         retry.setText("Recuperar nuestras pantallas / Abrir UNIT");
@@ -112,7 +112,7 @@ public final class C10NativeHubActivity extends Activity {
         });
         root.addView(original);
         Button diagnostic=new Button(this);
-        diagnostic.setText("Diagnóstico de integración 5.4");
+        diagnostic.setText("Diagnóstico de integración 5.5");
         diagnostic.setOnClickListener(v->showStartupDiagnostic());
         root.addView(diagnostic);
         homeRoot=root;
@@ -470,13 +470,13 @@ public final class C10NativeHubActivity extends Activity {
         text.setText(report);text.setTextSize(15);text.setTextColor(Color.WHITE);
         text.setPadding(24,16,24,16);
         scroll.addView(text);
-        new AlertDialog.Builder(this).setTitle("C10 Plus 5.4 · Comprobación")
+        new AlertDialog.Builder(this).setTitle("C10 Plus 5.5 · Comprobación")
             .setView(scroll)
             .setPositiveButton("Copiar informe",(dialog,which)->{
                 android.content.ClipboardManager cb=(android.content.ClipboardManager)
                     getSystemService(Context.CLIPBOARD_SERVICE);
                 if(cb!=null) cb.setPrimaryClip(android.content.ClipData.newPlainText(
-                    "Diagnóstico de inicio 5.4",report));
+                    "Diagnóstico de inicio 5.5",report));
                 Toast.makeText(this,"Informe copiado",Toast.LENGTH_SHORT).show();
             })
             .setNegativeButton("Cerrar",null).show();
@@ -491,15 +491,15 @@ public final class C10NativeHubActivity extends Activity {
                 if(bridge!=null){bridge.dispose();bridge=null;}
                 bridge = C10Bridge.attach(this, (ViewGroup)view);
                 handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,1500);
-                status.setText("5.4 · Mejoras integradas en UNIT");
+                status.setText("5.5 · Mejoras integradas en UNIT");
                 if(!premiumOpened){premiumOpened=true;C10Bridge initial=bridge;handler.postDelayed(()->{if(foreground&&bridge==initial&&!isFinishing()&&nativeDialog==d&&d.isShowing()&&!initial.showing)initial.selectExtra(11);},350); }
-                Toast.makeText(this,"UNIT C10 Plus 5.4 conectado",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"UNIT C10 Plus 5.5 conectado",Toast.LENGTH_LONG).show();
             } catch (Throwable e) {
                 status.setText("UNIT funciona, pero el acceso C10 Plus ha fallado: "+e.getClass().getSimpleName());
                 getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE).edit()
                     .putString("bridge",String.valueOf(e)).apply();
                 new AlertDialog.Builder(this)
-                    .setTitle("C10 Plus 5.4 no pudo enlazar con UNIT")
+                    .setTitle("C10 Plus 5.5 no pudo enlazar con UNIT")
                     .setMessage("La aplicación original sigue disponible. Pulsa «Diagnóstico» para obtener el motivo y corregirlo sin desinstalar.")
                     .setPositiveButton("Diagnóstico",(dialog,which)->showStartupDiagnostic())
                     .setNegativeButton("Continuar con UNIT",null).show();
@@ -1167,7 +1167,7 @@ public final class C10NativeHubActivity extends Activity {
             TextView real=label("EN UNIT",12,0xff88bcc9);
             real.setGravity(Gravity.CENTER_VERTICAL);
             header.addView(real);
-            custom.addView(header);
+            if(tab!=6&&tab!=11)custom.addView(header);
             Pane pane=new Pane(tab);
             leftPane=pane;
             custom.addView(pane.layout,new LinearLayout.LayoutParams(-1,0,1f));
@@ -1237,7 +1237,7 @@ public final class C10NativeHubActivity extends Activity {
                 layout.setOrientation(LinearLayout.VERTICAL);
                 layout.setPadding(dip(5),dip(3),dip(5),dip(3));
                 layout.setBackgroundColor(0xff081b29);
-                layout.addView(label(TABS[kind],19,0xff02e5c2));
+                if(kind!=6&&kind!=11)layout.addView(label(TABS[kind],19,0xff02e5c2));
                 switch(kind) {
                     case 0:maps();break;
                     case 1:consumption();break;
@@ -1254,32 +1254,58 @@ public final class C10NativeHubActivity extends Activity {
                 }
             }
             void cockpit(){
-                cockpitInfo=label("Datos UNIT · sin simulación",13,0xffb0cbd6);layout.addView(cockpitInfo);
+                cockpitInfo=label("Datos UNIT · sin simulación",12,0xffb0cbd6);
+                LinearLayout top=row();
+                TextView brand=label("UNIT  C10 PLUS  ·  COCKPIT DIGITAL",19,0xff21e8c4);
+                brand.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);top.addView(brand,new LinearLayout.LayoutParams(0,dip(38),1));
+                android.widget.TextClock clock=new android.widget.TextClock(activity);clock.setFormat24Hour("HH:mm");clock.setTextColor(0xffeaf7fd);clock.setTextSize(19);clock.setGravity(Gravity.CENTER);top.addView(clock,new LinearLayout.LayoutParams(dip(74),dip(38)));
+                layout.addView(top);layout.addView(cockpitInfo);
                 premium=new PremiumCockpit(activity);
-                LinearLayout main=row();
-                main.addView(premium,new LinearLayout.LayoutParams(0,-1,3.5f));
-                if(activity.getResources().getConfiguration().screenWidthDp>=700){
-                    android.widget.ScrollView shortcutScroll=new android.widget.ScrollView(activity);
-                    shortcutScroll.setFillViewport(true);
-                    LinearLayout shortcuts=new LinearLayout(activity);shortcuts.setOrientation(LinearLayout.VERTICAL);shortcuts.setPadding(dip(5),dip(3),dip(3),dip(3));
-                    int[] dests={1,2,3,9,7,0,4,5};
-                    String[] shortcutsText={"▥  Consumos","⌁  Gráficas","▣  Accesos C10","▣  TDT+","◉  Radio+","➤  Maps","↓  Actualizaciones","◇  Modelo"};
-                    for(int j=0;j<dests.length;j+=2){
-                        LinearLayout rr=row();
-                        for(int i=j;i<j+2;i++){final int dest=dests[i];Button b=button(shortcutsText[i]);b.setTextSize(12);LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(0,dip(58),1);bp.setMargins(dip(2),dip(3),dip(2),dip(3));rr.addView(b,bp);b.setOnClickListener(v->selectExtra(dest));}
-                        shortcuts.addView(rr);
-                    }
-                    TextView info=label("MEDIA · NAVEGACIÓN\nAbre el módulo desde aquí. Los datos no disponibles se muestran como —.",12,0xff9dbac9);
-                    shortcuts.addView(info);shortcutScroll.addView(shortcuts);main.addView(shortcutScroll,new LinearLayout.LayoutParams(0,-1,1.7f));
+                LinearLayout main=row();main.setGravity(Gravity.CENTER_VERTICAL);
+                LinearLayout left=new LinearLayout(activity);left.setOrientation(LinearLayout.VERTICAL);left.setPadding(dip(4),dip(4),dip(4),dip(4));
+                left.setBackground(premiumCard());
+                left.addView(label("NAVEGACIÓN",16,0xff22e0bd));
+                FrameLayout mapSlot=new FrameLayout(activity);mapSlot.setBackgroundColor(0xff071823);
+                TextView mapEmpty=label("MAPS\n\nPulsa para abrir la cartografía real.\nSin ruta activa en el cockpit.",14,0xffb1cbd6);mapEmpty.setGravity(Gravity.CENTER);
+                mapSlot.addView(mapEmpty,new FrameLayout.LayoutParams(-1,-1));
+                left.addView(mapSlot,new LinearLayout.LayoutParams(-1,0,1));
+                Button mapButton=button("Abrir Maps");mapButton.setOnClickListener(v->selectExtra(0));left.addView(mapButton,new LinearLayout.LayoutParams(-1,dip(48)));
+                main.addView(left,new LinearLayout.LayoutParams(0,-1,22));
+                main.addView(premium,new LinearLayout.LayoutParams(0,-1,50));
+                LinearLayout right=new LinearLayout(activity);right.setOrientation(LinearLayout.VERTICAL);right.setPadding(dip(3),dip(3),dip(3),dip(3));
+                android.widget.ScrollView shortcutScroll=new android.widget.ScrollView(activity);shortcutScroll.setFillViewport(true);
+                LinearLayout shortcuts=new LinearLayout(activity);shortcuts.setOrientation(LinearLayout.VERTICAL);
+                int[] dests={1,2,3,9,7,0,4,5,6};
+                String[] shortcutsText={"▥\nConsumos","⌁\nGráficas","▣\nAccesos C10","▣\nTDT+","◉\nRadio+","➤\nMaps","↓\nActualizaciones","◇\nModelo","◴\nCockpit"};
+                for(int j=0;j<dests.length;j+=3){
+                    LinearLayout rr=row();
+                    for(int i=j;i<j+3;i++){final int dest=dests[i];Button b=button(shortcutsText[i]);b.setTextSize(12);b.setPadding(dip(2),dip(2),dip(2),dip(2));LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(0,dip(58),1);bp.setMargins(dip(2),dip(2),dip(2),dip(2));rr.addView(b,bp);b.setOnClickListener(v->selectExtra(dest));}
+                    shortcuts.addView(rr);
                 }
+                LinearLayout mediaCard=new LinearLayout(activity);mediaCard.setOrientation(LinearLayout.VERTICAL);mediaCard.setBackground(premiumCard());mediaCard.setPadding(dip(6),dip(6),dip(6),dip(6));
+                mediaCard.addView(label("▣  TDT+ · MULTIMEDIA",15,0xffeaf7fd));
+                TextView tv=label("766 canales\nSelecciona una emisión en TDT+",14,0xffb1cbd6);tv.setGravity(Gravity.CENTER);tv.setMinHeight(dip(70));mediaCard.addView(tv,new LinearLayout.LayoutParams(-1,-2));
+                Button tvOpen=button("Abrir televisión");tvOpen.setOnClickListener(v->selectExtra(9));mediaCard.addView(tvOpen,new LinearLayout.LayoutParams(-1,dip(44)));shortcuts.addView(mediaCard);
+                shortcutScroll.addView(shortcuts);right.addView(shortcutScroll,new LinearLayout.LayoutParams(-1,0,1));
+                main.addView(right,new LinearLayout.LayoutParams(0,-1,28));
+                main.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{
+                    float dp=(r-l)/activity.getResources().getDisplayMetrics().density;
+                    int side=dp>=1000?View.VISIBLE:View.GONE;
+                    int shortcutsVisibility=dp>=700?View.VISIBLE:View.GONE;
+                    if(left.getVisibility()!=side)left.setVisibility(side);
+                    if(right.getVisibility()!=shortcutsVisibility)right.setVisibility(shortcutsVisibility);
+                });
                 layout.addView(main,new LinearLayout.LayoutParams(-1,0,1f));
-                HorizontalScrollView sc=new HorizontalScrollView(activity);
-                sc.setHorizontalScrollBarEnabled(false);
-                LinearLayout nav=row();
-                int[] ids={11,1,2,3,9,7,0,8,5,4,10};
-                String[] names={"Inicio","Consumos","Gráficas","Accesos C10","TDT+","Radio+","Maps","Prestaciones","Modelo","Actualizaciones","Favoritos"};
-                for(int i=0;i<ids.length;i++){final int dest=ids[i];Button b=button(names[i]);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,dip(48));lp.setMargins(dip(3),dip(2),dip(3),dip(2));nav.addView(b,lp);b.setOnClickListener(v->selectExtra(dest));}
+                HorizontalScrollView sc=new HorizontalScrollView(activity);sc.setFillViewport(true);sc.setHorizontalScrollBarEnabled(false);
+                LinearLayout nav=row();nav.setBackgroundColor(0xff061722);
+                int[] ids={11,6,1,2,3,9,7,0,8,5,4,10};
+                String[] names={"⌂ Inicio","◴ Telemetría","▥ Consumos","⌁ Gráficas","▣ Accesos C10","▣ TDT+","◉ Radio+","➤ Maps","Prestaciones","Modelo","Actualizaciones","Favoritos"};
+                for(int i=0;i<ids.length;i++){final int dest=ids[i];Button b=button(names[i]);if(dest==kind)b.setTextColor(0xff51f0c7);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,dip(44));lp.setMargins(dip(2),dip(2),dip(2),dip(2));nav.addView(b,lp);b.setOnClickListener(v->selectExtra(dest));}
                 sc.addView(nav);layout.addView(sc,new LinearLayout.LayoutParams(-1,-2));
+            }
+            android.graphics.drawable.GradientDrawable premiumCard(){
+                android.graphics.drawable.GradientDrawable g=new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TL_BR,new int[]{0xff10394a,0xff061722});
+                g.setCornerRadius(dip(12));g.setStroke(dip(1),0xff327a89);return g;
             }
             void radioPlus(){catalog("radio");}
             void catalog(String mode){
@@ -1448,7 +1474,7 @@ public final class C10NativeHubActivity extends Activity {
                 tools.addView(scan,new LinearLayout.LayoutParams(0,dip(48),1f));
                 tools.addView(copy,new LinearLayout.LayoutParams(0,dip(48),1f));
                 layout.addView(tools);
-                Button diag=button("Diagnóstico del inicio y firma 5.4");
+                Button diag=button("Diagnóstico del inicio y firma 5.5");
                 diag.setOnClickListener(v->((C10NativeHubActivity)activity).showStartupDiagnostic());
                 layout.addView(diag,new LinearLayout.LayoutParams(-1,dip(46)));
                 Button tests=button("Registrar prueba de Android Auto / CarPlay");
