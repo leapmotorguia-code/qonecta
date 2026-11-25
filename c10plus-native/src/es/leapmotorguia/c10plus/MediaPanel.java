@@ -20,7 +20,7 @@ import java.util.*;
 
 /** Local TDTChannels catalogue; favourites persist through signed app updates.
  * Only HTTPS streams; no DRM or geographic restriction bypass. Video requires
- * an available stationary UNIT reading and manual confirmation, and stops
+ * an available stationary UNIT reading, and stops
  * on missing/moving data, leaving the page or activity pause. */
 final class MediaPanel {
  interface Stationary { boolean allowed(); }
@@ -76,7 +76,7 @@ final class MediaPanel {
    videoControls.addView(control("16:9",()->{ratio=169;fitPicture();}));
    videoControls.addView(control("4:3",()->{ratio=43;fitPicture();}));
    videoControls.addView(control("Original",()->{ratio=0;fitPicture();}));
-   videoControls.addView(control("50%",()->resize(50)));videoControls.addView(control("70%",()->resize(70)));
+   videoControls.addView(control("50%",()->resize(50)));videoControls.addView(control("75%",()->resize(75)));videoControls.addView(control("100%",()->resize(100)));
    videoControls.addView(control("Cambiar lado",()->{left=!left;resize(size);}));
    scroll.addView(videoControls);playerColumn.addView(scroll,new LinearLayout.LayoutParams(-1,-2));
    area.addView(playerColumn,new LinearLayout.LayoutParams(0,-1,1));root.addView(area,new LinearLayout.LayoutParams(-1,0,1));
@@ -95,7 +95,7 @@ final class MediaPanel {
  @Override public View getView(int p,View old,ViewGroup parent){TextView t=(TextView)super.getView(p,old,parent);t.setTextColor(0xffe9f6fa);t.setTextSize(16);t.setPadding(12,12,12,12);t.setBackgroundColor(0xff153c50);return t;}
  @Override public View getDropDownView(int p,View old,ViewGroup parent){TextView t=(TextView)super.getDropDownView(p,old,parent);t.setTextColor(0xffe9f6fa);t.setBackgroundColor(0xff102b3d);t.setPadding(16,14,16,14);return t;}
  };}
- Button control(String title,Runnable action){Button b=new Button(a);b.setText(title);b.setTextSize(12);b.setTextColor(0xffe9f6fa);b.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xff24536a));b.setOnClickListener(v->action.run());return b;}
+ Button control(String title,Runnable action){Button b=new Button(a);b.setAllCaps(false);b.setText(title);b.setTextSize(14);b.setMinHeight(0);b.setMinimumHeight(0);b.setMinWidth(0);b.setMinimumWidth(0);b.setPadding(12,6,12,6);b.setSingleLine(true);b.setTextColor(0xffe9f6fa);b.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xff24536a));b.setOnClickListener(v->action.run());return b;}
  int priority(Entry e){
    if(!e.kind.equals("tv"))return 1000;
    String n=e.name.toLowerCase(Locale.ROOT);String[] order={};
@@ -123,7 +123,7 @@ final class MediaPanel {
  }
  void fitPicture(){int w=playerSlot.getWidth(),h=playerSlot.getHeight();if(w<=0||h<=0)return;int pw=w,ph=h;if(ratio!=0){float f=ratio==169?16f/9:4f/3;pw=Math.min(w,Math.round(h*f));ph=Math.min(h,Math.round(w/f));}
    FrameLayout.LayoutParams p=(FrameLayout.LayoutParams)picture.getLayoutParams();if(p.width!=pw||p.height!=ph){p.width=pw;p.height=ph;p.gravity=android.view.Gravity.CENTER;picture.setLayoutParams(p);}}
- void resize(int pct){size=pct;if(fullDialog!=null)return;int index=left?0:1;if(area.indexOfChild(playerColumn)!=index){area.removeView(playerColumn);area.addView(playerColumn,index);}playerColumn.setLayoutParams(new LinearLayout.LayoutParams(0,-1,pct));list.setLayoutParams(new LinearLayout.LayoutParams(0,-1,100-pct));if(videoActive&&video!=null)video.start();}
+ void resize(int pct){size=pct;if(fullDialog!=null)return;int index=left?0:1;if(area.indexOfChild(playerColumn)!=index){area.removeView(playerColumn);area.addView(playerColumn,index);}playerColumn.setLayoutParams(new LinearLayout.LayoutParams(0,-1,pct));list.setVisibility(pct==100?View.GONE:View.VISIBLE);list.setLayoutParams(new LinearLayout.LayoutParams(0,-1,100-pct));if(videoActive&&video!=null)video.start();}
  void toggleFull(){
    if(fullDialog!=null){fullDialog.dismiss();return;}
    if(!videoActive||!stationary.allowed())return;
@@ -149,8 +149,7 @@ final class MediaPanel {
    stop();
    if(e.kind.equals("radio")){if(https(e.url)){radio.play(e.name,e.url);status.setText(radio.status());}else status.setText("Esta emisora no tiene un enlace de audio HTTPS compatible.");return;}
    if(!stationary.allowed()){status.setText(tablet?"Multimedia tablet no disponible en este momento.":"TV: se necesita una lectura UNIT de vehículo detenido. Si no está disponible, no se inicia vídeo.");return;}
-   if(tablet){playVideo(e);return;}
-   new AlertDialog.Builder(a).setTitle(e.name).setMessage("Confirma que el coche está estacionado. Algunos canales requieren su web oficial o están limitados por país.").setPositiveButton("Estacionado",(d,w)->{if(!closed&&stationary.allowed())playVideo(e);}).setNegativeButton("Cancelar",null).show();
+   playVideo(e); // the same stationary gate is checked during preparation and playback
  }
  void playVideo(Entry e){
    stop();if(closed||!stationary.allowed())return;
@@ -163,6 +162,6 @@ final class MediaPanel {
  void openWeb(Entry e){try{browser=new WebView(a);browser.getSettings().setJavaScriptEnabled(true);browser.getSettings().setDomStorageEnabled(true);browser.getSettings().setAllowFileAccess(false);browser.getSettings().setAllowContentAccess(false);browser.getSettings().setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW);browser.setWebViewClient(new WebViewClient(){@Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){return !https(r.getUrl().toString());}});picture.addView(browser,new FrameLayout.LayoutParams(-1,-1,android.view.Gravity.CENTER));browser.loadUrl(e.web);status.setText("Web oficial: "+e.name+" · DRM según proveedor");}catch(Exception ex){stop();status.setText("Web no disponible: "+e.name);}}
  void cancelTimeout(){if(timeout!=null){handler.removeCallbacks(timeout);timeout=null;}}
  void refresh(){if(closed)return;if(videoActive){if(!stationary.allowed()){stop();status.setText(tablet?"TV detenida: dispositivo fuera del modo tablet.":"TV detenida: movimiento o lectura de velocidad no disponible.");}}else if(!radio.status().equals("Radio detenida"))status.setText(radio.status());}
- void stop(){cancelTimeout();handler.removeCallbacks(videoGuard);radio.stop();videoActive=false;if(video!=null){VideoView v=video;video=null;try{v.stopPlayback();}catch(Exception ignored){}}if(browser!=null){WebView w=browser;browser=null;try{w.stopLoading();w.loadUrl("about:blank");picture.removeView(w);w.destroy();}catch(Exception ignored){}}if(fullDialog!=null)fullDialog.dismiss();picture.removeAllViews();playerColumn.setVisibility(View.GONE);status.setText("Reproducción detenida");}
+ void stop(){list.setVisibility(View.VISIBLE);list.setLayoutParams(new LinearLayout.LayoutParams(0,-1,1));cancelTimeout();handler.removeCallbacks(videoGuard);radio.stop();videoActive=false;if(video!=null){VideoView v=video;video=null;try{v.stopPlayback();}catch(Exception ignored){}}if(browser!=null){WebView w=browser;browser=null;try{w.stopLoading();w.loadUrl("about:blank");picture.removeView(w);w.destroy();}catch(Exception ignored){}}if(fullDialog!=null)fullDialog.dismiss();picture.removeAllViews();playerColumn.setVisibility(View.GONE);status.setText("Reproducción detenida");}
  void close(){closed=true;stop();}
 }
