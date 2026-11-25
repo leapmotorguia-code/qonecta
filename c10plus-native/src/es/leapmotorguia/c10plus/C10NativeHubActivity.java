@@ -65,6 +65,7 @@ public final class C10NativeHubActivity extends Activity {
     private boolean initSetup;
     private boolean hadVisibleUnitOnPause;
     private boolean foreground;
+    private boolean premiumOpened;
     private MediaPanel tabletMedia;
     private boolean tabletShowing;
     private LinearLayout homeRoot;
@@ -491,6 +492,7 @@ public final class C10NativeHubActivity extends Activity {
                 bridge = C10Bridge.attach(this, (ViewGroup)view);
                 handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,1500);
                 status.setText("5.4 · Mejoras integradas en UNIT");
+                if(!premiumOpened){premiumOpened=true;C10Bridge initial=bridge;handler.postDelayed(()->{if(foreground&&bridge==initial&&!isFinishing()&&nativeDialog==d&&d.isShowing()&&!initial.showing)initial.selectExtra(11);},350); }
                 Toast.makeText(this,"UNIT C10 Plus 5.4 conectado",Toast.LENGTH_LONG).show();
             } catch (Throwable e) {
                 status.setText("UNIT funciona, pero el acceso C10 Plus ha fallado: "+e.getClass().getSimpleName());
@@ -632,6 +634,7 @@ public final class C10NativeHubActivity extends Activity {
             }
         };
         private long lastSample;
+        private boolean recentCockpitSpeed;
         private double latestSoc = Double.NaN;
         private String latestSource = "Sin telemetría confirmada";
         private double consumed = Double.NaN, recovered = Double.NaN, gasoline = Double.NaN;
@@ -981,7 +984,7 @@ public final class C10NativeHubActivity extends Activity {
          * non-demo data before showing its old vehicle snapshot as a live reading.
          */
         private void readReal() {
-            latestSoc=gasoline=speed=powerKw=Double.NaN;
+            latestSoc=gasoline=speed=powerKw=Double.NaN;recentCockpitSpeed=false;
             try {
                 Class<?> r=Class.forName("es.c10.unitplus.integrated.NativeSnapshot");
                 Object d=r.getMethod("read").invoke(null);
@@ -998,6 +1001,7 @@ public final class C10NativeHubActivity extends Activity {
                         String.valueOf(d.getClass().getField("source").get(d));
                     latestSoc=number(d,"soc");
                     speed=number(d,"speed");
+                    long speedAge=numberLong(d,"ageMs",Long.MAX_VALUE);recentCockpitSpeed=speedAge>=0&&speedAge<=3000L&&connected&&!demo;
                     powerKw=number(d,"power");
                     gasoline=number(d,"fuelLitres"); // 0.8 does not expose fuelLitres.
                     if(Double.isFinite(latestSoc)&&latestSoc>=0&&latestSoc<=100
@@ -1416,7 +1420,9 @@ public final class C10NativeHubActivity extends Activity {
             void graph() {
                 info("Batería: historial en tiempo real · sin simulaciones");
                 graph=new Graph(activity);
-                layout.addView(graph,new LinearLayout.LayoutParams(-1,0,1f));
+                layout.addView(graph,new LinearLayout.LayoutParams(-1,0,2f));
+                cockpitGraph=new SpeedGraph(activity,0xff091925,0xffeaf7fd,0xff23d3aa,false);
+                layout.addView(cockpitGraph,new LinearLayout.LayoutParams(-1,0,1f));
             }
             void access() {
                 info("Diagnóstico solo lectura: comprobar qué detecta UNIT sin modificar el coche");
@@ -1586,7 +1592,8 @@ public final class C10NativeHubActivity extends Activity {
             }
             void refresh() {
                 if(disposed)return;
-                if(premium!=null){premium.update(speed,latestSoc,powerKw,consumed,recovered,tripKm,gasoline,balancePartial);cockpitInfo.setText(latestSource);}
+                if(premium!=null){premium.update(recentCockpitSpeed?speed:Double.NaN,latestSoc,powerKw,consumed,recovered,tripKm,gasoline,balancePartial);cockpitInfo.setText(latestSource);}
+                if(cockpitGraph!=null){long now=android.os.SystemClock.elapsedRealtime();Float v=recentCockpitSpeed&&Double.isFinite(speed)&&speed>=0?(float)speed:null;cockpitGraph.update(cockpitHistory,v,now);}
                 if(media!=null)media.refresh();
                 if(kind==8)cockpitInfo.setText(cockpitResult);
                 if(value!=null && kind==1) value.setText(
