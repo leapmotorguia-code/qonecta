@@ -66,6 +66,19 @@ public final class C10NativeHubActivity extends Activity {
     private boolean hadVisibleUnitOnPause;
     private boolean foreground;
     private boolean premiumOpened;
+    private int requestedTab=-1;
+    private Activity projectionOwner;
+    private C10Bridge projectionBridge;
+    private final Runnable projectionScan=()->scanProjection();
+    private final android.app.Application.ActivityLifecycleCallbacks projectionLifecycle=new android.app.Application.ActivityLifecycleCallbacks(){
+        public void onActivityCreated(Activity a,Bundle b){}
+        public void onActivityStarted(Activity a){}
+        public void onActivityResumed(Activity a){if(a==C10NativeHubActivity.this){clearProjectionBridge();return;}String n=a.getClass().getName();if(n.equals("com.andrerinas.openheadunit.main.MainActivity")||n.equals("com.andrerinas.openheadunit.aap.AapProjectionActivity")||n.equals("com.shilapi.xcertplay.CarPlayHostActivity")||n.equals("com.shilapi.xcertplay.LeapCarPlayActivity")){clearProjectionBridge();projectionOwner=a;handler.postDelayed(projectionScan,400);}}
+        public void onActivityPaused(Activity a){if(a==projectionOwner)clearProjectionBridge();}
+        public void onActivityStopped(Activity a){}
+        public void onActivitySaveInstanceState(Activity a,Bundle b){}
+        public void onActivityDestroyed(Activity a){if(a==projectionOwner)clearProjectionBridge();}
+    };
     private MediaPanel tabletMedia;
     private boolean tabletShowing;
     private LinearLayout homeRoot;
@@ -76,6 +89,8 @@ public final class C10NativeHubActivity extends Activity {
 
     @Override public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        getApplication().registerActivityLifecycleCallbacks(projectionLifecycle);
+        requestedTab=getIntent().getIntExtra("c10plus_tab",-1);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -83,7 +98,7 @@ public final class C10NativeHubActivity extends Activity {
         root.setPadding(24,24,24,24);
         root.setBackgroundColor(0xff07141e);
         TextView heading = new TextView(this);
-        heading.setText("UNIT C10 Plus 5.5 · Integración y actualizaciones");
+        heading.setText("UNIT C10 Plus 5.6 · Integración y actualizaciones");
         heading.setTextColor(0xff04e2bd);
         heading.setTextSize(25);
         heading.setGravity(Gravity.CENTER);
@@ -93,7 +108,7 @@ public final class C10NativeHubActivity extends Activity {
         status.setTextSize(16);
         status.setGravity(Gravity.CENTER);
         status.setPadding(12,20,12,20);
-        status.setText("Versión 5.5 · Iniciando la integración con UNIT...");
+        status.setText("Versión 5.6 · Iniciando la integración con UNIT...");
         root.addView(status);
         Button retry = new Button(this);
         retry.setText("Recuperar nuestras pantallas / Abrir UNIT");
@@ -112,7 +127,7 @@ public final class C10NativeHubActivity extends Activity {
         });
         root.addView(original);
         Button diagnostic=new Button(this);
-        diagnostic.setText("Diagnóstico de integración 5.5");
+        diagnostic.setText("Diagnóstico de integración 5.6");
         diagnostic.setOnClickListener(v->showStartupDiagnostic());
         root.addView(diagnostic);
         homeRoot=root;
@@ -356,6 +371,19 @@ public final class C10NativeHubActivity extends Activity {
         page.addView(tabs);setContentView(page);
         tabletMedia=new MediaPanel(this,page,mode,()->foreground&&tabletShowing&&!isFinishing()&&isStandaloneTablet(),true);
     }
+    private void clearProjectionBridge(){handler.removeCallbacks(projectionScan);if(projectionBridge!=null){projectionBridge.dispose();projectionBridge=null;}projectionOwner=null;}
+    private static Activity viewOwner(View v){Context c=v.getContext();for(int i=0;i<8&&c!=null;i++){if(c instanceof Activity)return (Activity)c;if(!(c instanceof android.content.ContextWrapper))break;Context next=((android.content.ContextWrapper)c).getBaseContext();if(next==c)break;c=next;}return null;}
+    private void scanProjection(){
+        Activity owner=projectionOwner;if(owner==null||owner.isFinishing()||owner.isDestroyed()||foreground)return;
+        View found=findHub(owner.getWindow().getDecorView());
+        if(!(found instanceof ViewGroup)&&Build.VERSION.SDK_INT>=29){try{for(View window:android.view.inspector.WindowInspector.getGlobalWindowViews()){View candidate=findHub(window);if(candidate instanceof ViewGroup&&candidate.isShown()&&viewOwner(candidate)==owner){found=candidate;break;}}}catch(Throwable ignored){}}
+        if(found instanceof ViewGroup&&found.isAttachedToWindow()&&found.isShown()){
+            try{if(projectionBridge==null||!projectionBridge.isAttachedTo((ViewGroup)found)){if(projectionBridge!=null)projectionBridge.dispose();projectionBridge=C10Bridge.attach(owner,(ViewGroup)found,this);getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit().putString("projection_hub",owner.getClass().getSimpleName()).putLong("last_projection_attach",System.currentTimeMillis()).apply();}}catch(Throwable err){getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit().putString("projection_error",err.getClass().getSimpleName()).apply();}
+        }else if(projectionBridge!=null){projectionBridge.dispose();projectionBridge=null;}
+        if(owner==projectionOwner)handler.postDelayed(projectionScan,1000);
+    }
+    private void openPlusTab(Activity owner,int tab){Intent i=new Intent(owner,C10NativeHubActivity.class);i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT|Intent.FLAG_ACTIVITY_SINGLE_TOP);i.putExtra("c10plus_tab",tab);owner.startActivity(i);}
+    @Override protected void onNewIntent(Intent i){super.onNewIntent(i);setIntent(i);requestedTab=i.getIntExtra("c10plus_tab",-1);if(foreground&&requestedTab>=0&&bridge!=null){int t=requestedTab;requestedTab=-1;bridge.selectExtra(t);}}
     private void checkIntegration(){
         if(!foreground||isFinishing()||isDestroyed()||opening||tabletShowing||initSetup)return;
         if(nativeDialog==null||!nativeDialog.isShowing()) {if(hadVisibleUnitOnPause){hadVisibleUnitOnPause=false;restoreNative();}return;}
@@ -445,7 +473,8 @@ public final class C10NativeHubActivity extends Activity {
     }
     @Override protected void onResume() {
         super.onResume();
-        foreground=true;
+        foreground=true;clearProjectionBridge();
+        if(requestedTab>=0&&bridge!=null&&nativeDialog!=null&&nativeDialog.isShowing()){int t=requestedTab;requestedTab=-1;bridge.selectExtra(t);}
         handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,650);
         getSharedPreferences("c10plus_lifecycle",MODE_PRIVATE).edit()
             .putLong("last_resume",System.currentTimeMillis()).apply();
@@ -470,13 +499,13 @@ public final class C10NativeHubActivity extends Activity {
         text.setText(report);text.setTextSize(15);text.setTextColor(Color.WHITE);
         text.setPadding(24,16,24,16);
         scroll.addView(text);
-        new AlertDialog.Builder(this).setTitle("C10 Plus 5.5 · Comprobación")
+        new AlertDialog.Builder(this).setTitle("C10 Plus 5.6 · Comprobación")
             .setView(scroll)
             .setPositiveButton("Copiar informe",(dialog,which)->{
                 android.content.ClipboardManager cb=(android.content.ClipboardManager)
                     getSystemService(Context.CLIPBOARD_SERVICE);
                 if(cb!=null) cb.setPrimaryClip(android.content.ClipData.newPlainText(
-                    "Diagnóstico de inicio 5.5",report));
+                    "Diagnóstico de inicio 5.6",report));
                 Toast.makeText(this,"Informe copiado",Toast.LENGTH_SHORT).show();
             })
             .setNegativeButton("Cerrar",null).show();
@@ -491,15 +520,15 @@ public final class C10NativeHubActivity extends Activity {
                 if(bridge!=null){bridge.dispose();bridge=null;}
                 bridge = C10Bridge.attach(this, (ViewGroup)view);
                 handler.removeCallbacks(restoreCheck);handler.postDelayed(restoreCheck,1500);
-                status.setText("5.5 · Mejoras integradas en UNIT");
-                if(!premiumOpened){premiumOpened=true;C10Bridge initial=bridge;handler.postDelayed(()->{if(foreground&&bridge==initial&&!isFinishing()&&nativeDialog==d&&d.isShowing()&&!initial.showing)initial.selectExtra(11);},350); }
-                Toast.makeText(this,"UNIT C10 Plus 5.5 conectado",Toast.LENGTH_LONG).show();
+                status.setText("5.6 · Mejoras integradas en UNIT");
+                if(requestedTab>=0||!premiumOpened){int target=requestedTab>=0?requestedTab:11;requestedTab=-1;premiumOpened=true;C10Bridge initial=bridge;handler.postDelayed(()->{if(foreground&&bridge==initial&&!isFinishing()&&nativeDialog==d&&d.isShowing()&&!initial.showing)initial.selectExtra(target);},350); }
+                Toast.makeText(this,"UNIT C10 Plus 5.6 conectado",Toast.LENGTH_LONG).show();
             } catch (Throwable e) {
                 status.setText("UNIT funciona, pero el acceso C10 Plus ha fallado: "+e.getClass().getSimpleName());
                 getSharedPreferences("c10plus_beta_errors",MODE_PRIVATE).edit()
                     .putString("bridge",String.valueOf(e)).apply();
                 new AlertDialog.Builder(this)
-                    .setTitle("C10 Plus 5.5 no pudo enlazar con UNIT")
+                    .setTitle("C10 Plus 5.6 no pudo enlazar con UNIT")
                     .setMessage("La aplicación original sigue disponible. Pulsa «Diagnóstico» para obtener el motivo y corregirlo sin desinstalar.")
                     .setPositiveButton("Diagnóstico",(dialog,which)->showStartupDiagnostic())
                     .setNegativeButton("Continuar con UNIT",null).show();
@@ -531,7 +560,7 @@ public final class C10NativeHubActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
-        foreground=false;handler.removeCallbacksAndMessages(null);
+        foreground=false;getApplication().unregisterActivityLifecycleCallbacks(projectionLifecycle);clearProjectionBridge();handler.removeCallbacksAndMessages(null);
         if(tabletMedia!=null){tabletMedia.close();tabletMedia=null;}
         if (bridge != null) bridge.dispose();
         if (nativeDialog != null && nativeDialog.isShowing()) nativeDialog.dismiss();
@@ -548,6 +577,7 @@ public final class C10NativeHubActivity extends Activity {
         private static final String[] TV_NAMES = {"Pluto TV","YouTube"};
         private static final String[] TV_URLS = {"https://pluto.tv","https://www.youtube.com"};
         private final Activity activity;
+        private final C10NativeHubActivity host;
         private final FrameLayout body;
         private final LinearLayout nativeRow;
         private final Handler updateHandler = new Handler(Looper.getMainLooper());
@@ -573,6 +603,7 @@ public final class C10NativeHubActivity extends Activity {
         private final Runnable nativeMediaTabMonitor=new Runnable() {
             @Override public void run() {
                 if(closed)return;
+                if(showing&&custom!=null&&custom.getParent()!=body)stopCustom();
                 try{
                     Object active=nativeActiveTab.get(hub);
                     String tab=active==null?"":String.valueOf(active).toUpperCase(Locale.ROOT);
@@ -645,7 +676,7 @@ public final class C10NativeHubActivity extends Activity {
         private EnergyBalance.Result energyBalance = EnergyBalance.calculate(Double.NaN,Double.NaN,false);
         private final Runnable refresh = new Runnable() {
             @Override public void run() {
-                if (closed || !showing) return;
+                if (closed || !showing || !isUiForeground()) return;
                 stopNativeTick();
                 readReal();
                 if (leftPane != null) leftPane.refresh();
@@ -654,10 +685,11 @@ public final class C10NativeHubActivity extends Activity {
             }
         };
         static C10Bridge attach(Activity a,ViewGroup hub) throws Exception {
-            return new C10Bridge(a,hub);
+            return new C10Bridge(a,hub,(C10NativeHubActivity)a);
         }
-        private C10Bridge(Activity a,ViewGroup h) throws Exception {
-            activity=a;hub=h; prefs=a.getSharedPreferences("c10plus_native", MODE_PRIVATE);
+        static C10Bridge attach(Activity a,ViewGroup h,C10NativeHubActivity host)throws Exception{return new C10Bridge(a,h,host);}
+        private C10Bridge(Activity a,ViewGroup h,C10NativeHubActivity host) throws Exception {
+            activity=a;this.host=host;hub=h; prefs=a.getSharedPreferences("c10plus_native", MODE_PRIVATE);
             Field b=h.getClass().getDeclaredField("bodyContainer");b.setAccessible(true);
             body=(FrameLayout)b.get(h);
             Field buttons=h.getClass().getDeclaredField("tabButtons");buttons.setAccessible(true);
@@ -1136,7 +1168,7 @@ public final class C10NativeHubActivity extends Activity {
             LinearLayout l=new LinearLayout(activity);l.setOrientation(LinearLayout.HORIZONTAL);return l;
         }
         private Button button(String text) {
-            Button b=new Button(activity);b.setText(text);b.setAllCaps(false);b.setTextColor(0xffeaf7fd);b.setTextSize(14);GradientDrawable bg=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xff173b4e,0xff0b2332});bg.setCornerRadius(dip(12));bg.setStroke(dip(1),0xff337f89);b.setBackground(bg);b.setPadding(dip(10),dip(6),dip(10),dip(6));return b;
+            Button b=new Button(activity);b.setAllCaps(false);b.setText(text);b.setTextColor(0xffeaf7fd);b.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,14);b.setMinWidth(0);b.setMinimumWidth(0);b.setMinHeight(0);b.setMinimumHeight(0);b.setSingleLine(false);b.setMaxLines(2);b.setEllipsize(null);b.setGravity(Gravity.CENTER);b.setIncludeFontPadding(false);b.setLetterSpacing(0);GradientDrawable bg=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xff173b4e,0xff0b2332});bg.setCornerRadius(dip(12));bg.setStroke(dip(1),0xff337f89);b.setBackground(bg);b.setPadding(dip(10),dip(6),dip(10),dip(6));return b;
         }
         private Spinner choice(int selected) {
             Spinner s=new Spinner(activity);
@@ -1150,7 +1182,10 @@ public final class C10NativeHubActivity extends Activity {
          * selectors and no cross-category content.
          */
         /** Each enhancement is opened in UNIT's own tab row. No second icon rail. */
+        private boolean isUiForeground(){return activity==host?host.foreground:host.projectionOwner==activity;}
         private void selectExtra(int tab) {
+            if(tab<0||tab>=TABS.length||closed)return;
+            if(activity!=host&&(tab==3||tab==4||tab==5)){host.openPlusTab(activity,tab);return;}
             ++nativeSelectionGeneration;
             closeNativeMediaWeb();
             clearNativeMediaBar();
@@ -1178,7 +1213,7 @@ public final class C10NativeHubActivity extends Activity {
 
         void pauseCatalog(){if(leftPane!=null && leftPane.media!=null)leftPane.media.stop();if(rightPane!=null && rightPane.media!=null)rightPane.media.stop();}
         private boolean catalogStationary(){
-            if(activity.isFinishing()||!showing||closed)return false;
+            if(activity.isFinishing()||!isUiForeground()||!showing||closed)return false;
             try{
                 Object d=Class.forName("es.c10.unitplus.integrated.NativeSnapshot").getMethod("read").invoke(null);
                 long age=numberLong(d,"ageMs",Long.MAX_VALUE);
@@ -1195,7 +1230,7 @@ public final class C10NativeHubActivity extends Activity {
             leftPane=rightPane=null;custom=null;
             // Re-enable UNIT's original live refresh after the user returns to
             // its native Ruta, Viajes, Radio etc. Our custom pages pause it.
-            if(previouslyShowing && !closed && nativeHandler instanceof Handler && nativeTick instanceof Runnable) {
+            if(previouslyShowing && nativeHandler instanceof Handler && nativeTick instanceof Runnable) {
                 Handler h=(Handler)nativeHandler;
                 h.removeCallbacks((Runnable)nativeTick);
                 h.postDelayed((Runnable)nativeTick,550);
@@ -1276,16 +1311,17 @@ public final class C10NativeHubActivity extends Activity {
                 android.widget.ScrollView shortcutScroll=new android.widget.ScrollView(activity);shortcutScroll.setFillViewport(true);
                 LinearLayout shortcuts=new LinearLayout(activity);shortcuts.setOrientation(LinearLayout.VERTICAL);
                 int[] dests={1,2,3,9,7,0,4,5,6};
-                String[] shortcutsText={"▥\nConsumos","⌁\nGráficas","▣\nAccesos C10","▣\nTDT+","◉\nRadio+","➤\nMaps","↓\nActualizaciones","◇\nModelo","◴\nCockpit"};
-                for(int j=0;j<dests.length;j+=3){
+                String[] shortcutsText={"Consumos","Gráficas","Accesos C10","TDT+","Radio+","Maps","Actualizar","Modelo","Cockpit"};
+                for(int j=0;j<dests.length;j+=2){
                     LinearLayout rr=row();
-                    for(int i=j;i<j+3;i++){final int dest=dests[i];Button b=button(shortcutsText[i]);b.setTextSize(12);b.setPadding(dip(2),dip(2),dip(2),dip(2));LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(0,dip(58),1);bp.setMargins(dip(2),dip(2),dip(2),dip(2));rr.addView(b,bp);b.setOnClickListener(v->selectExtra(dest));}
+                    for(int i=j;i<Math.min(j+2,dests.length);i++){final int dest=dests[i];Button b=button(shortcutsText[i]);b.setTextSize(14);b.setAutoSizeTextTypeUniformWithConfiguration(10,14,1,android.util.TypedValue.COMPLEX_UNIT_SP);b.setPadding(dip(2),dip(2),dip(2),dip(2));LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(0,dip(50),1);bp.setMargins(dip(2),dip(2),dip(2),dip(2));rr.addView(b,bp);b.setOnClickListener(v->selectExtra(dest));}
                     shortcuts.addView(rr);
                 }
                 LinearLayout mediaCard=new LinearLayout(activity);mediaCard.setOrientation(LinearLayout.VERTICAL);mediaCard.setBackground(premiumCard());mediaCard.setPadding(dip(6),dip(6),dip(6),dip(6));
                 mediaCard.addView(label("▣  TDT+ · MULTIMEDIA",15,0xffeaf7fd));
                 TextView tv=label("766 canales\nSelecciona una emisión en TDT+",14,0xffb1cbd6);tv.setGravity(Gravity.CENTER);tv.setMinHeight(dip(70));mediaCard.addView(tv,new LinearLayout.LayoutParams(-1,-2));
                 Button tvOpen=button("Abrir televisión");tvOpen.setOnClickListener(v->selectExtra(9));mediaCard.addView(tvOpen,new LinearLayout.LayoutParams(-1,dip(44)));shortcuts.addView(mediaCard);
+                Button phone=button("Teléfono · Android Auto / CarPlay");phone.setOnClickListener(v->new AlertDialog.Builder(activity).setTitle("Conexión del teléfono").setItems(new String[]{"Android Auto","Apple CarPlay"},(d,i)->{try{Intent link=new Intent();link.setClassName(activity.getPackageName(),i==0?"com.andrerinas.openheadunit.main.MainActivity":"com.shilapi.xcertplay.LeapCarPlayActivity");activity.startActivity(link);}catch(Throwable e){Toast.makeText(activity,"No se pudo abrir la conexión",Toast.LENGTH_LONG).show();}}).show());shortcuts.addView(phone,new LinearLayout.LayoutParams(-1,dip(48)));
                 shortcutScroll.addView(shortcuts);right.addView(shortcutScroll,new LinearLayout.LayoutParams(-1,0,1));
                 main.addView(right,new LinearLayout.LayoutParams(0,-1,28));
                 main.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{
@@ -1309,9 +1345,8 @@ public final class C10NativeHubActivity extends Activity {
             }
             void radioPlus(){catalog("radio");}
             void catalog(String mode){
-                C10NativeHubActivity host=(C10NativeHubActivity)activity;
                 boolean tablet=host.isStandaloneTablet();
-                media=new MediaPanel(activity,layout,mode,()->tablet ? host.foreground && showing && !closed && !activity.isFinishing() && host.isStandaloneTablet() : catalogStationary(),tablet);
+                media=new MediaPanel(activity,layout,mode,()->tablet ? isUiForeground() && showing && !closed && !activity.isFinishing() && host.isStandaloneTablet() : catalogStationary(),tablet);
             }
             void performancePlus(){
                 cockpitInfo=label(cockpitResult,16,0xffcadfe7);layout.addView(cockpitInfo);
@@ -1475,7 +1510,7 @@ public final class C10NativeHubActivity extends Activity {
                 tools.addView(scan,new LinearLayout.LayoutParams(0,dip(48),1f));
                 tools.addView(copy,new LinearLayout.LayoutParams(0,dip(48),1f));
                 layout.addView(tools);
-                Button diag=button("Diagnóstico del inicio y firma 5.5");
+                Button diag=button("Diagnóstico del inicio y firma 5.6");
                 diag.setOnClickListener(v->((C10NativeHubActivity)activity).showStartupDiagnostic());
                 layout.addView(diag,new LinearLayout.LayoutParams(-1,dip(46)));
                 Button tests=button("Registrar prueba de Android Auto / CarPlay");
