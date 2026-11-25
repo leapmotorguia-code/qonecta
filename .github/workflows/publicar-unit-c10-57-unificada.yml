@@ -1,0 +1,44 @@
+name: Publicar UNIT C10 Plus 5.7 Cockpit
+on:
+  push:
+    branches: ["fix/unit-c10-installer-action-view"]
+    paths: [".github/workflows/publicar-unit-c10-57-unificada.yml"]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Reconstruir APK exacta y verificar
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release download unit-c10-plus-5.6-estabilidad --repo "$GITHUB_REPOSITORY" --pattern UNIT-C10-Plus-5.6-ESTABILIDAD.apk
+          curl -fL --retry 2 --max-time 60 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/83e20da5-7516-481b-a180-f5e67d13bdf3-unit-c10-57-delta.json.gz" -o patch.json.gz
+          echo "ec60df59a82aadf388e860f40014cb0c02630205b7b53c7a0e64318202cee0a6  patch.json.gz" | sha256sum -c
+          python3 - <<'PY'
+          import pathlib,gzip,json,hashlib,base64
+          b=pathlib.Path("UNIT-C10-Plus-5.6-ESTABILIDAD.apk").read_bytes()
+          r=json.loads(gzip.decompress(pathlib.Path("patch.json.gz").read_bytes()))
+          assert hashlib.sha256(b).hexdigest()==r["base_sha256"]=="35b82d2cf9238c2b667439e606f87d9cd94d7d77d7585e545bc7c15f54522fe7"
+          out=b"".join(base64.b64decode(p["literal"],validate=True) if "literal" in p else b[p["offset"]:p["offset"]+p["length"]] for p in r["pieces"])
+          assert len(out)==44409270 and hashlib.sha256(out).hexdigest()=="3937010c3344816ed165ba8526e63ce816b989391ba0be9d35ea4ccadec04fd6"
+          pathlib.Path("UNIT-C10-Plus-5.7-UNIFICADA.apk").write_bytes(out)
+          PY
+          unzip -tq UNIT-C10-Plus-5.7-UNIFICADA.apk
+          SIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)"
+          "$SIGNER" verify --verbose --print-certs UNIT-C10-Plus-5.7-UNIFICADA.apk | tee sig.txt
+          grep -q 'Verified using v2 scheme.*true' sig.txt
+          grep -qi '6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6' sig.txt
+          "$(dirname "$SIGNER")/zipalign" -c -P 16 4 UNIT-C10-Plus-5.7-UNIFICADA.apk
+      - name: Publicar prueba
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create unit-c10-plus-5.7-unificada UNIT-C10-Plus-5.7-UNIFICADA.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "UNIT C10 Plus 5.7 · Interfaz Unificada" --notes "Panel multimedia integrado y navegación agrupada. Acceso a ajustes Bluetooth y Wi-Fi, no garantiza proyección inalámbrica. Conserva protección de vídeo y correcciones anteriores. Prueba física pendiente. Canal estable intacto." --prerelease --latest=false
+          mkdir checked
+          gh release download unit-c10-plus-5.7-unificada --repo "$GITHUB_REPOSITORY" --pattern UNIT-C10-Plus-5.7-UNIFICADA.apk --dir checked
+          echo "3937010c3344816ed165ba8526e63ce816b989391ba0be9d35ea4ccadec04fd6  checked/UNIT-C10-Plus-5.7-UNIFICADA.apk" | sha256sum -c
