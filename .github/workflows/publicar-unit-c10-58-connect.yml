@@ -1,0 +1,44 @@
+name: Publicar UNIT C10 Plus 5.8 Cockpit
+on:
+  push:
+    branches: ["fix/unit-c10-installer-action-view"]
+    paths: [".github/workflows/publicar-unit-c10-58-connect.yml"]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Reconstruir APK exacta y verificar
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release download unit-c10-plus-5.7-unificada --repo "$GITHUB_REPOSITORY" --pattern UNIT-C10-Plus-5.7-UNIFICADA.apk
+          curl -fL --retry 2 --max-time 60 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/946bf9dc-cdd6-4c5c-9929-95a88494d607-unit-c10-58-delta.json.gz" -o patch.json.gz
+          echo "6e7737759a0f75f890bb7f6743246e0313f8aeb72a4e55e7172117c554c2c3aa  patch.json.gz" | sha256sum -c
+          python3 - <<'PY'
+          import pathlib,gzip,json,hashlib,base64
+          b=pathlib.Path("UNIT-C10-Plus-5.7-UNIFICADA.apk").read_bytes()
+          r=json.loads(gzip.decompress(pathlib.Path("patch.json.gz").read_bytes()))
+          assert hashlib.sha256(b).hexdigest()==r["base_sha256"]=="3937010c3344816ed165ba8526e63ce816b989391ba0be9d35ea4ccadec04fd6"
+          out=b"".join(base64.b64decode(p["literal"],validate=True) if "literal" in p else b[p["offset"]:p["offset"]+p["length"]] for p in r["pieces"])
+          assert len(out)==44413691 and hashlib.sha256(out).hexdigest()=="084cd30df35eb42b26ab681186aa8953aa4e6c858c4ed50042796f934613c88b"
+          pathlib.Path("UNIT-C10-Plus-5.8-CONNECT.apk").write_bytes(out)
+          PY
+          unzip -tq UNIT-C10-Plus-5.8-CONNECT.apk
+          SIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)"
+          "$SIGNER" verify --verbose --print-certs UNIT-C10-Plus-5.8-CONNECT.apk | tee sig.txt
+          grep -q 'Verified using v2 scheme.*true' sig.txt
+          grep -qi '6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6' sig.txt
+          "$(dirname "$SIGNER")/zipalign" -c -P 16 4 UNIT-C10-Plus-5.8-CONNECT.apk
+      - name: Publicar prueba
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create unit-c10-plus-5.8-connect UNIT-C10-Plus-5.8-CONNECT.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "UNIT C10 Plus 5.8 · C10 Connect" --notes "Gestor de aperturas de receptores y diagnóstico USB, Bluetooth y Wi-Fi. Motores originales conservados; conexión real y proyección inalámbrica pendientes de prueba. Canal estable intacto." --prerelease --latest=false
+          mkdir checked
+          gh release download unit-c10-plus-5.8-connect --repo "$GITHUB_REPOSITORY" --pattern UNIT-C10-Plus-5.8-CONNECT.apk --dir checked
+          echo "084cd30df35eb42b26ab681186aa8953aa4e6c858c4ed50042796f934613c88b  checked/UNIT-C10-Plus-5.8-CONNECT.apk" | sha256sum -c
