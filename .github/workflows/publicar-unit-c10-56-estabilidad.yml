@@ -1,0 +1,44 @@
+name: Publicar UNIT C10 Plus 5.6 Cockpit
+on:
+  push:
+    branches: ["fix/unit-c10-installer-action-view"]
+    paths: [".github/workflows/publicar-unit-c10-56-estabilidad.yml"]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Reconstruir APK exacta y verificar
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release download unit-c10-plus-5.5-cockpit --repo "$GITHUB_REPOSITORY" --pattern UNIT-C10-Plus-5.5-COCKPIT.apk
+          curl -fL --retry 2 --max-time 60 "https://e2c69924-82ac-4cc0-bafd-71b4de5074e1.sandbox.floot.app/_cdn/static/57da7589-2cc1-45e8-a6cd-1dfc93f40b43-unit-c10-56-delta.json.gz" -o patch.json.gz
+          echo "4ba1393d72b08a7f8fcfe9cfbb526675999f3e1e67bcb4bfe92073889972aefb  patch.json.gz" | sha256sum -c
+          python3 - <<'PY'
+          import pathlib,gzip,json,hashlib,base64
+          b=pathlib.Path("UNIT-C10-Plus-5.5-COCKPIT.apk").read_bytes()
+          r=json.loads(gzip.decompress(pathlib.Path("patch.json.gz").read_bytes()))
+          assert hashlib.sha256(b).hexdigest()==r["base_sha256"]=="162cd63ffe4ec25e2902adc5d5351ea80ce488ab82c573b41d58e9dcd5059acb"
+          out=b"".join(base64.b64decode(p["literal"],validate=True) if "literal" in p else b[p["offset"]:p["offset"]+p["length"]] for p in r["pieces"])
+          assert len(out)==44409184 and hashlib.sha256(out).hexdigest()=="35b82d2cf9238c2b667439e606f87d9cd94d7d77d7585e545bc7c15f54522fe7"
+          pathlib.Path("UNIT-C10-Plus-5.6-ESTABILIDAD.apk").write_bytes(out)
+          PY
+          unzip -tq UNIT-C10-Plus-5.6-ESTABILIDAD.apk
+          SIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)"
+          "$SIGNER" verify --verbose --print-certs UNIT-C10-Plus-5.6-ESTABILIDAD.apk | tee sig.txt
+          grep -q 'Verified using v2 scheme.*true' sig.txt
+          grep -qi '6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6' sig.txt
+          "$(dirname "$SIGNER")/zipalign" -c -P 16 4 UNIT-C10-Plus-5.6-ESTABILIDAD.apk
+      - name: Publicar prueba
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create unit-c10-plus-5.6-estabilidad UNIT-C10-Plus-5.6-ESTABILIDAD.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "UNIT C10 Plus 5.6 · Estabilidad y diagnóstico" --notes "Recuperación de pestañas en vistas UNIT de proyección, controles legibles, TDT sin confirmación repetida con lectura estacionaria válida, nuevas lecturas UNIT orientativas y diagnóstico USB. Enlace real Android Auto y CarPlay pendiente de validar; no modifica autorización USB ni motores de proyección. Canal estable intacto." --prerelease --latest=false
+          mkdir checked
+          gh release download unit-c10-plus-5.6-estabilidad --repo "$GITHUB_REPOSITORY" --pattern UNIT-C10-Plus-5.6-ESTABILIDAD.apk --dir checked
+          echo "35b82d2cf9238c2b667439e606f87d9cd94d7d77d7585e545bc7c15f54522fe7  checked/UNIT-C10-Plus-5.6-ESTABILIDAD.apk" | sha256sum -c
