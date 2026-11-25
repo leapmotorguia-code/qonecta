@@ -29,19 +29,23 @@ final class MediaPanel {
    Entry(String k,String[] f){kind=k;country=f[0];category=f[1];name=f[2];url=f[3];web=f[4];note=f[5];key=k+"|"+country+"|"+category+"|"+name;}
    public String toString(){return name+"  ·  "+country+"  ·  "+category;}
  }
- final Activity a; final LinearLayout root; final String mode; final Stationary stationary; final boolean tablet;
+ final Activity a; final LinearLayout root; final String mode; final Stationary stationary; final boolean tablet, compact;
  final SharedPreferences prefs; final Set<String> favorites; final ArrayList<Entry> all=new ArrayList<>(), visible=new ArrayList<>();
  final RadioAudio radio; final Handler handler=new Handler(Looper.getMainLooper());
  final TextView status,count; final EditText search; final Spinner country, genre; final CheckBox onlyFavorites;
  final ArrayList<Entry> rows=new ArrayList<>();
  final ListView list; final ArrayAdapter<String> adapter; final FrameLayout playerSlot;
  final LinearLayout area, playerColumn; final FrameLayout picture;
+ final LinearLayout chooser; android.app.Dialog chooserDialog;
  int ratio=0, size=70; boolean left=false; android.app.Dialog fullDialog; Button fullButton;
  final Runnable videoGuard=new Runnable(){public void run(){if(closed||!videoActive)return;if(!stationary.allowed()){stop();status.setText("Vídeo detenido: dispositivo o vehículo fuera del modo permitido.");return;}handler.postDelayed(this,1000);}};
  VideoView video; WebView browser; Runnable timeout; boolean closed,videoActive;
  MediaPanel(Activity a,LinearLayout root,String mode,Stationary stationary){this(a,root,mode,stationary,false);}
- MediaPanel(Activity a,LinearLayout root,String mode,Stationary stationary,boolean tablet){
-   this.a=a;this.root=root;this.mode=mode;this.stationary=stationary;this.tablet=tablet;
+ MediaPanel(Activity a,LinearLayout root,String mode,Stationary stationary,boolean tablet){this(a,root,mode,stationary,tablet,false);}
+ MediaPanel(Activity a,LinearLayout root,String mode,Stationary stationary,boolean tablet,boolean compact){
+   this.a=a;this.root=root;this.mode=mode;this.stationary=stationary;this.tablet=tablet;this.compact=compact;
+   chooser=new LinearLayout(a);chooser.setOrientation(LinearLayout.VERTICAL);chooser.setBackgroundColor(0xff081b29);
+   LinearLayout filtersRoot=compact?chooser:root;
    prefs=a.getSharedPreferences("c10plus_media_favorites",Context.MODE_PRIVATE);
    favorites=new HashSet<>(prefs.getStringSet("saved",Collections.emptySet()));
    radio=new RadioAudio(a);
@@ -55,17 +59,18 @@ final class MediaPanel {
    country=new Spinner(a);TreeSet<String> countries=new TreeSet<>();for(Entry e:all)countries.add(e.country);
    ArrayList<String> choices=new ArrayList<>();choices.add("Todos los países");choices.addAll(countries);
    ArrayAdapter<String> cs=spinnerAdapter(choices);cs.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);country.setAdapter(cs);controls.addView(label("País"));controls.addView(country,new LinearLayout.LayoutParams(0,-2,2));
-   onlyFavorites=new CheckBox(a);onlyFavorites.setText("★ Favoritos");onlyFavorites.setTextColor(0xffe9f6fa);onlyFavorites.setChecked(mode.equals("favorites"));controls.addView(onlyFavorites);root.addView(controls);
+   onlyFavorites=new CheckBox(a);onlyFavorites.setText("★ Favoritos");onlyFavorites.setTextColor(0xffe9f6fa);onlyFavorites.setChecked(mode.equals("favorites"));controls.addView(onlyFavorites);filtersRoot.addView(controls);
    genre=new Spinner(a);String[] genres={"Todas las categorías","Deportes","Cine","Series","Documentales","Noticias","Infantiles","Música","Generalistas","Otros"};
-   ArrayAdapter<String> gs=spinnerAdapter(Arrays.asList(genres));gs.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);genre.setAdapter(gs);if(!mode.equals("radio")){LinearLayout filters=new LinearLayout(a);filters.addView(label("Categoría"));filters.addView(genre,new LinearLayout.LayoutParams(0,-2,1));root.addView(filters);}
-   if(!mode.equals("radio")){Button pluto=control("Pluto TV",()->openPluto());root.addView(pluto);}
-   count=label("");root.addView(count);
+   ArrayAdapter<String> gs=spinnerAdapter(Arrays.asList(genres));gs.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);genre.setAdapter(gs);if(!mode.equals("radio")){LinearLayout filters=new LinearLayout(a);filters.addView(label("Categoría"));filters.addView(genre,new LinearLayout.LayoutParams(0,-2,1));filtersRoot.addView(filters);}
+   if(!mode.equals("radio")&&!compact){Button pluto=control("Pluto TV",()->openPluto());root.addView(pluto);}
+   if(compact){LinearLayout actions=new LinearLayout(a);Button choose=control(mode.equals("radio")?"Emisoras":mode.equals("favorites")?"Favoritos":"Canales",()->showChooser());actions.addView(choose,new LinearLayout.LayoutParams(0,-2,1));Button halt=control("Detener",()->stop());actions.addView(halt,new LinearLayout.LayoutParams(0,-2,1));root.addView(actions); }
+   count=label("");filtersRoot.addView(count);
    area=new LinearLayout(a);list=new ListView(a);
    adapter=new ArrayAdapter<String>(a,android.R.layout.simple_list_item_1,new ArrayList<String>()){
     @Override public boolean areAllItemsEnabled(){return false;}
     @Override public boolean isEnabled(int p){return p>=0&&p<rows.size()&&rows.get(p)!=null;}
     @Override public View getView(int p,View old,ViewGroup parent){TextView t=(TextView)super.getView(p,old,parent);boolean heading=!isEnabled(p);t.setTextColor(heading?0xff59f3d7:0xffe9f6fa);t.setTextSize(heading?18:16);t.setTypeface(null,heading?android.graphics.Typeface.BOLD:android.graphics.Typeface.NORMAL);t.setBackgroundColor(heading?0xff153c50:android.graphics.Color.TRANSPARENT);return t;}
-   };list.setAdapter(adapter);area.addView(list,new LinearLayout.LayoutParams(0,-1,1));
+   };list.setAdapter(adapter);if(compact)chooser.addView(list,new LinearLayout.LayoutParams(-1,0,1));else area.addView(list,new LinearLayout.LayoutParams(0,-1,1));
    playerColumn=new LinearLayout(a);playerColumn.setOrientation(LinearLayout.VERTICAL);playerColumn.setVisibility(View.GONE);
    playerSlot=new FrameLayout(a);playerSlot.setBackgroundColor(0xff000000);
    picture=new FrameLayout(a);playerSlot.addView(picture,new FrameLayout.LayoutParams(-1,-1,android.view.Gravity.CENTER));
@@ -76,14 +81,14 @@ final class MediaPanel {
    videoControls.addView(control("16:9",()->{ratio=169;fitPicture();}));
    videoControls.addView(control("4:3",()->{ratio=43;fitPicture();}));
    videoControls.addView(control("Original",()->{ratio=0;fitPicture();}));
-   videoControls.addView(control("50%",()->resize(50)));videoControls.addView(control("75%",()->resize(75)));videoControls.addView(control("100%",()->resize(100)));
-   videoControls.addView(control("Cambiar lado",()->{left=!left;resize(size);}));
+   if(!compact){videoControls.addView(control("50%",()->resize(50)));videoControls.addView(control("75%",()->resize(75)));videoControls.addView(control("100%",()->resize(100)));
+   videoControls.addView(control("Cambiar lado",()->{left=!left;resize(size);}));}
    scroll.addView(videoControls);playerColumn.addView(scroll,new LinearLayout.LayoutParams(-1,-2));
    area.addView(playerColumn,new LinearLayout.LayoutParams(0,-1,1));root.addView(area,new LinearLayout.LayoutParams(-1,0,1));
    LinearLayout footer=new LinearLayout(a);Button stop=new Button(a);stop.setText("Detener reproducción");stop.setOnClickListener(v->stop());footer.addView(stop);
    Button help=new Button(a);help.setText("Guardar favorito");help.setOnClickListener(v->new AlertDialog.Builder(a).setMessage("Mantén pulsado cualquier canal o emisora de la lista para añadirlo o quitarlo de favoritos.").setPositiveButton("Aceptar",null).show());footer.addView(help);
-   footer.addView(label("TDTChannels · emisiones públicas; algunas requieren web, país o cuenta."));root.addView(footer);
-   list.setOnItemClickListener((par,v,i,id)->{if(i<rows.size()&&rows.get(i)!=null)select(rows.get(i));});
+   footer.addView(label("TDTChannels · emisiones públicas; algunas requieren web, país o cuenta."));if(!compact)root.addView(footer);
+   list.setOnItemClickListener((par,v,i,id)->{if(i<rows.size()&&rows.get(i)!=null){Entry e=rows.get(i);if(chooserDialog!=null)chooserDialog.dismiss();select(e);}});
    list.setOnItemLongClickListener((par,v,i,id)->{if(i>=rows.size()||rows.get(i)==null)return true;Entry e=rows.get(i);boolean add=!favorites.contains(e.key);if(add)favorites.add(e.key);else favorites.remove(e.key);prefs.edit().putStringSet("saved",new HashSet<>(favorites)).apply();filter();Toast.makeText(a,add?"Favorito guardado":"Favorito eliminado",Toast.LENGTH_SHORT).show();return true;});
    onlyFavorites.setOnCheckedChangeListener((b,c)->filter());
    country.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onItemSelected(AdapterView<?> p,View v,int i,long id){filter();}public void onNothingSelected(AdapterView<?> p){}});
@@ -123,7 +128,7 @@ final class MediaPanel {
  }
  void fitPicture(){int w=playerSlot.getWidth(),h=playerSlot.getHeight();if(w<=0||h<=0)return;int pw=w,ph=h;if(ratio!=0){float f=ratio==169?16f/9:4f/3;pw=Math.min(w,Math.round(h*f));ph=Math.min(h,Math.round(w/f));}
    FrameLayout.LayoutParams p=(FrameLayout.LayoutParams)picture.getLayoutParams();if(p.width!=pw||p.height!=ph){p.width=pw;p.height=ph;p.gravity=android.view.Gravity.CENTER;picture.setLayoutParams(p);}}
- void resize(int pct){size=pct;if(fullDialog!=null)return;int index=left?0:1;if(area.indexOfChild(playerColumn)!=index){area.removeView(playerColumn);area.addView(playerColumn,index);}playerColumn.setLayoutParams(new LinearLayout.LayoutParams(0,-1,pct));list.setVisibility(pct==100?View.GONE:View.VISIBLE);list.setLayoutParams(new LinearLayout.LayoutParams(0,-1,100-pct));if(videoActive&&video!=null)video.start();}
+ void resize(int pct){size=pct;if(fullDialog!=null)return;if(compact){playerColumn.setLayoutParams(new LinearLayout.LayoutParams(0,-1,1));return;}int index=left?0:1;if(area.indexOfChild(playerColumn)!=index){area.removeView(playerColumn);area.addView(playerColumn,index);}playerColumn.setLayoutParams(new LinearLayout.LayoutParams(0,-1,pct));list.setVisibility(pct==100?View.GONE:View.VISIBLE);list.setLayoutParams(new LinearLayout.LayoutParams(0,-1,100-pct));if(videoActive&&video!=null)video.start();}
  void toggleFull(){
    if(fullDialog!=null){fullDialog.dismiss();return;}
    if(!videoActive||!stationary.allowed())return;
@@ -134,9 +139,10 @@ final class MediaPanel {
    d.setOnDismissListener(x->{fullDialog=null;page.removeView(playerColumn);area.addView(playerColumn,left?0:area.getChildCount(),new LinearLayout.LayoutParams(0,-1,size));fullButton.setText("Pantalla completa");if(videoActive&&stationary.allowed()&&video!=null)video.start();});
    d.show();if(d.getWindow()!=null)d.getWindow().setLayout(-1,-1);if(video!=null)video.start();
  }
+ void showChooser(){if(!compact||closed||chooserDialog!=null)return;android.app.Dialog d=new android.app.Dialog(a);d.setTitle(mode.equals("radio")?"Radio · emisoras":"Multimedia · canales");chooserDialog=d;d.setContentView(chooser);d.setOnDismissListener(x->{if(chooser.getParent() instanceof ViewGroup)((ViewGroup)chooser.getParent()).removeView(chooser);chooserDialog=null;});d.show();if(d.getWindow()!=null)d.getWindow().setLayout(-1,-1);}
  void openPluto(){
    if(!stationary.allowed()){status.setText("Pluto TV: vídeo disponible con el vehículo estacionado.");return;}
-   if(tablet){android.content.Intent launch=a.getPackageManager().getLaunchIntentForPackage("tv.pluto.android");if(launch!=null){stop();try{a.startActivity(launch);return;}catch(Exception ignored){}}}
+   if(tablet&&!compact){android.content.Intent launch=a.getPackageManager().getLaunchIntentForPackage("tv.pluto.android");if(launch!=null){stop();try{a.startActivity(launch);return;}catch(Exception ignored){}}}
    Entry e=new Entry("tv",new String[]{"Internacional","Streaming","Pluto TV","","https://pluto.tv/","Servicio oficial"});
    select(e);
  }
@@ -162,6 +168,6 @@ final class MediaPanel {
  void openWeb(Entry e){try{browser=new WebView(a);browser.getSettings().setJavaScriptEnabled(true);browser.getSettings().setDomStorageEnabled(true);browser.getSettings().setAllowFileAccess(false);browser.getSettings().setAllowContentAccess(false);browser.getSettings().setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW);browser.setWebViewClient(new WebViewClient(){@Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){return !https(r.getUrl().toString());}});picture.addView(browser,new FrameLayout.LayoutParams(-1,-1,android.view.Gravity.CENTER));browser.loadUrl(e.web);status.setText("Web oficial: "+e.name+" · DRM según proveedor");}catch(Exception ex){stop();status.setText("Web no disponible: "+e.name);}}
  void cancelTimeout(){if(timeout!=null){handler.removeCallbacks(timeout);timeout=null;}}
  void refresh(){if(closed)return;if(videoActive){if(!stationary.allowed()){stop();status.setText(tablet?"TV detenida: dispositivo fuera del modo tablet.":"TV detenida: movimiento o lectura de velocidad no disponible.");}}else if(!radio.status().equals("Radio detenida"))status.setText(radio.status());}
- void stop(){list.setVisibility(View.VISIBLE);list.setLayoutParams(new LinearLayout.LayoutParams(0,-1,1));cancelTimeout();handler.removeCallbacks(videoGuard);radio.stop();videoActive=false;if(video!=null){VideoView v=video;video=null;try{v.stopPlayback();}catch(Exception ignored){}}if(browser!=null){WebView w=browser;browser=null;try{w.stopLoading();w.loadUrl("about:blank");picture.removeView(w);w.destroy();}catch(Exception ignored){}}if(fullDialog!=null)fullDialog.dismiss();picture.removeAllViews();playerColumn.setVisibility(View.GONE);status.setText("Reproducción detenida");}
- void close(){closed=true;stop();}
+ void stop(){if(!compact){list.setVisibility(View.VISIBLE);list.setLayoutParams(new LinearLayout.LayoutParams(0,-1,1));}cancelTimeout();handler.removeCallbacks(videoGuard);radio.stop();videoActive=false;if(video!=null){VideoView v=video;video=null;try{v.stopPlayback();}catch(Exception ignored){}}if(browser!=null){WebView w=browser;browser=null;try{w.stopLoading();w.loadUrl("about:blank");picture.removeView(w);w.destroy();}catch(Exception ignored){}}if(fullDialog!=null)fullDialog.dismiss();picture.removeAllViews();playerColumn.setVisibility(View.GONE);status.setText("Reproducción detenida");}
+ void close(){closed=true;if(chooserDialog!=null)chooserDialog.dismiss();stop();}
 }
