@@ -2,7 +2,9 @@ name: C10 Plus - módulo para APK original UNIT
 
 on:
   push:
-    branches: [feature/c10plus-tu-apk-unit-nativa, feature/unit-basada-en-08-estable, feature/unit-c10-4-5-1-installer-resume, feature/unit-45-cockpit-merge]
+    branches: [feature/c10plus-tu-apk-unit-nativa, feature/unit-basada-en-08-estable, feature/unit-c10-4-5-1-installer-resume, feature/unit-45-cockpit-merge, feature/c10-plus-60-recovery]
+  pull_request:
+    branches: [feature/unit-45-cockpit-merge]
   workflow_dispatch:
 
 permissions:
@@ -51,6 +53,9 @@ jobs:
       - name: Bundle SDK signing utilities (no private keys)
         run: |
           mkdir -p c10plus-native/out/tools
+          cp "$ANDROID_HOME/platforms/android-35/android.jar" c10plus-native/out/tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib/d8.jar" c10plus-native/out/tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/aapt2" c10plus-native/out/tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" c10plus-native/out/tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" c10plus-native/out/tools/
           chmod +x c10plus-native/out/tools/zipalign
@@ -60,7 +65,6 @@ jobs:
           name: C10Plus-Native-Addon-DEX
           path: |
             c10plus-native/out/dex/classes.dex
-            c10plus-native/out/tools/apksigner.jar
-            c10plus-native/out/tools/zipalign
+            c10plus-native/out/tools/
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 90
