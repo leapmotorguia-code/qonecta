@@ -47,6 +47,18 @@ public final class StartupDiagnostics {
             }
         }catch(Throwable e){out.append("Identidad de APK: ").append(e.getClass().getSimpleName()).append('\n');}
         out.append("Android API: ").append(Build.VERSION.SDK_INT).append('\n');
+        try {
+            android.hardware.usb.UsbManager usb=(android.hardware.usb.UsbManager)ctx.getSystemService(Context.USB_SERVICE);
+            if(usb!=null){
+                out.append("Dispositivos USB visibles: ").append(usb.getDeviceList().size()).append('\n');
+                for(android.hardware.usb.UsbDevice d:usb.getDeviceList().values()){
+                    out.append(String.format(Locale.ROOT,"USB VID %04X PID %04X · interfaces %d · permiso %s\n",d.getVendorId(),d.getProductId(),d.getInterfaceCount(),usb.hasPermission(d)?"sí":"no"));
+                }
+                android.hardware.usb.UsbAccessory[] accessories=usb.getAccessoryList();
+                out.append("Accesorios USB visibles: ").append(accessories==null?0:accessories.length).append('\n');
+            }
+        }catch(Throwable e){out.append("Diagnóstico USB: ").append(e.getClass().getSimpleName()).append('\n');}
+
         android.content.SharedPreferences lifecycle=
             ctx.getSharedPreferences("c10plus_lifecycle",Context.MODE_PRIVATE);
         java.text.SimpleDateFormat clock=new java.text.SimpleDateFormat(
