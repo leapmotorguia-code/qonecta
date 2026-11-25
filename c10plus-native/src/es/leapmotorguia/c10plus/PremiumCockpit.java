@@ -36,56 +36,64 @@ final class PremiumCockpit extends View {
         text(c,hint,x+25,y+h-11,12,MUTED,false,w-34,false);
     }
     private void drawCar(Canvas c,float x,float y,float w,float h){
-        // Original vector silhouette; never implies vehicle status.
-        p.setStyle(Paint.Style.FILL);p.setColor(0xff142e3e);c.drawRoundRect(x,y+h*.44f,x+w,y+h*.81f,12,12,p);
-        Path roof=new Path();roof.moveTo(x+w*.15f,y+h*.46f);roof.lineTo(x+w*.31f,y+h*.16f);roof.lineTo(x+w*.69f,y+h*.16f);roof.lineTo(x+w*.84f,y+h*.46f);roof.close();p.setColor(0xff31586c);c.drawPath(roof,p);
-        p.setColor(BG);c.drawCircle(x+w*.21f,y+h*.79f,h*.15f,p);c.drawCircle(x+w*.79f,y+h*.79f,h*.15f,p);
-        line(c,x+w*.08f,y+h*.52f,x+w*.18f,y+h*.52f,BLUE,3);line(c,x+w*.85f,y+h*.52f,x+w*.94f,y+h*.52f,0xffff7068,3);
+        c.save();c.translate(x,y);c.scale(w/260,h/104);
+        p.setShader(new LinearGradient(0,25,0,88,new int[]{0xffaac2ce,0xff4a697e,0xff152c3a},null,Shader.TileMode.CLAMP));
+        Path body=new Path();body.moveTo(8,68);body.lineTo(16,48);body.lineTo(50,38);body.lineTo(80,13);body.quadTo(93,5,116,6);body.lineTo(177,9);body.quadTo(197,14,213,37);body.lineTo(240,43);body.quadTo(255,48,255,72);body.lineTo(243,84);body.lineTo(15,84);body.close();c.drawPath(body,p);p.setShader(null);
+        Path glass=new Path();glass.moveTo(58,36);glass.lineTo(84,16);glass.lineTo(126,12);glass.lineTo(174,15);glass.lineTo(204,37);glass.close();p.setShader(new LinearGradient(60,12,180,38,0xff476a7f,0xff071825,Shader.TileMode.CLAMP));c.drawPath(glass,p);p.setShader(null);
+        line(c,125,13,125,38,0xffa4bdc9,2);line(c,173,15,177,39,0xff879fac,2);line(c,20,49,238,49,0xff92aeb9,1.4f);
+        line(c,86,48,82,77,0xff274758,1);line(c,170,48,170,77,0xff274758,1);
+        line(c,16,53,44,49,BLUE,3);line(c,214,49,248,54,0xffff4d61,4);
+        for(int i=0;i<2;i++){float wx=i==0?53:205;p.setColor(0xff030b13);c.drawCircle(wx,80,20,p);p.setColor(0xff708b9a);c.drawCircle(wx,80,12,p);p.setColor(0xff1c3444);c.drawCircle(wx,80,8,p);for(int j=0;j<5;j++){double a=j*Math.PI*2/5;line(c,wx,80,wx+10*(float)Math.cos(a),80+10*(float)Math.sin(a),0xffa1bccb,1.6f);}}
+        c.restore();
     }
     @Override protected void onDraw(Canvas c){
         super.onDraw(c);float w=getWidth(),h=getHeight();if(w<2||h<2)return;c.drawColor(BG);
-        // Responsive coordinate system keeps all labels and gauges within bounds.
-        boolean compact=w/h<1.3f;float dw=compact?620:1000,dh=compact?650:510;
+        boolean compact=w/h<.95f;float dw=compact?640:820,dh=compact?760:650;
         float scale=Math.min(w/dw,h/dh);c.save();c.translate((w-dw*scale)/2,(h-dh*scale)/2);c.scale(scale,scale);
-        float cx=dw/2,cy=compact?189:181,r=compact?135:143;
-        box(c,8,8,dw-16,compact?357:344,0xff0a1d2a);
-        text(c,"TELEMETRÍA · UNIT",24,32,16,TEAL,true,dw-48,false);
-        arc(c,cx,cy,r+8,140,260,1,0xff3b6476);
-        arc(c,cx,cy,r,140,260,12,EDGE);
+        float cx=dw/2,cy=184,r=154;float lower=compact?428:400;
+        box(c,7,7,dw-14,lower-14,0xff0b2636);
+        text(c,"TELEMETRÍA DIGITAL",21,29,16,TEAL,true,dw-42,false);
+        text(c,"UNIT · lectura real",dw-112,29,12,MUTED,false,150,true);
+        arc(c,cx,cy,r+13,137,266,1.5f,0xff327b90);
+        arc(c,cx,cy,r,137,266,13,EDGE);
         if(Double.isFinite(speed)){float f=(float)Math.min(1,speed/200);if(f>0){
-            arc(c,cx,cy,r,140,260*f,22,0xff0b4241);
-            rect.set(cx-r,cy-r,cx+r,cy+r);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(12);p.setStrokeCap(Paint.Cap.ROUND);
-            SweepGradient glow=new SweepGradient(cx,cy,new int[]{GREEN,TEAL,BLUE,BLUE},new float[]{0f,.34f,.72f,1f});
-            Matrix m=new Matrix();m.setRotate(140,cx,cy);glow.setLocalMatrix(m);p.setShader(glow);c.drawArc(rect,140,260*f,false,p);p.setShader(null);p.setStyle(Paint.Style.FILL);
+          arc(c,cx,cy,r,137,266*f,23,0xff115353);rect.set(cx-r,cy-r,cx+r,cy+r);
+          p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(13);p.setStrokeCap(Paint.Cap.ROUND);
+          SweepGradient g=new SweepGradient(cx,cy,new int[]{GREEN,TEAL,BLUE,BLUE},new float[]{0f,.35f,.75f,1f});Matrix m=new Matrix();m.setRotate(137,cx,cy);g.setLocalMatrix(m);p.setShader(g);c.drawArc(rect,137,266*f,false,p);p.setShader(null);p.setStyle(Paint.Style.FILL);
         }}
-        for(int i=0;i<=40;i++){if(i%4==0)continue;double a=Math.toRadians(140+i*6.5);line(c,cx+(r-18)*(float)Math.cos(a),cy+(r-18)*(float)Math.sin(a),cx+(r-22)*(float)Math.cos(a),cy+(r-22)*(float)Math.sin(a),EDGE,1);}
-        for(int i=0;i<=10;i++){
-            double angle=Math.toRadians(140+i*26);float x1=cx+(r-17)*(float)Math.cos(angle),y1=cy+(r-17)*(float)Math.sin(angle);
-            float x2=cx+(r-27)*(float)Math.cos(angle),y2=cy+(r-27)*(float)Math.sin(angle);
-            line(c,x1,y1,x2,y2,MUTED,1.7f);
-            text(c,Integer.toString(i*20),cx+(r-44)*(float)Math.cos(angle),cy+(r-44)*(float)Math.sin(angle)+4,12,MUTED,false,38,true);
-        }
-        if(Double.isFinite(speed)){double a=Math.toRadians(140+260*Math.min(1,speed/200));line(c,cx+(r-28)*(float)Math.cos(a),cy+(r-28)*(float)Math.sin(a),cx+(r+4)*(float)Math.cos(a),cy+(r+4)*(float)Math.sin(a),WHITE,4);}
-        text(c,fmt(speed,0,""),cx,cy+9,78,WHITE,true,r*1.32f,true);
-        text(c,"km/h",cx,cy+36,18,MUTED,false,90,true);
-        text(c,Double.isFinite(speed)?"LECTURA UNIT":"SIN LECTURA",cx,cy+57,12,Double.isFinite(speed)?TEAL:MUTED,true,150,true);
-        float side=compact?128:220;
-        float lx=compact?20:32,rx=dw-side-(compact?20:32);
-        tile(c,lx,66,side,84,"POTENCIA",fmt(power,1," kW"),"Batería · signo UNIT",AMBER);
-        tile(c,rx,66,side,84,"BATERÍA",fmt(soc,0," %"),"Estado de carga",GREEN);
-        if(Double.isFinite(soc)){line(c,rx+23,160,rx+side-12,160,EDGE,4);if(soc>0)line(c,rx+23,160,rx+23+(side-35)*(float)(soc/100),160,GREEN,4);}
-        tile(c,lx,178,side,83,"ENTRADA",fmt(incoming,2," kWh"),"No solo frenada",TEAL);
-        tile(c,rx,178,side,83,"COMBUSTIBLE",fmt(fuel,1," L"),"Restante · si disponible",BLUE);
-        drawCar(c,cx-70,cy+68,140,58);
-        text(c,"Telemetría UNIT · cuadro complementario",cx,compact?352:339,12,MUTED,false,dw-46,true);
-        float y=compact?377:365;float cell=(dw-40)/3f;
+        for(int i=0;i<=40;i++){double a=Math.toRadians(137+i*6.65);float ri=i%4==0?r-28:r-19;line(c,cx+(r-12)*(float)Math.cos(a),cy+(r-12)*(float)Math.sin(a),cx+ri*(float)Math.cos(a),cy+ri*(float)Math.sin(a),i%4==0?MUTED:EDGE,i%4==0?2:1);}
+        for(int i=0;i<=10;i++){double a=Math.toRadians(137+i*26.6);text(c,""+(i*20),cx+(r-44)*(float)Math.cos(a),cy+(r-44)*(float)Math.sin(a)+4,14,WHITE,false,38,true);}
+        if(Double.isFinite(speed)){double a=Math.toRadians(137+266*Math.min(1,speed/200));line(c,cx+(r-55)*(float)Math.cos(a),cy+(r-55)*(float)Math.sin(a),cx+(r+5)*(float)Math.cos(a),cy+(r+5)*(float)Math.sin(a),TEAL,9);line(c,cx+(r-55)*(float)Math.cos(a),cy+(r-55)*(float)Math.sin(a),cx+(r+5)*(float)Math.cos(a),cy+(r+5)*(float)Math.sin(a),WHITE,3);}
+        text(c,fmt(speed,0,""),cx,cy+12,86,WHITE,true,178,true);
+        text(c,"km/h",cx,cy+39,20,MUTED,false,90,true);
+        text(c,Double.isFinite(speed)?"VELOCIDAD UNIT":"SIN LECTURA",cx,cy+61,12,Double.isFinite(speed)?TEAL:MUTED,true,150,true);
+        float side=(dw-340)/2-18,lx=16,rx=dw-16-side;
+        tile(c,lx,61,side,92,"POTENCIA",fmt(Double.isFinite(power)&&power>=0?power:Double.NaN,1," kW"),"Salida de batería",GREEN);
+        tile(c,rx,61,side,92,"POTENCIA ENTRANTE",fmt(Double.isFinite(power)&&power<0?-power:Double.NaN,1," kW"),"No solo frenada",TEAL);
+        tile(c,lx,167,side,92,"BATERÍA",fmt(soc,0," %"),"Autonomía: —",GREEN);
+        if(Double.isFinite(soc)){line(c,lx+25,250,lx+side-14,250,EDGE,3);if(soc>0)line(c,lx+25,250,lx+25+(side-39)*(float)(soc/100),250,GREEN,3);}
+        tile(c,rx,167,side,92,"COMBUSTIBLE",fmt(fuel,1," L"),"Nivel · si disponible",AMBER);
+        p.setShader(new RadialGradient(cx,328,150,new int[]{0xff174e50,0xff0a1d2a},null,Shader.TileMode.CLAMP));c.drawOval(cx-150,301,cx+150,351,p);p.setShader(null);
+        rect.set(cx-145,311,cx+145,345);p.setStyle(Paint.Style.STROKE);p.setColor(TEAL);p.setStrokeWidth(1.5f);c.drawOval(rect,p);p.setStyle(Paint.Style.FILL);
+        drawCar(c,cx-118,247,236,95);
+        text(c,"FLUJO DE ENERGÍA",cx,363,14,TEAL,true,240,true);
+        String flow=Double.isFinite(power)?power>0?"Batería → sistema eléctrico":power<0?"Entrada → batería":"Sin intercambio medido":"Sin potencia disponible";
+        text(c,flow,cx,382,13,MUTED,false,dw-34,true);
         double net=Double.isFinite(spent)&&Double.isFinite(incoming)?spent-incoming:Double.NaN;
         double avg=Double.isFinite(net)&&km>0&&!partial?net*100/km:Double.NaN;
-        tile(c,8,y,cell,compact?103:105,"CONSUMO BRUTO",fmt(spent,2," kWh"),partial?"Medición parcial":"Energía de salida",AMBER);
-        tile(c,20+cell,y,cell,compact?103:105,"BALANCE NETO",fmt(net,2," kWh"),"Salida menos entrada",TEAL);
-        tile(c,32+cell*2,y,cell,compact?103:105,"VIAJE",fmt(km,1," km"),"Distancia registrada",BLUE);
-        if(compact){tile(c,8,492,(dw-28)/2,100,"MEDIA NETA",fmt(avg,1," kWh/100 km"),"Si distancia y energía fiables",GREEN);tile(c,20+(dw-28)/2,492,(dw-28)/2,100,"CLIMA / AUTONOMÍA","—","Sin fuente confirmada",MUTED);}
-        else{text(c,"Media neta: "+fmt(avg,1," kWh/100 km")+"   ·   Clima / autonomía: sin fuente confirmada",20,496,14,MUTED,false,dw-40,false);}
+        float cell=(dw-40)/3f, y=lower, th=compact?91:80;
+        tile(c,8,y,cell,th,"CONSUMO BRUTO",fmt(spent,2," kWh"),partial?"Medición parcial":"Salida medida",AMBER);
+        tile(c,20+cell,y,cell,th,"CONSUMO MEDIO",fmt(avg,1," kWh/100 km"),"Neto · viaje",GREEN);
+        tile(c,32+cell*2,y,cell,th,"ENERGÍA ENTRANTE",fmt(incoming,2," kWh"),"Incluye posible generador",TEAL);
+        y+=th+9;
+        tile(c,8,y,cell,th,"VIAJE ACTUAL",fmt(km,1," km"),"Distancia medida",BLUE);
+        tile(c,20+cell,y,cell,th,"BALANCE NETO",fmt(net,2," kWh"),"Salida menos entrada",TEAL);
+        tile(c,32+cell*2,y,cell,th,"CLIMA / EXTERIOR","—","Sin fuente confirmada",MUTED);
+        y+=th+9;
+        box(c,8,y,dw-16,54,PANEL);
+        text(c,"ESTADO DEL VEHÍCULO",23,y+20,14,TEAL,true,dw*.47f,false);
+        text(c,"Puertas · luces · modo: —",23,y+40,14,MUTED,false,dw*.53f,false);
+        text(c,"OBD2 · sin conexión",dw*.62f,y+31,13,MUTED,false,dw*.35f,false);
         c.restore();
     }
 }
