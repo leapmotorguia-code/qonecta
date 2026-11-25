@@ -12,6 +12,8 @@ final class PremiumCockpit extends View {
     private double speed=Double.NaN,soc=Double.NaN,power=Double.NaN,spent=Double.NaN,incoming=Double.NaN,km=Double.NaN,fuel=Double.NaN;
     private boolean partial;
     private Bitmap carArt;
+    private NativeTelemetry extra=new NativeTelemetry();
+    void extra(NativeTelemetry t){extra=t;invalidate();}
     PremiumCockpit(Context c){super(c);try(java.io.InputStream in=c.getAssets().open("c10-premium-car.png")){carArt=BitmapFactory.decodeStream(in);}catch(Exception ignored){}setContentDescription("Cuadro digital de datos UNIT; no sustituye los instrumentos originales.");}
     void update(double v,double battery,double kw,double used,double in,double distance,double litres,boolean incomplete){
         speed=v>=0&&v<=350?v:Double.NaN;soc=battery>=0&&battery<=100?battery:Double.NaN;
@@ -72,9 +74,9 @@ final class PremiumCockpit extends View {
         float side=(dw-340)/2-18,lx=16,rx=dw-16-side;
         tile(c,lx,61,side,92,"POTENCIA",fmt(Double.isFinite(power)&&power>=0?power:Double.NaN,1," kW"),"Salida de batería",GREEN);
         tile(c,rx,61,side,92,"POTENCIA ENTRANTE",fmt(Double.isFinite(power)&&power<0?-power:Double.NaN,1," kW"),"No solo frenada",TEAL);
-        tile(c,lx,167,side,92,"BATERÍA",fmt(soc,0," %"),"Autonomía: —",GREEN);
+        tile(c,lx,167,side,92,"BATERÍA",fmt(soc,0," %"),"EV UNIT: "+fmt(extra.evRange,0," km"),GREEN);
         if(Double.isFinite(soc)){line(c,lx+25,250,lx+side-14,250,EDGE,3);if(soc>0)line(c,lx+25,250,lx+25+(side-39)*(float)(soc/100),250,GREEN,3);}
-        tile(c,rx,167,side,92,"COMBUSTIBLE",fmt(fuel,1," L"),"Nivel · si disponible",AMBER);
+        tile(c,rx,167,side,92,"COMBUSTIBLE",Double.isFinite(fuel)?fmt(fuel,1," L"):fmt(extra.fuelPercent,0," %"),"UNIT: "+fmt(extra.fuelRange,0," km"),AMBER);
         p.setShader(new RadialGradient(cx,328,150,new int[]{0xff174e50,0xff0a1d2a},null,Shader.TileMode.CLAMP));c.drawOval(cx-150,301,cx+150,351,p);p.setShader(null);
         rect.set(cx-145,311,cx+145,345);p.setStyle(Paint.Style.STROKE);p.setColor(TEAL);p.setStrokeWidth(1.5f);c.drawOval(rect,p);p.setStyle(Paint.Style.FILL);
         drawCar(c,cx-118,247,236,114);
@@ -82,20 +84,20 @@ final class PremiumCockpit extends View {
         String flow=Double.isFinite(power)?power>0?"Batería → sistema eléctrico":power<0?"Entrada → batería":"Sin intercambio medido":"Sin potencia disponible";
         text(c,flow,cx,388,13,MUTED,false,dw-34,true);
         double net=Double.isFinite(spent)&&Double.isFinite(incoming)?spent-incoming:Double.NaN;
-        double avg=Double.isFinite(net)&&km>0&&!partial?net*100/km:Double.NaN;
+        double avg=Double.isFinite(net)&&km>0&&!partial?net*100/km:extra.avg;
         float cell=(dw-40)/3f, y=lower, th=compact?91:80;
-        tile(c,8,y,cell,th,"CONSUMO BRUTO",fmt(spent,2," kWh"),partial?"Medición parcial":"Salida medida",AMBER);
-        tile(c,20+cell,y,cell,th,"CONSUMO MEDIO",fmt(avg,1," kWh/100 km"),"Neto · viaje",GREEN);
-        tile(c,32+cell*2,y,cell,th,"ENERGÍA ENTRANTE",fmt(incoming,2," kWh"),"Incluye posible generador",TEAL);
+        tile(c,8,y,cell,th,"CONSUMO BRUTO",fmt(Double.isFinite(spent)?spent:extra.nativeEnergy,2," kWh"),Double.isFinite(spent)?(partial?"Medición parcial":"Salida medida"):"Acumulado UNIT aprox.",AMBER);
+        tile(c,20+cell,y,cell,th,"CONSUMO MEDIO",fmt(avg,1," kWh/100 km"),Double.isFinite(net)&&km>0&&!partial?"Neto · viaje":"UNIT orientativo",GREEN);
+        tile(c,32+cell*2,y,cell,th,"ENERGÍA ENTRANTE",fmt(Double.isFinite(incoming)?incoming:extra.nativeIncoming,2," kWh"),"UNIT · no solo frenada",TEAL);
         y+=th+9;
-        tile(c,8,y,cell,th,"VIAJE ACTUAL",fmt(km,1," km"),"Distancia medida",BLUE);
+        tile(c,8,y,cell,th,"VIAJE ACTUAL",fmt(Double.isFinite(extra.nativeDistance)?extra.nativeDistance:km,1," km"),"Distancia UNIT",BLUE);
         tile(c,20+cell,y,cell,th,"BALANCE NETO",fmt(net,2," kWh"),"Salida menos entrada",TEAL);
-        tile(c,32+cell*2,y,cell,th,"CLIMA / EXTERIOR","—","Sin fuente confirmada",MUTED);
+        tile(c,32+cell*2,y,cell,th,"CLIMA / EXTERIOR",fmt(extra.cabin,1,"°")+" / "+fmt(extra.exterior,1,"°"),"UNIT · posible ajuste local",MUTED);
         y+=th+9;
         box(c,8,y,dw-16,54,PANEL);
         text(c,"ESTADO DEL VEHÍCULO",23,y+20,14,TEAL,true,dw*.47f,false);
         text(c,"Puertas · luces · modo: —",23,y+40,14,MUTED,false,dw*.53f,false);
-        text(c,"OBD2 · sin conexión",dw*.62f,y+31,13,MUTED,false,dw*.35f,false);
+        text(c,"OBD2 · no integrado",dw*.62f,y+31,13,MUTED,false,dw*.35f,false);
         c.restore();
     }
 }
