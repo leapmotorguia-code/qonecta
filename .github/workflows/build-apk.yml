@@ -1,65 +1,33 @@
-name: Build APK
+name: Experimental single APK - Open Headunit source
 on:
   push:
-    branches: ['feat/cockpit-ffmpeg']
+    branches: ['feat/cockpit-headunit-integration']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: temurin
-      - name: Install SDK 36
+      - name: Install required SDKs and NDKs
         run: |
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          test -x "$SDKMANAGER"
-          "$SDKMANAGER" --version
-          "$SDKMANAGER" 'platforms;android-36' 'build-tools;35.0.0' 'platform-tools'
-          test -f "$ANDROID_HOME/platforms/android-36/android.jar"
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.13'
-      - name: Compile libusb and JNI probe
+          "$SDKMANAGER" 'platforms;android-36' 'platforms;android-34' 'build-tools;35.0.0' 'platform-tools' 'ndk;28.1.13356709' 'ndk;29.0.14206865' 'cmake;3.22.1'
+      - name: Compile libusb and FFmpeg audio from source
         run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.1.13356709'
           bash native/build-libusb.sh
-      - name: Build FFmpeg audio decoder for four ABIs
-        run: |
           bash native/build-ffmpeg.sh
-      - name: Assemble debug APK
+      - name: Compose real receiver and instrument panel from source
         run: |
-          gradle --no-daemon :app:assembleDebug --stacktrace
-      - name: Publish libusb source for LGPL compliance
-        uses: actions/upload-artifact@v4
-        with:
-          name: libusb-corresponding-source
-          path: native/libusb-source.tar.gz
-          if-no-files-found: error
-      - name: Publish FFmpeg corresponding source
-        uses: actions/upload-artifact@v4
-        with:
-          name: ffmpeg-corresponding-source
-          path: native/ffmpeg-source.tar.gz
-          if-no-files-found: error
-      - name: Dependency inventory
-        run: |
-          gradle --no-daemon :app:dependencies --configuration debugRuntimeClasspath > runtime-dependencies.txt
-      - name: Verify APK signature
-        run: |
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/debug/app-debug.apk
+          bash native/build-headunit.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: drivecore-cockpit-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        with:
-          name: drivecore-runtime-dependencies
-          path: runtime-dependencies.txt
+          name: drivecore-headunit-integrated-EXPERIMENTAL
+          path: combined-output/
           if-no-files-found: error
