@@ -1,33 +1,53 @@
-name: Experimental single APK - Open Headunit source
+name: DriveCore 6.4 Visual Fusion ARM
 on:
   push:
-    branches: ['feat/cockpit-headunit-integration']
+    branches: ['feat/cockpit-64-visual-fusion']
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          java-version: '21'
           distribution: temurin
-      - name: Install required SDKs and NDKs
-        run: |
-          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          "$SDKMANAGER" 'platforms;android-36' 'platforms;android-34' 'build-tools;35.0.0' 'platform-tools' 'ndk;28.1.13356709' 'ndk;29.0.14206865' 'cmake;3.22.1'
-      - name: Compile libusb and FFmpeg audio from source
-        run: |
-          bash native/build-libusb.sh
-          bash native/build-ffmpeg.sh
-      - name: Compose real receiver and instrument panel from source
-        run: |
-          bash native/build-headunit.sh
-      - uses: actions/upload-artifact@v4
+          java-version: '21'
+      - uses: actions/download-artifact@v4
         with:
           name: drivecore-headunit-integrated-EXPERIMENTAL
-          path: combined-output/
+          run-id: 45901525100
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: base-artifact
+      - name: Extract verified source and apply 6.4 layout
+        run: |
+          mkdir -p fusion-work
+          tar xzf base-artifact/combined-source.tar.gz -C fusion-work
+          python3 fusion/apply_fusion.py fusion-work
+      - name: Install required SDKs and NDK
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'platforms;android-34' 'build-tools;35.0.0' 'ndk;29.0.14206865' 'cmake;3.22.1'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Assemble ARM APK
+        working-directory: fusion-work/receiver-combined
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:assembleGithubDebug --stacktrace
+      - name: Verify package and signatures
+        run: |
+          mkdir -p output
+          mapfile -t apks < <(find fusion-work/receiver-combined/app/build/outputs/apk/github/debug -type f -name '*.apk')
+          test "${#apks[@]}" -eq 1
+          cp "${apks[0]}" output/DriveCore-Fusion-6.4-Native-0.8-ARM.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs output/*.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging output/*.apk > output/package-info.txt
+          unzip -l output/*.apk > output/apk-inventory.txt
+          tar czf output/DriveCore-Fusion-corresponding-source.tar.gz --exclude=.git --exclude=.gradle --exclude=build --exclude='*.jks' --exclude='*.p12' --exclude='*.jkc' --exclude='*.keystore' --exclude=local.properties -C fusion-work .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drivecore-fusion-arm
+          path: output/
           if-no-files-found: error
