@@ -10,6 +10,8 @@ import androidx.media3.common.Player
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.okhttp.OkHttpDataSource
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.decoder.ffmpeg.FfmpegLibrary
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
@@ -37,8 +39,9 @@ class RadioEngine(private val ctx: Context, private val status: (String) -> Unit
             val selector = DefaultTrackSelector(ctx).apply {
                 parameters = buildUponParameters().setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, true).build()
             }
-            val factory = OkHttpDataSource.Factory(http).setUserAgent("DriveCore Native/0.4")
-            val p = ExoPlayer.Builder(ctx)
+            val factory = OkHttpDataSource.Factory(http).setUserAgent("DriveCore Native/0.7")
+            val renderers = DefaultRenderersFactory(ctx).setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+            val p = ExoPlayer.Builder(ctx, renderers)
                 .setTrackSelector(selector)
                 .setMediaSourceFactory(DefaultMediaSourceFactory(ctx).setDataSourceFactory(factory))
                 .build()
@@ -75,6 +78,7 @@ class RadioEngine(private val ctx: Context, private val status: (String) -> Unit
             stop(); status("No se pudo iniciar radio: ${e.javaClass.simpleName}")
         }
     }
+    fun decoderReport(): String = runCatching { if (FfmpegLibrary.isAvailable()) "FFmpeg audio: " + FfmpegLibrary.getVersion() else "FFmpeg audio: no disponible para esta arquitectura" }.getOrDefault("FFmpeg audio: error de carga")
     fun stop() {
         val old = player
         player = null

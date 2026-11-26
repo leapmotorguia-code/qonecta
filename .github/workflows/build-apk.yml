@@ -1,14 +1,14 @@
 name: Build APK
 on:
   push:
-    branches: ['feat/cockpit-native-graphics']
+    branches: ['feat/cockpit-ffmpeg']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -29,6 +29,9 @@ jobs:
         run: |
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.1.13356709'
           bash native/build-libusb.sh
+      - name: Build FFmpeg audio decoder for four ABIs
+        run: |
+          bash native/build-ffmpeg.sh
       - name: Assemble debug APK
         run: |
           gradle --no-daemon :app:assembleDebug --stacktrace
@@ -37,6 +40,12 @@ jobs:
         with:
           name: libusb-corresponding-source
           path: native/libusb-source.tar.gz
+          if-no-files-found: error
+      - name: Publish FFmpeg corresponding source
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-corresponding-source
+          path: native/ffmpeg-source.tar.gz
           if-no-files-found: error
       - name: Dependency inventory
         run: |

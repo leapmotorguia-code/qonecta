@@ -11,3 +11,6 @@ Room samples, explicit recording while foreground, up to 30000 rows. Protobuf ex
 
 ## 0.6 experimental branch
 MPAndroidChart: local history power graphs. Filament: simplified original geometry only. LibUSB 1.0.28: manually authorized descriptor reader, not a receiver; no automatic attachment filter. Dynamic linking, LGPL source archive and license included in CI. Open Headunit and FFmpeg not integrated. No vehicle writes or driving video. Requires CI and device tests.
+
+## 0.7 experimental FFmpeg audio branch
+CI builds LGPL shared FFmpeg 6.1.4 libraries for four ABIs, using official Media3 1.5.1 audio decoder JNI and Java sources. No GPL/nonfree flags, no video decoding, no DRM bypass. Decoder report is displayed in radio, platform audio renderers preferred, FFmpeg fallback enabled. Corresponding FFmpeg source and build script supplied through CI/repository. Open Headunit receiver still not integrated. The 0.6 remains the verified fallback.
