@@ -2,6 +2,8 @@ name: Build APK
 on:
   push:
     branches: [feat/cockpit-base]
+  pull_request:
+    branches: [feat/cockpit-base]
   workflow_dispatch:
 permissions:
   contents: read
