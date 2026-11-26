@@ -1,0 +1,58 @@
+name: DriveCore dependency check
+on:
+  push:
+    branches: [drivecore-native-dependencies]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Resolve Android dependencies
+        shell: bash
+        run: |
+          mkdir -p dependency-check
+          cd dependency-check
+          cat > settings.gradle <<'EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositories { google(); mavenCentral() } }
+          rootProject.name = 'DependencyCheck'
+          EOF
+          cat > build.gradle <<'EOF'
+          plugins { id 'com.android.application' version '8.10.1' }
+          android {
+            namespace 'es.drivecore.dependencycheck'
+            compileSdk 35
+            defaultConfig { applicationId 'es.drivecore.dependencycheck'; minSdk 28; targetSdk 35 }
+          }
+          dependencies {
+            implementation 'androidx.media3:media3-exoplayer:1.5.1'
+            implementation 'androidx.media3:media3-exoplayer-hls:1.5.1'
+            implementation 'androidx.media3:media3-ui:1.5.1'
+            implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+            implementation 'com.google.protobuf:protobuf-javalite:4.29.3'
+            implementation 'androidx.room:room-runtime:2.6.1'
+            implementation 'no.nordicsemi.android:ble:2.8.0'
+          }
+          tasks.register('exportDependencies', Copy) {
+            from configurations.debugRuntimeClasspath
+            into layout.buildDirectory.dir('dependency-bundle')
+          }
+          EOF
+          mkdir -p src/main
+          printf '%s\n' '<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:label="Dependency check"/></manifest>' > src/main/AndroidManifest.xml
+          gradle --no-daemon exportDependencies assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drivecore-dependency-bundle
+          path: dependency-check/build/dependency-bundle/
+          if-no-files-found: error
