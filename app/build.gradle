@@ -9,8 +9,8 @@ android {
         applicationId 'es.drivecore.cockpit'
         minSdk 28
         targetSdk 35
-        versionCode 4
-        versionName '0.4-media3'
+        versionCode 5
+        versionName '0.5-history-map-ble'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -20,6 +20,11 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.room:room-runtime:2.7.2'
+    annotationProcessor 'androidx.room:room-compiler:2.7.2'
+    implementation 'com.google.protobuf:protobuf-javalite:4.29.3'
+    implementation 'org.maplibre.gl:android-sdk:11.8.0'
+    implementation 'no.nordicsemi.android:ble:2.8.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
     implementation 'androidx.media3:media3-exoplayer:1.5.1'
     implementation 'androidx.media3:media3-exoplayer-hls:1.5.1'

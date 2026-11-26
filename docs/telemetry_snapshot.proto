@@ -1,0 +1,17 @@
+syntax = "proto3";
+package drivecore.telemetry;
+// Absent fields mean unavailable, not zero.
+message TelemetrySnapshot {
+  uint32 schema_version=1;
+  uint64 elapsed_realtime_ms=2;
+  optional double speed_kmh=3;
+  optional double battery_pct=4;
+  optional double battery_kwh=5;
+  optional double discharge_kw=6;
+  optional double incoming_kw=7;
+  optional double fuel_litres=8;
+  optional double range_reported_km=9;
+  optional double odometer_km=10;
+  optional bool gear_park=11;
+  optional bool parking_brake=12;
+}
