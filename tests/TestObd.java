@@ -1,0 +1,2 @@
+import es.drivecore.cockpit.ObdProtocol;
+public class TestObd {public static void main(String[] args){assert ObdProtocol.decode("010D","41 0D 64")==100; assert ObdProtocol.decode("012F","41 2F FF")==100; assert ObdProtocol.decode("010C","41 0C 1F 40")==2000; assert ObdProtocol.decode("0146","41 46 3C")==20; assert ObdProtocol.decode("010D","NO DATA")==null; assert ObdProtocol.decode("010D","41 0D 12\r41 0D 13")==null; assert ObdProtocol.decode("04","44")==null;System.out.println("7 OBD decoder tests passed");}}

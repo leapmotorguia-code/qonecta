@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Icono de HeadQLink: Q con rayo (cian → verde) sobre fondo casi negro con halo; monocromo para los iconos con
-     tema de Android 13+. hql_launcher_round es el mismo. -->
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/hql_launcher_bg" />
-    <foreground android:drawable="@drawable/hql_launcher_fg" />
-    <monochrome android:drawable="@drawable/hql_launcher_mono" />
-</adaptive-icon>

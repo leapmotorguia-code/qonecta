@@ -1,0 +1,1 @@
+Dependencias externas declaradas (pendientes de resolver y verificar): Kotlin Coroutines, AndroidX Media3, OkHttp. Consultar licencias y avisos de cada artefacto y sus dependencias transitivas antes de distribuir una compilación.
