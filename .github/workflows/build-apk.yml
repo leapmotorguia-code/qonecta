@@ -1,7 +1,7 @@
 name: Build APK
 on:
   push:
-    branches: [feat/cockpit-base]
+    branches: ['feat/cockpit-base', 'ci/cockpit-artifact-check']
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,16 +17,20 @@ jobs:
           distribution: temurin
       - uses: android-actions/setup-android@v3
       - name: Install SDK 36
-        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+        run: |
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
       - name: Assemble debug APK
-        run: gradle --no-daemon :app:assembleDebug --stacktrace
+        run: |
+          gradle --no-daemon :app:assembleDebug --stacktrace
       - name: Dependency inventory
-        run: gradle --no-daemon :app:dependencies --configuration debugRuntimeClasspath > runtime-dependencies.txt
+        run: |
+          gradle --no-daemon :app:dependencies --configuration debugRuntimeClasspath > runtime-dependencies.txt
       - name: Verify APK signature
-        run: "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/debug/app-debug.apk
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/debug/app-debug.apk
       - uses: actions/upload-artifact@v4
         with:
           name: drivecore-cockpit-debug-apk
