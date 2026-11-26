@@ -41,6 +41,8 @@ public final class HistoryStore implements AutoCloseable {
     private void reply(Result callback,String value){ui.post(()->{if(!closed)callback.accept(value);});}
     public void save(Sample row,Result callback){run(()->{database().runInTransaction(()->{database().samples().add(row);database().samples().prune();});reply(callback,"Última muestra guardada");},callback);}
     public void list(Result callback){run(()->{StringBuilder b=new StringBuilder();for(Sample s:database().samples().recent()){b.append(new java.util.Date(s.utcMillis)).append("\nVel: ").append(s.speed==null?"—":s.speed).append(" km/h | SOC: ").append(s.soc==null?"—":s.soc).append("%\nSalida: ").append(s.outKw==null?"—":s.outKw).append(" kW | Entrada: ").append(s.inKw==null?"—":s.inKw).append(" kW\n\n");}reply(callback,b.length()==0?"Sin muestras guardadas":b.toString());},callback);}
+    public interface Rows { void accept(List<Sample> rows); }
+    public void recentRows(Rows rows, Result error){run(()->{List<Sample> result=database().samples().recent();ui.post(()->{if(!closed)rows.accept(result);});},error);}
     public void clear(Result callback){run(()->{database().samples().clear();reply(callback,"Historial borrado");},callback);}
     @Override public void close(){if(closed)return;closed=true;executor.execute(()->{if(db!=null)db.close();});executor.shutdown();}
 }

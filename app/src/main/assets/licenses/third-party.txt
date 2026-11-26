@@ -1,1 +1,3 @@
 Dependencias externas declaradas (pendientes de resolver y verificar): Kotlin Coroutines, AndroidX Media3, OkHttp. Consultar licencias y avisos de cada artefacto y sus dependencias transitivas antes de distribuir una compilación.
+
+Room and MapLibre: upstream licenses (Apache 2.0 / BSD-style respectively), Protobuf BSD-3-Clause, Nordic BLE BSD-3-Clause, MPAndroidChart Apache 2.0, Filament Apache 2.0, libusb LGPL-2.1-or-later. See upstream repositories; exact libusb source archive in workflow artifact. Vehicle illustration is original procedural geometry.

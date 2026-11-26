@@ -1,7 +1,7 @@
 name: Build APK
 on:
   push:
-    branches: ['feat/cockpit-base', 'ci/cockpit-artifact-check']
+    branches: ['feat/cockpit-native-graphics']
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,9 +25,19 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
+      - name: Compile libusb and JNI probe
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.1.13356709'
+          bash native/build-libusb.sh
       - name: Assemble debug APK
         run: |
           gradle --no-daemon :app:assembleDebug --stacktrace
+      - name: Publish libusb source for LGPL compliance
+        uses: actions/upload-artifact@v4
+        with:
+          name: libusb-corresponding-source
+          path: native/libusb-source.tar.gz
+          if-no-files-found: error
       - name: Dependency inventory
         run: |
           gradle --no-daemon :app:dependencies --configuration debugRuntimeClasspath > runtime-dependencies.txt

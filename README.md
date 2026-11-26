@@ -8,3 +8,6 @@ Pendientes: Open Headunit, LibUSB, Protocol Buffers, Room, MapLibre, Nordic BLE,
 
 ## Native 0.5
 Room samples, explicit recording while foreground, up to 30000 rows. Protobuf export schema in docs. MapLibre/OpenFreeMap viewer (not turn-by-turn navigation). Nordic BLE GATT discovery for selected paired adapters; no proprietary OBD BLE protocol guessed. Media3 audio and AAOS retained. No actual Android Auto/CarPlay receiver yet. FFmpeg, Filament, MPAndroidChart and standalone libusb not implemented. All changes require CI and in-car validation. Third-party dependencies keep their original licenses; see upstream projects.
+
+## 0.6 experimental branch
+MPAndroidChart: local history power graphs. Filament: simplified original geometry only. LibUSB 1.0.28: manually authorized descriptor reader, not a receiver; no automatic attachment filter. Dynamic linking, LGPL source archive and license included in CI. Open Headunit and FFmpeg not integrated. No vehicle writes or driving video. Requires CI and device tests.
