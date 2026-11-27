@@ -3,10 +3,10 @@
   "channel": "stable",
   "published": true,
   "packageName": "com.tencent.qqmusiccar",
-  "versionCode": 490,
-  "versionName": "4.8-base08-actualizador",
-  "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-4.8-multimedia/UNIT-C10-Plus-4.8-MULTIMEDIA.apk",
-  "sha256": "0da5c8b6b9600a4933e6921ca72acacbe4c429aaaa4d520af29a62de030c30b7",
+  "versionCode": 682,
+  "versionName": "6.4.2-advanced-prueba",
+  "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-6.4.2-advanced-test/UNIT-C10-Plus-6.4.2-ADVANCED-PRUEBA.apk",
+  "sha256": "516c1aa39f5c21a44668580bb35a01776393b6b26cfb8136f0d6a75308d8008d",
   "signerSha256": "6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6",
-  "notes": "4.8 prueba: Radio+ 949 emisoras, TDT+ 766 canales, búsqueda, filtro por país y favoritos. Conserva 4.7 y su actualizador corregido. Emisiones y actualización directa pendientes de validar en LeapOS. Instalar estacionado."
+  "notes": "6.4.2 Advanced PRUEBA: explorador de solo lectura, gráficas 5/20/60 min, historial y balance energético; conserva base 6.4. No incluye todas las mejoras de multimedia, conectividad y climatología. Instalación física pendiente. Actualizar con el vehículo estacionado."
 }
