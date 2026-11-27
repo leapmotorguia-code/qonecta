@@ -18,6 +18,7 @@ public final class LocalReceiver implements AutoCloseable {
     private final long deadline=System.nanoTime()+300_000_000_000L;
     private final AtomicBoolean closed=new AtomicBoolean();
     private volatile Socket active;
+    private final Timer watchdog=new Timer("drivecore-session-expiry",true);
     private int failed;
     public LocalReceiver(InetAddress bind,int port,File dir,byte[] page,Listener listener)throws IOException {
         this.dir=dir;this.page=page;this.listener=listener;
@@ -28,7 +29,7 @@ public final class LocalReceiver implements AutoCloseable {
     }
     public String url(){return "http://"+host+"/";}
     public String code(){return code;}
-    public void start(){new Thread(this::loop,"drivecore-receiver").start();}
+    public void start(){watchdog.schedule(new TimerTask(){@Override public void run(){close();}},300000);new Thread(this::loop,"drivecore-receiver").start();}
     private boolean expired(){return System.nanoTime()-deadline>=0;}
     private void loop(){
         try {
@@ -78,8 +79,8 @@ public final class LocalReceiver implements AutoCloseable {
                 f.getFD().sync();
             }
             File done=new File(dir,"received.apk");if(!temp.renameTo(done))throw new IOException("Save failed");
-            String hash=hex(md.digest());reply(out,200,"Recibido para revisión. SHA-256: "+hash);
-            listener.received(done,n,hash);close();
+            String hash=hex(md.digest());listener.received(done,n,hash);
+            try{reply(out,200,"Recibido para revisión. SHA-256: "+hash);}finally{close();}
         }catch(NoSuchAlgorithmException e){throw new IOException(e);}finally{temp.delete();}
     }
     private static String hex(byte[] b){StringBuilder s=new StringBuilder();for(byte x:b)s.append(String.format(Locale.ROOT,"%02x",x&255));return s.toString();}
@@ -88,5 +89,5 @@ public final class LocalReceiver implements AutoCloseable {
         String header="HTTP/1.1 "+status+(status==200?" OK":" Error")+"\r\nContent-Type: "+type+"\r\nContent-Length: "+data.length+"\r\nConnection: close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: no-referrer\r\nContent-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'\r\n\r\n";
         out.write(header.getBytes(StandardCharsets.US_ASCII));out.write(data);out.flush();
     }
-    @Override public void close(){if(closed.compareAndSet(false,true)){try{server.close();}catch(IOException ignored){}try{if(active!=null)active.close();}catch(IOException ignored){}}}
+    @Override public void close(){if(closed.compareAndSet(false,true)){watchdog.cancel();try{server.close();}catch(IOException ignored){}try{if(active!=null)active.close();}catch(IOException ignored){}}}
 }
