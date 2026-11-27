@@ -1,5 +1,0 @@
-Dependencias externas declaradas (pendientes de resolver y verificar): Kotlin Coroutines, AndroidX Media3, OkHttp. Consultar licencias y avisos de cada artefacto y sus dependencias transitivas antes de distribuir una compilación.
-
-Room and MapLibre: upstream licenses (Apache 2.0 / BSD-style respectively), Protobuf BSD-3-Clause, Nordic BLE BSD-3-Clause, MPAndroidChart Apache 2.0, Filament Apache 2.0, libusb LGPL-2.1-or-later. See upstream repositories; exact libusb source archive in workflow artifact. Vehicle illustration is original procedural geometry.
-
-FFmpeg: LGPL 2.1 or later; dynamically linked shared objects built without GPL/nonfree flags. Source archive (ffmpeg-corresponding-source) and native/build-ffmpeg.sh provide corresponding source and configuration. Media3 FFmpeg audio wrapper: Apache 2.0, upstream 1.5.1 (https://github.com/androidx/media/tree/1.5.1/libraries/decoder_ffmpeg).

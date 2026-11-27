@@ -1,2 +1,0 @@
-# Premium visual 0.9
-Recreates the approved concept as native, responsive controls. MapLibre preview loads on request, with no invented route/location. Gauge ticks, original vector vehicle illustration (not exact photoreal C10), live battery power chart on the home screen and accessible audio controls. Existing receiver, telemetry and media restrictions preserved; original OEM climate/navigation bar remains under OEM control. No CarPlay or proprietary UNIT bridge added. No fake values. Requires real device testing; installation not guaranteed.

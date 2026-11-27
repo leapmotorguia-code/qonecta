@@ -1,0 +1,37 @@
+name: Build DriveCore Connect 0.1
+on:
+  push:
+    branches: ['feat/drivecore-connect-v01']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+      - name: Test local transport on JVM
+        run: |
+          mkdir -p /tmp/connect-tests
+          javac -d /tmp/connect-tests app/src/main/java/es/drivecore/connect/LocalReceiver.java tests/ReceiverTest.java
+          java -cp /tmp/connect-tests es.drivecore.connect.ReceiverTest
+      - name: Prepare SDK
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Build APK
+        run: |
+          gradle --no-daemon :app:assembleDebug
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drivecore-connect-receiver-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
