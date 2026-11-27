@@ -1,0 +1,2 @@
+# Premium 1.0 Connect
+Foreground receiver on trusted private LAN, same browser protocol as Connect 0.2. For self-updates only, checks package ID, higher version and same signing certificate before asking for independently obtained SHA256 and opening system installer. No OEM restrictions bypassed. HTTP unencrypted; do not transmit personal data. First install requires a supported vehicle method. Existing Premium instrumentation and receiver retained. iPhone uses Safari; no native iOS app. Source archive included in CI.
