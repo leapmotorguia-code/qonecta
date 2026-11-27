@@ -3,10 +3,10 @@
   "channel": "stable",
   "published": true,
   "packageName": "com.tencent.qqmusiccar",
-  "versionCode": 682,
-  "versionName": "6.4.2-advanced-prueba",
-  "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-6.4.2-advanced-test/UNIT-C10-Plus-6.4.2-ADVANCED-PRUEBA.apk",
-  "sha256": "516c1aa39f5c21a44668580bb35a01776393b6b26cfb8136f0d6a75308d8008d",
+  "versionCode": 683,
+  "versionName": "6.4.3-advanced-prueba",
+  "apkUrl": "https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-6.4.3-advanced-test/UNIT-C10-Plus-6.4.3-ADVANCED-PRUEBA.apk",
+  "sha256": "1677d4348e53e4b2c517c5f33fc6b2de4386a9510b47181c4cc7d96de5b3817e",
   "signerSha256": "6861d639e6f428e2d29e24501e8bb05e58de606f927ef24f5ebe8a5952da56f6",
-  "notes": "6.4.2 Advanced PRUEBA: explorador de solo lectura, gráficas 5/20/60 min, historial y balance energético; conserva base 6.4. No incluye todas las mejoras de multimedia, conectividad y climatología. Instalación física pendiente. Actualizar con el vehículo estacionado."
+  "notes": "6.4.3 PRUEBA: mismas funciones que 6.4.2, firma APK v2 como 6.4 original y nombre de versión coincidente. Instalación física pendiente. Actualizar estacionado."
 }
