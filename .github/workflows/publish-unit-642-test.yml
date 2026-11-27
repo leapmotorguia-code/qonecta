@@ -1,0 +1,58 @@
+name: Publish UNIT 6.4.2 test
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-unit-642-test.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Reconstruct and verify exact signed APK
+        run: |
+          set -euo pipefail
+          curl -fL --retry 2 'https://github.com/leapmotorguia-code/qonecta/releases/download/unit-c10-plus-4.8-multimedia/UNIT-C10-Plus-4.8-MULTIMEDIA.apk' -o base.apk
+          curl -fL --retry 2 'https://leapmotor-companion.floot.app/_cdn/static/c3b4da8f-8f45-4e1e-87ad-25ef61cdabb6-UNIT-642-download-delta.bin' -o delta.bin
+          python3 - <<'PY'
+          import hashlib,struct,zlib,pathlib
+          H=lambda b:hashlib.sha256(b).hexdigest()
+          a=pathlib.Path('base.apk').read_bytes()
+          p=pathlib.Path('delta.bin').read_bytes()
+          assert H(a)=='0da5c8b6b9600a4933e6921ca72acacbe4c429aaaa4d520af29a62de030c30b7'
+          assert H(p)=='1f7fceda28d128d3e0bb3c6f56315830d3413fc71c6c755317a7d26a7e66c0d1'
+          d=zlib.decompress(p)
+          assert d[:9]==b'UNITDIFF1'
+          assert d[9:41]==hashlib.sha256(a).digest()
+          size,n=struct.unpack_from('<II',d,73)
+          i=81; out=bytearray()
+          for _ in range(n):
+              typ=d[i]; i+=1
+              if typ==0:
+                  k,=struct.unpack_from('<I',d,i); i+=4
+                  out+=d[i:i+k]; i+=k
+              elif typ==1:
+                  s,k=struct.unpack_from('<II',d,i); i+=8
+                  assert s+k<=len(a)
+                  out+=a[s:s+k]
+              else: raise ValueError('invalid command')
+          assert i==len(d) and len(out)==size==44392895
+          assert H(out)=='516c1aa39f5c21a44668580bb35a01776393b6b26cfb8136f0d6a75308d8008d'
+          pathlib.Path('UNIT-C10-Plus-6.4.2-ADVANCED-PRUEBA.apk').write_bytes(out)
+          PY
+      - name: Publish test asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          tag=unit-c10-plus-6.4.2-advanced-test
+          file=UNIT-C10-Plus-6.4.2-ADVANCED-PRUEBA.apk
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release download "$tag" --pattern "$file" --dir existing
+            echo '516c1aa39f5c21a44668580bb35a01776393b6b26cfb8136f0d6a75308d8008d  existing/UNIT-C10-Plus-6.4.2-ADVANCED-PRUEBA.apk' | sha256sum -c -
+          else
+            gh release create "$tag" "$file" --target "$GITHUB_SHA" --prerelease --title "UNIT C10 Plus 6.4.2 Advanced (prueba)" --notes "Versión de prueba, firma original; explorador e historial. No es la versión completa. Instalar con el vehículo estacionado."
+          fi
