@@ -1,7 +1,7 @@
-name: Build DriveCore Connect 0.1
+name: Build DriveCore Connect 0.2
 on:
   push:
-    branches: ['feat/drivecore-connect-v01']
+    branches: ['feat/drivecore-connect-v02']
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,6 +32,6 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose app/build/outputs/apk/debug/app-debug.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: drivecore-connect-receiver-apk
+          name: drivecore-connect-v02-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
